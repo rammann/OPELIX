@@ -29,13 +29,10 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    OpalDrift();
+    /// Create the element called name.
+    explicit OpalDrift(const std::string& name);
 
     virtual ~OpalDrift();
-
-    /// Make clone.
-    virtual OpalDrift* clone(const std::string& name);
 
     /// Test for drift.
     //  Return true.
@@ -48,9 +45,6 @@ private:
     // Not implemented.
     OpalDrift(const OpalDrift&);
     void operator=(const OpalDrift&);
-
-    // Clone constructor.
-    OpalDrift(const std::string& name, OpalDrift* parent);
 };
 
 #endif  // OPAL_OpalDrift_HH

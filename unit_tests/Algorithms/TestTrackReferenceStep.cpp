@@ -113,7 +113,7 @@ TEST_F(TrackReferenceStepTest, MagneticBorisAngleAndEnergyForBothCharges) {
 }
 
 TEST_F(TrackReferenceStepTest, BeamlineTrialsDoNotWriteMonitors) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -141,7 +141,7 @@ TEST_F(TrackReferenceStepTest, BeamlineTrialsDoNotWriteMonitors) {
 }
 
 TEST_F(TrackReferenceStepTest, ResolvedTransportFindsThinSpatialSupportAndConservesEnergy) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -180,7 +180,7 @@ TEST_F(TrackReferenceStepTest, ResolvedTransportFindsThinSpatialSupportAndConser
 }
 
 TEST_F(TrackReferenceStepTest, ResolvedTrialsDoNotRecordMonitors) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;

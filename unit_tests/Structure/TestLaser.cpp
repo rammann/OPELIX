@@ -17,6 +17,8 @@
 
 namespace {
     void setValidLaserAttributes(OpalLaser& laser) {
+        // An element must be placed, otherwise update() rejects it.
+        Attributes::setReal(laser.itsAttr[OpalElement::ELEMEDGE], 0.0);
         Attributes::setReal(laser.itsAttr[OpalLaser::WAVELENGTH], 1.03e-6);
         Attributes::setReal(laser.itsAttr[OpalLaser::PULSEENERGY], 1.0);
         Attributes::setReal(laser.itsAttr[OpalLaser::PULSELENGTH], 2.0e-12);
@@ -42,7 +44,7 @@ namespace {
 }  // namespace
 
 TEST(TestLaser, UpdateStoresValidatedParameters) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setReal(laser.itsAttr[OpalElement::LENGTH], 0.01);
     Attributes::setRealArray(laser.itsAttr[OpalLaser::STOKES], {0.0, 0.0, 1.0});
@@ -64,7 +66,7 @@ TEST(TestLaser, UpdateStoresValidatedParameters) {
 }
 
 TEST(TestLaser, UpdateDefaultsStokesToZero) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
 
     EXPECT_NO_THROW(laser.update());
@@ -77,7 +79,8 @@ TEST(TestLaser, UpdateDefaultsStokesToZero) {
 }
 
 TEST(TestLaser, UpdateRequiresWavelength) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
+    Attributes::setReal(laser.itsAttr[OpalElement::ELEMEDGE], 0.0);
     Attributes::setReal(laser.itsAttr[OpalLaser::PULSEENERGY], 1.0);
     Attributes::setReal(laser.itsAttr[OpalLaser::PULSELENGTH], 2.0e-12);
     Attributes::setReal(laser.itsAttr[OpalLaser::WAISTX], 5.0e-6);
@@ -88,7 +91,7 @@ TEST(TestLaser, UpdateRequiresWavelength) {
 }
 
 TEST(TestLaser, UpdateRejectsNonPositivePulseEnergy) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setReal(laser.itsAttr[OpalLaser::PULSEENERGY], 0.0);
 
@@ -96,7 +99,7 @@ TEST(TestLaser, UpdateRejectsNonPositivePulseEnergy) {
 }
 
 TEST(TestLaser, UpdateRejectsBadDirectionSize) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setRealArray(laser.itsAttr[OpalLaser::DIR], {0.0, 1.0});
 
@@ -104,7 +107,7 @@ TEST(TestLaser, UpdateRejectsBadDirectionSize) {
 }
 
 TEST(TestLaser, UpdateRejectsZeroDirection) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setRealArray(laser.itsAttr[OpalLaser::DIR], {0.0, 0.0, 0.0});
 
@@ -112,7 +115,7 @@ TEST(TestLaser, UpdateRejectsZeroDirection) {
 }
 
 TEST(TestLaser, UpdateRejectsBadStokesSize) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setRealArray(laser.itsAttr[OpalLaser::STOKES], {0.0, 1.0});
 
@@ -120,7 +123,7 @@ TEST(TestLaser, UpdateRejectsBadStokesSize) {
 }
 
 TEST(TestLaser, UpdateRejectsStokesNormAboveOne) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setRealArray(laser.itsAttr[OpalLaser::STOKES], {1.0, 1.0, 0.0});
 
@@ -128,7 +131,7 @@ TEST(TestLaser, UpdateRejectsStokesNormAboveOne) {
 }
 
 TEST(TestLaser, UpdateRejectsNegativeLength) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setReal(laser.itsAttr[OpalElement::LENGTH], -1.0);
 
@@ -164,7 +167,7 @@ TEST(TestLaser, UpdateRejectsNegativeLength) {
  * \f$E_e - p_e + \omega_L\f$ for relativistic electrons.
  */
 TEST(TestLaser, LinearComptonForwardPhotonEnergyMatchesExactNinetyDegreeKinematics) {
-    OpalLaser laser;
+    OpalLaser laser("LASER");
     setValidLaserAttributes(laser);
     Attributes::setRealArray(laser.itsAttr[OpalLaser::DIR], {1.0, 0.0, 0.0});
 

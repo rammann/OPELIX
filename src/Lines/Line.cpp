@@ -34,7 +34,6 @@
 #include "Expressions/SRefExpr.h"
 #include "Expressions/TFunction2.h"
 #include "Lines/LineTemplate.h"
-#include "Lines/Replacer.h"
 #include "Lines/Ring.h"
 #include "OpalParser/Statement.h"
 #include "Utilities/Options.h"
@@ -62,12 +61,13 @@ namespace {
     double AttAdd(double a, double b) { return a + b; }
 }  // namespace
 
-Line::Line()
-    : Line("LINE",
+Line::Line(const std::string& name)
+    : Line(name, "LINE",
            "The \"LINE\" statement defines a beamline list.\n"
            "\t<name> : line = (<list>)") {}
 
-Line::Line(const char* keyword, const char* help) : BeamSequence(SIZE, keyword, help) {
+Line::Line(const std::string& name, const char* keyword, const char* help)
+    : BeamSequence(name, SIZE, keyword, help) {
     itsAttr[TYPE] = Attributes::makeString("TYPE", "Design type");
 
     itsAttr[LENGTH] = Attributes::makeReal("L", "Total length of line in m");
@@ -96,25 +96,17 @@ Line::Line(const char* keyword, const char* help) : BeamSequence(SIZE, keyword, 
     itsAttr[PSI] =
             Attributes::makeReal("PSI", "The rotation about the z-axis of the particle source", 0);
 
-    setElement(new Beamline(keyword));
+    setElement(new Beamline(name));
 
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-Line::Line(const std::string& name, Line* parent)
-    :  // Do not copy list members; they will be filled at parse time.
-      BeamSequence(name, parent) {
-    setElement(new Beamline(name));
-}
-
 Line::~Line() {}
-
-Line* Line::clone(const std::string& name) { return new Line(name, this); }
 
 double Line::getLength() const { return Attributes::getReal(itsAttr[LENGTH]); }
 
 Object* Line::makeTemplate(const std::string& name, TokenStream& is, Statement& statement) {
-    LineTemplate* macro = new LineTemplate(name, this);
+    LineTemplate* macro = new LineTemplate(name);
 
     try {
         macro->parseTemplate(is, statement);
@@ -135,12 +127,6 @@ void Line::parseDefinition(Statement& stat, bool allowModifiers) {
     parseDelimiter(stat, '=');
     parseDelimiter(stat, '(');
 
-    // Clear all reference counts.
-    // Reset the occurrence counters of all objects.
-    OpalData::getInstance()->apply([](Object* object) {
-        object->clear();
-    });
-
     // Parse the line list.
     parseList(stat, allowModifiers);
 
@@ -154,7 +140,7 @@ void Line::parseDefinition(Statement& stat, bool allowModifiers) {
     FlaggedElmPtr last(markE, false);
     line->push_back(last);
 
-    // Construct expression for length, and fill in occurrence counters.
+    // Construct expression for length.
     PtrToScalar<double> expr;
     for (Beamline::iterator i = line->begin(); i != line->end(); ++i) {
         auto actname = i->getElement()->getName();
@@ -169,8 +155,6 @@ void Line::parseDefinition(Statement& stat, bool allowModifiers) {
         // Do the required instantiations.
         ElementBase* base = i->getElement();
         i->setElement(base->copyStructure());
-        Element* elem = Element::find(actname);
-        i->setCounter(elem->increment());
     }
     if (expr.isValid()) itsAttr[LENGTH].set(new SAutomatic<double>(expr));
 
@@ -284,7 +268,7 @@ void Line::parseList(Statement& stat, bool allowModifiers) {
         // List member.
         if (stat.delimiter('(')) {
             // Anonymous sub-line is expanded immediately.
-            Line nestedLine;
+            Line nestedLine("");
             nestedLine.parseList(stat, allowModifiers);
             Beamline* subLine = nestedLine.fetchLine();
 
@@ -338,14 +322,4 @@ void Line::parseList(Statement& stat, bool allowModifiers) {
     } while (stat.delimiter(','));
 
     parseDelimiter(stat, ')');
-}
-
-void Line::replace(Object* oldObject, Object* newObject) {
-    Element* oldElement = dynamic_cast<Element*>(oldObject);
-    Element* newElement = dynamic_cast<Element*>(newObject);
-
-    if (oldElement != 0 && newElement != 0) {
-        Replacer rep(*fetchLine(), oldElement->getOpalName(), newElement->getElement());
-        rep.execute();
-    }
 }

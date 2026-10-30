@@ -869,8 +869,10 @@ static inline double computeArea(
                                           |___/
 */
 
-BoundaryGeometry::BoundaryGeometry()
-    : Definition(SIZE, "GEOMETRY", "The \"GEOMETRY\" statement defines the beam pipe geometry.") {
+BoundaryGeometry::BoundaryGeometry(const std::string& name)
+    : Definition(
+              name, SIZE, "GEOMETRY",
+              "The \"GEOMETRY\" statement defines the beam pipe geometry.") {
     itsAttr[FGEOM] = Attributes::makeString("FGEOM", "Specifies the geometry file [H5hut]", "");
 
     itsAttr[TOPO] = Attributes::makePredefinedString(
@@ -916,54 +918,17 @@ BoundaryGeometry::BoundaryGeometry()
 
     registerOwnership(AttributeHandler::STATEMENT);
 
-    BoundaryGeometry* defGeometry = clone("UNNAMED_GEOMETRY");
-    defGeometry->builtin          = true;
-
     Tinitialize_m   = IpplTimings::getTimer("Initialize geometry");
     TisInside_m     = IpplTimings::getTimer("Inside test");
     TfastIsInside_m = IpplTimings::getTimer("Fast inside test");
     TRayTrace_m     = IpplTimings::getTimer("Ray tracing");
     TPartInside_m   = IpplTimings::getTimer("Particle Inside");
 
-    h5FileName_m = Attributes::getString(itsAttr[FGEOM]);
-
-    try {
-        defGeometry->update();
-        OpalData::getInstance()->define(defGeometry);
-    } catch (...) {
-        delete defGeometry;
-    }
     gsl_rng_env_setup();
     randGen_m = gsl_rng_alloc(gsl_rng_default);
-
-    if (!h5FileName_m.empty()) initialize();
-}
-
-BoundaryGeometry::BoundaryGeometry(const std::string& name, BoundaryGeometry* parent)
-    : Definition(name, parent) {
-    gsl_rng_env_setup();
-    randGen_m = gsl_rng_alloc(gsl_rng_default);
-
-    Tinitialize_m   = IpplTimings::getTimer("Initialize geometry");
-    TisInside_m     = IpplTimings::getTimer("Inside test");
-    TfastIsInside_m = IpplTimings::getTimer("Fast inside test");
-    TRayTrace_m     = IpplTimings::getTimer("Ray tracing");
-    TPartInside_m   = IpplTimings::getTimer("Particle Inside");
-
-    h5FileName_m = Attributes::getString(itsAttr[FGEOM]);
-    if (!h5FileName_m.empty()) initialize();
 }
 
 BoundaryGeometry::~BoundaryGeometry() { gsl_rng_free(randGen_m); }
-
-bool BoundaryGeometry::canReplaceBy(Object* object) {
-    // Can replace only by another GEOMETRY.
-    return dynamic_cast<Geometry*>(object) != 0;
-}
-
-BoundaryGeometry* BoundaryGeometry::clone(const std::string& name) {
-    return new BoundaryGeometry(name, this);
-}
 
 void BoundaryGeometry::update() {
     if (getOpalName().empty()) setOpalName("UNNAMED_GEOMETRY");
@@ -1462,6 +1427,8 @@ inline void BoundaryGeometry::computeMeshVoxelization(void) {
 }
 
 void BoundaryGeometry::initialize() {
+    h5FileName_m = Attributes::getString(itsAttr[FGEOM]);
+
     class Local {
     public:
         static void computeGeometryInterval(BoundaryGeometry* bg) {

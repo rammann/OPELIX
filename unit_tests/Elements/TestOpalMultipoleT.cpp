@@ -39,7 +39,7 @@ public:
 // Does the user interface affect the correct magnet configuration
 TEST_F(TestOpalMultipoleT, UserInterface) {
     // Make the UI
-    OpalMultipoleT ui;
+    OpalMultipoleT ui("M1");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalMultipoleT::LENGTH], 4.1);
     Attributes::setRealArray(ui.itsAttr[OpalMultipoleT::TP], {0.2, 0.3});
@@ -55,6 +55,8 @@ TEST_F(TestOpalMultipoleT, UserInterface) {
     Attributes::setReal(ui.itsAttr[OpalMultipoleT::MAXXORDER], 7.0);
     Attributes::setBool(ui.itsAttr[OpalMultipoleT::VARRADIUS], false);
     Attributes::setReal(ui.itsAttr[OpalMultipoleT::ENTRYOFFSET], 0.0);
+    // A new element must be placed, otherwise update() rejects it.
+    Attributes::setReal(*ui.findAttribute("ELEMEDGE"), 0.0);
     // Update the magnet
     EXPECT_NO_THROW(ui.update());
     // Check the values
@@ -99,66 +101,10 @@ TEST_F(TestOpalMultipoleT, UserInterface) {
     EXPECT_EQ(myMagnet->getScalingName(), "SCALING");
 }
 
-// Does the user interface clone have the correct magnet configuration
-TEST_F(TestOpalMultipoleT, UserInterfaceClone) {
-    // Make the UI
-    OpalMultipoleT ui;
-    // Set the attributes
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::LENGTH], 4.1);
-    Attributes::setRealArray(ui.itsAttr[OpalMultipoleT::TP], {0.2, 0.3});
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::LFRINGE], 0.5);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::RFRINGE], 0.6);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::HAPERT], 1.0);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::VAPERT], 1.1);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::MAXFORDER], 4.0);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::ROTATION], 0.0);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::EANGLE], 0.01);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::BBLENGTH], 6.0);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::ANGLE], 0.628);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::MAXXORDER], 7.0);
-    Attributes::setBool(ui.itsAttr[OpalMultipoleT::VARRADIUS], false);
-    Attributes::setReal(ui.itsAttr[OpalMultipoleT::ENTRYOFFSET], 0.0);
-    Attributes::setUpperCaseString(ui.itsAttr[OpalMultipoleT::SCALING_MODEL], "Scaling");
-    // A non-builtin (cloned) element must be placed, otherwise update() rejects it.
-    Attributes::setReal(*ui.findAttribute("ELEMEDGE"), 0.0);
-    // Make the clone
-    std::unique_ptr<OpalMultipoleT> uiClone{ui.clone("Clone")};
-    // Update the magnet
-    EXPECT_NO_THROW(uiClone->update());
-    // Check the values
-    auto* myMagnet = dynamic_cast<MultipoleT*>(uiClone->getElement());
-    EXPECT_TRUE(myMagnet);
-    EXPECT_NEAR(myMagnet->getGeometry().getElementLength(), 4.1, 1e-6);
-    auto tp = myMagnet->getTransProfile();
-    EXPECT_EQ(tp.size(), 6);
-    EXPECT_NEAR(tp[0], 0.2, 1e-6);
-    EXPECT_NEAR(tp[1], 0.3, 1e-6);
-    EXPECT_NEAR(tp[2], 0.0, 1e-6);
-    EXPECT_NEAR(tp[3], 0.0, 1e-6);
-    EXPECT_NEAR(tp[4], 0.0, 1e-6);
-    EXPECT_NEAR(tp[5], 0.0, 1e-6);
-    auto [s0, left, right] = myMagnet->getFringeField();
-    EXPECT_NEAR(s0, 4.1 / 2.0, 1e-6);
-    EXPECT_NEAR(left, 0.5, 1e-6);
-    EXPECT_NEAR(right, 0.6, 1e-6);
-    auto [vertical, horizontal] = myMagnet->getAperture();
-    EXPECT_NEAR(vertical, 1.1, 1e-6);
-    EXPECT_NEAR(horizontal, 1.0, 1e-6);
-    EXPECT_NEAR(myMagnet->getMaxFOrder(), 4.0, 1e-6);
-    EXPECT_NEAR(myMagnet->getRotation(), 0.0, 1e-6);
-    EXPECT_NEAR(myMagnet->getEntranceAngle(), 0.01, 1e-6);
-    EXPECT_NEAR(myMagnet->getBoundingBoxLength(), 6.0, 1e-6);
-    EXPECT_NEAR(myMagnet->getBendAngle(), 0.628, 1e-6);
-    EXPECT_NEAR(myMagnet->getMaxXOrder(), 7.0, 1e-6);
-    EXPECT_FALSE(myMagnet->getVariableRadius());
-    EXPECT_NEAR(myMagnet->getEntryOffset(), 0.0, 1e-6);
-    EXPECT_EQ(myMagnet->getScalingName(), "SCALING");
-}
-
 // Check the various configuration validation tests
 TEST_F(TestOpalMultipoleT, UserInterfaceSanityCheck) {
     // Make the UI
-    OpalMultipoleT ui;
+    OpalMultipoleT ui("M1");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalMultipoleT::LENGTH], 4.1);
     Attributes::setRealArray(ui.itsAttr[OpalMultipoleT::TP], {0.2, 0.3});
@@ -173,6 +119,8 @@ TEST_F(TestOpalMultipoleT, UserInterfaceSanityCheck) {
     Attributes::setReal(ui.itsAttr[OpalMultipoleT::MAXXORDER], 7.0);
     Attributes::setBool(ui.itsAttr[OpalMultipoleT::VARRADIUS], false);
     Attributes::setReal(ui.itsAttr[OpalMultipoleT::ENTRYOFFSET], 0.0);
+    // A new element must be placed, otherwise update() rejects it.
+    Attributes::setReal(*ui.findAttribute("ELEMEDGE"), 0.0);
     // Try F order of zero
     Attributes::setReal(ui.itsAttr[OpalMultipoleT::MAXFORDER], 0.0);
     EXPECT_ANY_THROW(ui.update());
@@ -213,9 +161,9 @@ TEST_F(TestOpalMultipoleT, UserInterfaceSanityCheck) {
 // Does the print API work
 TEST_F(TestOpalMultipoleT, Print) {
     // Make the UI
-    const OpalMultipoleT ui;
+    const OpalMultipoleT ui("M1");
     // And print it
     std::stringstream ss;
     ui.print(ss);
-    EXPECT_EQ(ss.str(), "MULTIPOLET;\n");
+    EXPECT_EQ(ss.str(), "M1:MULTIPOLET;\n");
 }

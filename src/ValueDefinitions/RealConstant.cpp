@@ -28,60 +28,51 @@
 #include <cmath>
 #include <iostream>
 
-RealConstant::RealConstant()
+RealConstant::RealConstant(const std::string& name)
     : ValueDefinition(
-              1, "REAL_CONSTANT",
+              name, 1, "REAL_CONSTANT",
               "The \"REAL CONSTANT\" statement defines a global "
               "real constant:\n"
               "\tREAL CONSTANT <name> = <real-expression>;\n") {
     itsAttr[0] = Attributes::makeReal("VALUE", "The constant value", 0.0);
 
     registerOwnership(AttributeHandler::STATEMENT);
-
-    // Define the standard constants.
-    OpalData* opal = OpalData::getInstance();
-    opal->create(new RealConstant("PI", this, Physics::pi));
-    opal->create(new RealConstant("TWOPI", this, Physics::two_pi));
-    opal->create(new RealConstant("RADDEG", this, Units::rad2deg));
-    opal->create(new RealConstant("DEGRAD", this, Units::deg2rad));
-    opal->create(new RealConstant("E", this, Physics::e));
-
-    opal->create(new RealConstant("MUMASS", this, Physics::m_mu));
-    opal->create(new RealConstant("EMASS", this, Physics::m_e));
-    opal->create(new RealConstant("PMASS", this, Physics::m_p));
-    opal->create(new RealConstant("HMMASS", this, Physics::m_hm));
-    opal->create(new RealConstant("H2PMASS", this, Physics::m_h2p));
-    opal->create(new RealConstant("DMASS", this, Physics::m_d));
-    opal->create(new RealConstant("ALPHAMASS", this, Physics::m_alpha));
-    opal->create(new RealConstant("CMASS", this, Physics::m_c));
-    opal->create(new RealConstant("XEMASS", this, Physics::m_xe));
-    opal->create(new RealConstant("UMASS", this, Physics::m_u));
-
-    opal->create(new RealConstant("CLIGHT", this, Physics::c));
-    opal->create(new RealConstant("AMU", this, Physics::amu));
-
-    opal->create(new RealConstant(
-            "OPALVERSION", this,
-            buildinfo::version_major * 10000 + buildinfo::version_minor * 100
-                    + buildinfo::version_patch));
-    opal->create(new RealConstant("RANK", this, ippl::Comm->rank()));
 }
 
-RealConstant::RealConstant(const std::string& name, RealConstant* parent)
-    : ValueDefinition(name, parent) {}
-
-RealConstant::RealConstant(const std::string& name, RealConstant* parent, double value)
-    : ValueDefinition(name, parent) {
+RealConstant::RealConstant(const std::string& name, double value) : RealConstant(name) {
     Attributes::setReal(itsAttr[0], value);
     itsAttr[0].setReadOnly(true);
-    builtin = true;
+}
+
+void RealConstant::defineBuiltins() {
+    OpalData* opal = OpalData::getInstance();
+    opal->define(new RealConstant("PI", Physics::pi));
+    opal->define(new RealConstant("TWOPI", Physics::two_pi));
+    opal->define(new RealConstant("RADDEG", Units::rad2deg));
+    opal->define(new RealConstant("DEGRAD", Units::deg2rad));
+    opal->define(new RealConstant("E", Physics::e));
+
+    opal->define(new RealConstant("MUMASS", Physics::m_mu));
+    opal->define(new RealConstant("EMASS", Physics::m_e));
+    opal->define(new RealConstant("PMASS", Physics::m_p));
+    opal->define(new RealConstant("HMMASS", Physics::m_hm));
+    opal->define(new RealConstant("H2PMASS", Physics::m_h2p));
+    opal->define(new RealConstant("DMASS", Physics::m_d));
+    opal->define(new RealConstant("ALPHAMASS", Physics::m_alpha));
+    opal->define(new RealConstant("CMASS", Physics::m_c));
+    opal->define(new RealConstant("XEMASS", Physics::m_xe));
+    opal->define(new RealConstant("UMASS", Physics::m_u));
+
+    opal->define(new RealConstant("CLIGHT", Physics::c));
+    opal->define(new RealConstant("AMU", Physics::amu));
+
+    opal->define(new RealConstant(
+            "OPALVERSION", buildinfo::version_major * 10000 + buildinfo::version_minor * 100
+                                   + buildinfo::version_patch));
+    opal->define(new RealConstant("RANK", ippl::Comm->rank()));
 }
 
 RealConstant::~RealConstant() {}
-
-bool RealConstant::canReplaceBy(Object*) { return false; }
-
-RealConstant* RealConstant::clone(const std::string& name) { return new RealConstant(name, this); }
 
 double RealConstant::getReal() const { return Attributes::getReal(itsAttr[0]); }
 

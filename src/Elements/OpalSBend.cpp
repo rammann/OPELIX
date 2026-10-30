@@ -25,20 +25,14 @@
 #include "Physics/Units.h"
 #include "Utilities/OpalException.h"
 
-OpalSBend::OpalSBend()
-    : OpalBend("SBEND", "The \"SBEND\" element defines a sector bending magnet.") {
+OpalSBend::OpalSBend(const std::string& name)
+    : OpalBend(name, "SBEND", "The \"SBEND\" element defines a sector bending magnet.") {
     registerOwnership();
 
-    setElement((new SBend("SBEND")));
-}
-
-OpalSBend::OpalSBend(const std::string& name, OpalSBend* parent) : OpalBend(name, parent) {
     setElement((new SBend(name)));
 }
 
 OpalSBend::~OpalSBend() {}
-
-OpalSBend* OpalSBend::clone(const std::string& name) { return new OpalSBend(name, this); }
 
 void OpalSBend::update() {
     OpalElement::update();

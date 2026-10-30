@@ -66,8 +66,8 @@ namespace {
 
     class CountingMacro : public MacroCmd {
     public:
-        CountingMacro(const std::string& name, MacroCmd* parent, int& destroyed, bool fail)
-            : MacroCmd(name, parent), destroyed_m(destroyed), fail_m(fail) {}
+        CountingMacro(const std::string& name, int& destroyed, bool fail)
+            : MacroCmd(name), destroyed_m(destroyed), fail_m(fail) {}
         ~CountingMacro() override { ++destroyed_m; }
         void execute() override {
             if (fail_m) throw std::runtime_error("test execution failure");
@@ -80,10 +80,12 @@ namespace {
 
     class CountingModel : public MacroCmd {
     public:
+        using MacroCmd::MacroCmd;
+
         int destroyed{0};
         bool fail{false};
         Object* makeInstance(const std::string& name, Statement&, const Parser*) override {
-            return new CountingMacro(name, this, destroyed, fail);
+            return new CountingMacro(name, destroyed, fail);
         }
     };
 
@@ -107,13 +109,17 @@ namespace {
         void SetUp() override {
             gmsg = new Inform("", output_m, INFORM_ALL_NODES);
             gmsg->setOutputLevel(5);
+            // TearDown deletes OpalData, so every test starts from an empty directory.
             auto* data = OpalData::getInstance();
-            data->create(new RealConstant());
-            data->create(new RealVariable());
-            data->create(new RealVector());
-            data->create(new StringConstant());
-            data->create(new MacroCmd());
-            data->create(new Value());
+            data->addKeyword("MACRO", [](const std::string& name) {
+                return std::make_unique<MacroCmd>(name);
+            });
+            data->addKeyword("VALUE", [](const std::string& name) {
+                return std::make_unique<Value>(name);
+            });
+            RealConstant::defineBuiltins();
+            RealVariable::defineBuiltins();
+            StringConstant::defineBuiltins();
         }
 
         void TearDown() override {
@@ -213,9 +219,8 @@ TEST_F(MacroTest, SubstitutionPreservesExpressionPrecedence) {
 }
 
 TEST_F(MacroTest, SuccessfulAndThrowingInstancesAreDestroyed) {
-    auto* model = new CountingModel();
-    model->setOpalName("COUNTED");
-    OpalData::getInstance()->create(model);
+    auto* model = new CountingModel("COUNTED");
+    OpalData::getInstance()->define(model);
     run("COUNTED(); COUNTED();");
     EXPECT_EQ(model->destroyed, 2);
     model->fail = true;
@@ -237,8 +242,21 @@ TEST_F(MacroTest, DirectCallsRejectUnknownMacrosAndUnclosedArgumentLists) {
     }
 }
 
+TEST_F(MacroTest, RejectsDerivedDefinitionsRedefinitionsAndSharedPrefix) {
+    run("REAL A = 1;");
+    // A definition cannot be derived from a defined object.
+    EXPECT_THROW(parser_m.parse(*statement("B: A;")), ParseError);
+    // A name cannot be defined twice.
+    EXPECT_NO_THROW(parser_m.parse(*statement("N: VALUE, VALUE=1;")));
+    EXPECT_THROW(parser_m.parse(*statement("N: VALUE, VALUE=2;")), ParseError);
+    // The attributes of a defined object are not changed with "NAME, ATTR=...".
+    EXPECT_THROW(parser_m.parse(*statement("A, VALUE=2;")), ParseError);
+    // The SHARED prefix is gone.
+    EXPECT_THROW(parser_m.parse(*statement("SHARED M: VALUE, VALUE=1;")), ParseError);
+}
+
 TEST(MacroFactoryTest, ReplacesWholeWordsOnlyAndPreservesQuotedStrings) {
-    MacroCmd model;
+    MacroCmd model("MODEL");
     RecordingParser parser;
     auto macro    = makeTemplate(model, R"(X): MACRO { X XX "X" 'X'; })");
     auto instance = makeInstance(*macro, "42)", parser);
@@ -250,7 +268,7 @@ TEST(MacroFactoryTest, ReplacesWholeWordsOnlyAndPreservesQuotedStrings) {
 }
 
 TEST(MacroFactoryTest, DelimitersInsideBracesBracketsAndStringsStayWithinArguments) {
-    MacroCmd model;
+    MacroCmd model("MODEL");
     RecordingParser parser;
     auto macro    = makeTemplate(model, "X,Y): MACRO { X; Y; }");
     auto instance = makeInstance(*macro, R"(A[1,2], {"a,b", F(3,4)}))", parser);
@@ -263,7 +281,7 @@ TEST(MacroFactoryTest, DelimitersInsideBracesBracketsAndStringsStayWithinArgumen
 }
 
 TEST(MacroFactoryTest, RepeatedInstantiationsDoNotMutateTemplateOrResubstituteActuals) {
-    MacroCmd model;
+    MacroCmd model("MODEL");
     RecordingParser parser;
     auto macro  = makeTemplate(model, "X,Y): MACRO { X; Y; }");
     auto first  = makeInstance(*macro, "Y,X)", parser);
@@ -278,7 +296,7 @@ TEST(MacroFactoryTest, RepeatedInstantiationsDoNotMutateTemplateOrResubstituteAc
 }
 
 TEST(MacroFactoryTest, RejectsWrongArityEmptyArgumentsAndBadDelimiters) {
-    MacroCmd model;
+    MacroCmd model("MODEL");
     RecordingParser parser;
     auto macro = makeTemplate(model, "X,Y): MACRO { X; Y; }");
     for (const std::string text : {")", "1)", "1,2,3)", ",2)", "1,)", "1,,2)", "1,2", "{1,2],3)"}) {
@@ -290,14 +308,13 @@ TEST(MacroFactoryTest, RejectsWrongArityEmptyArgumentsAndBadDelimiters) {
 }
 
 TEST(MacroFactoryTest, RejectsDuplicateAndMalformedFormalsAndBodies) {
-    MacroCmd model;
+    MacroCmd model("MODEL");
     for (const std::string text :
          {"X,X): MACRO {}", "X,): MACRO {}", "X): MACRO", "X): MACRO { X;"}) {
         SCOPED_TRACE(text);
         EXPECT_THROW(makeTemplate(model, text), ParseError);
     }
     EXPECT_THROW(model.execute(), ParseError);
-    EXPECT_THROW(model.clone("INVALID"), ParseError);
     auto macro = makeTemplate(model, "): MACRO {}");
     EXPECT_THROW(macro->execute(), ParseError);
     EXPECT_EQ(macro->getCategory(), "MACRO");

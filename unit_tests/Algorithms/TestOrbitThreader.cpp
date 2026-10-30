@@ -269,6 +269,8 @@ protected:
 
     class TestableFieldSolverCmd : public FieldSolverCmd {
     public:
+        using FieldSolverCmd::FieldSolverCmd;
+
         void setType(const std::string& t) {
             Attributes::setPredefinedString(this->itsAttr[FIELDSOLVER::TYPE], t);
         }
@@ -294,7 +296,7 @@ protected:
 
     std::shared_ptr<PartBunch_t> makeBunch(const size_t numParticles) {
         dataSink_m       = std::make_shared<DataSink>();
-        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>();
+        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>("TEST_FIELDSOLVER");
         fsCmdBase_m      = fsCmd;
         fsCmd->setType("NONE");
         // Initialize the layout explicitly; the tests also run with two MPI ranks.
@@ -306,7 +308,12 @@ protected:
         fsCmd->setBCY("PERIODIC");
         fsCmd->setBCZ("PERIODIC");
 
-        auto beam    = std::make_shared<Beam>();
+        // A full run defines UNNAMED_BEAM; OpalData owns it, so it outlives the bunch.
+        if (OpalData::getInstance()->find("UNNAMED_BEAM") == nullptr) {
+            auto* defaultBeam = new Beam("UNNAMED_BEAM");
+            defaultBeam->update();
+            OpalData::getInstance()->define(defaultBeam);
+        }
         Beam* opBeam = Beam::find("UNNAMED_BEAM");
         EXPECT_NE(opBeam, nullptr);
 
@@ -697,8 +704,7 @@ TEST_F(OrbitThreaderTest, ValidatesMapSettingsAndIntegrationChoice) {
 }
 
 TEST_F(OrbitThreaderTest, MapOptionsPersistAcrossStatementsAndRejectInvalidInputs) {
-    Option exemplar;
-    std::unique_ptr<Option> command(exemplar.clone("MAP_OPTIONS"));
+    auto command = std::make_unique<Option>("MAP_OPTIONS");
     Attributes::setReal(*command->findAttribute("LINEARTRANSFERMAPRICHARDSON"), 2.0);
     const std::vector<double> steps{1.e-3, 2.e-3, 3.e-3, 4.e-3, 5.e-3, 6.e-3};
     Attributes::setRealArray(*command->findAttribute("LINEARTRANSFERMAPSTEPS"), steps);
@@ -707,7 +713,7 @@ TEST_F(OrbitThreaderTest, MapOptionsPersistAcrossStatementsAndRejectInvalidInput
     EXPECT_EQ(Options::linearTransferMapRichardsonLevels, 2);
     EXPECT_EQ(Options::linearTransferMapSteps[5], 6.e-3);
     EXPECT_EQ(Options::linearTransferMapIntegrator, "BORIS");
-    std::unique_ptr<Option> next(exemplar.clone("NEXT_MAP_OPTIONS"));
+    auto next = std::make_unique<Option>("NEXT_MAP_OPTIONS");
     next->execute();  // An unrelated later OPTION must not reset these values.
     EXPECT_EQ(Options::linearTransferMapRichardsonLevels, 2);
     EXPECT_EQ(Attributes::getRealArray(*next->findAttribute("LINEARTRANSFERMAPSTEPS")), steps);
@@ -1212,8 +1218,7 @@ TEST_F(OrbitThreaderTest, RungeKuttaZeroStepsMaterialHitsAndFieldInitialization)
 TEST_F(OrbitThreaderTest, RungeKuttaMapsPreserveDriftAndCompensatedClock) {
     for (const std::string method : {"RK4", "DOP853"}) {
         SCOPED_TRACE(method);
-        Option exemplar;
-        std::unique_ptr<Option> option(exemplar.clone("RK_MAP_OPTION"));
+        auto option = std::make_unique<Option>("RK_MAP_OPTION");
         Attributes::setPredefinedString(
                 *option->findAttribute("LINEARTRANSFERMAPINTEGRATOR"), method);
         option->execute();

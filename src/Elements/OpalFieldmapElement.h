@@ -40,13 +40,10 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    OpalFieldmapElement();
+    /// Create the element called name.
+    explicit OpalFieldmapElement(const std::string& name);
 
     virtual ~OpalFieldmapElement();
-
-    /// Make clone.
-    virtual OpalFieldmapElement* clone(const std::string& name) override;
 
     /// Update the embedded OPALX element.
     virtual void update() override;
@@ -55,9 +52,6 @@ private:
     // Not implemented.
     OpalFieldmapElement(const OpalFieldmapElement&);
     void operator=(const OpalFieldmapElement&);
-
-    // Clone constructor.
-    OpalFieldmapElement(const std::string& name, OpalFieldmapElement* parent);
 };
 
 #endif  // OPALX_OpalFieldmapElement_HH

@@ -24,9 +24,9 @@
 #include "Physics/Units.h"
 #include "Utilities/OpalException.h"
 
-OpalScalingFFAMagnet::OpalScalingFFAMagnet()
+OpalScalingFFAMagnet::OpalScalingFFAMagnet(const std::string& name)
     : OpalElement(
-              SIZE, "SCALINGFFAMAGNET",
+              name, SIZE, "SCALINGFFAMAGNET",
               "The \"ScalingFFAMagnet\" element defines a FFA scaling magnet. Placement note: "
               "Because FFAs are normally circular, ScalingFFAMagnet elements that are placed "
               "using ELEMEDGE will be placed on a circle of radius R0 with ELEMEDGE = 0.0 "
@@ -98,18 +98,7 @@ OpalScalingFFAMagnet::OpalScalingFFAMagnet()
     magnet->setEndField(std::make_shared<endfieldmodel::Tanh>(1., 1., 1));
 }
 
-OpalScalingFFAMagnet::OpalScalingFFAMagnet(const std::string& name, OpalScalingFFAMagnet* parent)
-    : OpalElement(name, parent) {
-    auto magnet = std::make_shared<ScalingFFAMagnet>("SCALINGFFAMAGNET");
-    magnet->setEndField(std::make_shared<endfieldmodel::Tanh>(1., 1., 1));
-    setElement(magnet);
-}
-
 OpalScalingFFAMagnet::~OpalScalingFFAMagnet() {}
-
-OpalScalingFFAMagnet* OpalScalingFFAMagnet::clone(const std::string& name) {
-    return new OpalScalingFFAMagnet(name, this);
-}
 
 void OpalScalingFFAMagnet::setupDefaultEndField() {
     auto element = getElementPtr();

@@ -33,8 +33,7 @@
 
 class MacroCmd : public Macro {
 public:
-    MacroCmd();
-    MacroCmd(const std::string& name, MacroCmd* parent);
+    explicit MacroCmd(const std::string& name);
     virtual ~MacroCmd();
 
     /// Execute the macro command.

@@ -31,8 +31,8 @@
 #include <sstream>
 #include <vector>
 
-OpalElement::OpalElement(int size, const char* name, const char* help)
-    : Element(size, name, help), itsSize(size) {
+OpalElement::OpalElement(const std::string& name, int size, const char* keyword, const char* help)
+    : Element(name, size, keyword, help), itsSize(size) {
     itsAttr[TYPE] = Attributes::makePredefinedString(
             "TYPE", "The element design type.",
             {"RING", "CARBONCYCL", "CYCIAE", "AVFEQ", "FFA", "BANDRF", "SYNCHROCYCLOTRON",
@@ -89,9 +89,6 @@ OpalElement::OpalElement(int size, const char* name, const char* help)
         AttributeHandler::addAttributeOwner("Any", AttributeHandler::ELEMENT, itsAttr[i].getName());
     }
 }
-
-OpalElement::OpalElement(const std::string& name, OpalElement* parent)
-    : Element(name, parent), itsSize(parent->itsSize) {}
 
 OpalElement::~OpalElement() {}
 
@@ -245,12 +242,8 @@ void OpalElement::parse(Statement& stat) {
 
 void OpalElement::print(std::ostream& os) const {
     std::string head = getOpalName();
-
-    Object* parent = getParent();
-    if (parent != 0 && !parent->getOpalName().empty()) {
-        if (!getOpalName().empty()) head += ':';
-        head += parent->getOpalName();
-    }
+    if (!getOpalName().empty()) head += ':';
+    head += getKeyword();
 
     os << head;
     os << ';';
@@ -258,13 +251,6 @@ void OpalElement::print(std::ostream& os) const {
 }
 
 void OpalElement::validatePlacement(bool hasElemEdge, bool has6DPose) const {
-    // OpalData::update() calls update() on every object in the directory, including
-    // the unmodified builtin prototype whose attributes are all unset. Only validate
-    // real (cloned) element instances.
-    if (isBuiltin()) {
-        return;
-    }
-
     if (hasElemEdge && has6DPose) {
         throw OpalException(
                 "OpalElement::update",
@@ -352,11 +338,9 @@ void OpalElement::update() {
 }
 
 void OpalElement::registerOwnership() const {
-    if (getParent() != 0) return;
-
     const unsigned int end = itsSize;
-    const std::string name = getOpalName();
     for (unsigned int i = COMMON; i < end; ++i) {
-        AttributeHandler::addAttributeOwner(name, AttributeHandler::ELEMENT, itsAttr[i].getName());
+        AttributeHandler::addAttributeOwner(
+                getKeyword(), AttributeHandler::ELEMENT, itsAttr[i].getName());
     }
 }

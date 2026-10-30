@@ -36,9 +36,9 @@ using namespace Expressions;
 
 // TODO: o add a FIELD for DISCRETIZATION, MAXITERS, TOL...
 
-FieldSolverCmd::FieldSolverCmd()
+FieldSolverCmd::FieldSolverCmd(const std::string& name)
     : Definition(
-              FIELDSOLVER::SIZE, "FIELDSOLVER",
+              name, FIELDSOLVER::SIZE, "FIELDSOLVER",
               "The \"FIELDSOLVER\" statement defines data for a the field solver") {
     itsAttr[FIELDSOLVER::TYPE] = Attributes::makePredefinedString(
             "TYPE", "Name of the attached field solver.",
@@ -112,14 +112,7 @@ FieldSolverCmd::FieldSolverCmd()
     // \todo does not work   registerOwnership(AttributeHandler::STATEMENT);
 }
 
-FieldSolverCmd::FieldSolverCmd(const std::string& name, FieldSolverCmd* parent)
-    : Definition(name, parent) {}
-
 FieldSolverCmd::~FieldSolverCmd() {}
-
-FieldSolverCmd* FieldSolverCmd::clone(const std::string& name) {
-    return new FieldSolverCmd(name, this);
-}
 
 void FieldSolverCmd::execute() { update(); }
 

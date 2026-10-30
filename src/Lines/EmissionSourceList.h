@@ -28,13 +28,10 @@ class Statement;
 
 class EmissionSourceList : public Definition {
 public:
-    /// Exemplar constructor.
-    EmissionSourceList();
+    explicit EmissionSourceList(const std::string& name);
 
     virtual ~EmissionSourceList();
 
-    virtual bool canReplaceBy(Object* object);
-    virtual EmissionSourceList* clone(const std::string& name);
     virtual void execute();
 
     virtual void parse(Statement& stat);
@@ -47,8 +44,6 @@ public:
 private:
     EmissionSourceList(const EmissionSourceList&);
     void operator=(const EmissionSourceList&);
-
-    EmissionSourceList(const std::string& name, EmissionSourceList* parent);
 
     void parseList(Statement& stat);
 

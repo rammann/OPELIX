@@ -29,8 +29,8 @@
 
 extern Inform* gmsg;
 
-Call::Call()
-    : Action(1, "CALL",
+Call::Call(const std::string& name)
+    : Action(name, 1, "CALL",
              "The \"CALL\" statement switches input temporarily to the "
              "named file.") {
     itsAttr[0] = Attributes::makeString("FILE", "Name of file to be read", "CALL");
@@ -38,11 +38,7 @@ Call::Call()
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-Call::Call(const std::string& name, Call* parent) : Action(name, parent) {}
-
 Call::~Call() {}
-
-Call* Call::clone(const std::string& name) { return new Call(name, this); }
 
 void Call::execute() {
     std::string file = Attributes::getString(itsAttr[0]);

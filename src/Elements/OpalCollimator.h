@@ -22,13 +22,10 @@
 
 class OpalCollimator : public OpalElement {
 public:
-    /// Exemplar constructor.
-    OpalCollimator();
+    /// Create the element called name.
+    explicit OpalCollimator(const std::string& name);
 
     virtual ~OpalCollimator();
-
-    /// Make clone.
-    virtual OpalCollimator* clone(const std::string& name);
 
     /**
      * @brief Update the embedded OPALX collimator.
@@ -43,9 +40,6 @@ private:
     // Not implemented.
     OpalCollimator(const OpalCollimator&);
     void operator=(const OpalCollimator&);
-
-    // Clone constructor.
-    OpalCollimator(const std::string& name, OpalCollimator* parent);
 };
 
 #endif  // OPAL_OpalCollimator_HH

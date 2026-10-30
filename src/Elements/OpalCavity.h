@@ -49,13 +49,10 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    OpalCavity();
+    /// Create the element called name.
+    explicit OpalCavity(const std::string& name);
 
     virtual ~OpalCavity();
-
-    /// Make clone.
-    virtual OpalCavity* clone(const std::string& name);
 
     /// Update the embedded OPALX cavity.
     virtual void update();
@@ -64,9 +61,6 @@ private:
     // Not implemented.
     OpalCavity(const OpalCavity&);
     void operator=(const OpalCavity&);
-
-    // Clone constructor.
-    OpalCavity(const std::string& name, OpalCavity* parent);
 
     BoundaryGeometry* obgeo_m;
 };

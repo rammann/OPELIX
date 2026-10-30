@@ -22,13 +22,10 @@
 
 class OpalRBend : public OpalBend {
 public:
-    /// Exemplar constructor.
-    OpalRBend();
+    /// Create the element called name.
+    explicit OpalRBend(const std::string& name);
 
     virtual ~OpalRBend();
-
-    /// Make clone.
-    virtual OpalRBend* clone(const std::string& name);
 
     /// Update the embedded CLASSIC bend.
     virtual void update();
@@ -37,9 +34,6 @@ private:
     // Not implemented.
     OpalRBend(const OpalRBend&);
     void operator=(const OpalRBend&);
-
-    // Clone constructor.
-    OpalRBend(const std::string& name, OpalRBend* parent);
 };
 
 #endif  // OPAL_OpalRBend_HH

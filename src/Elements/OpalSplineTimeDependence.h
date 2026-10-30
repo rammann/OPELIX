@@ -33,13 +33,10 @@ public:
     };
 
     /** Define mapping from enum variables to string UI parameter names */
-    OpalSplineTimeDependence();
+    explicit OpalSplineTimeDependence(const std::string& name);
 
     /** No memory allocated so does nothing */
     ~OpalSplineTimeDependence() override = default;
-
-    /** Inherited copy constructor */
-    OpalSplineTimeDependence* clone(const std::string& name) override;
 
     /** Receive parameters from the parser and hand them off to the
      *  SplineTimeDependence
@@ -54,9 +51,6 @@ public:
     void operator=(const OpalSplineTimeDependence&)           = delete;
 
 private:
-    // Clone constructor.
-    OpalSplineTimeDependence(const std::string& name, OpalSplineTimeDependence* parent);
-
     static const std::string doc_string;
 };
 

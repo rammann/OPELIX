@@ -406,8 +406,8 @@ namespace {
     }
 }  // namespace
 
-CofCmd::CofCmd()
-    : Action(SIZE, "COF", "Find a fixed-energy closed orbit of a static magnetic RING.") {
+CofCmd::CofCmd(const std::string& name)
+    : Action(name, SIZE, "COF", "Find a fixed-energy closed orbit of a static magnetic RING.") {
     itsAttr[LINE] = Attributes::makeString("LINE", "Required RING name.");
     itsAttr[BEAM] =
             Attributes::makeString("BEAM", "Required BEAM with explicit PC, ENERGY or GAMMA.");
@@ -444,8 +444,6 @@ CofCmd::CofCmd()
             "OUTPUT", "Optional exact JSON filename (existing files rejected).");
     registerOwnership(AttributeHandler::COMMAND);
 }
-CofCmd::CofCmd(const std::string& name, CofCmd* parent) : Action(name, parent) {}
-CofCmd* CofCmd::clone(const std::string& name) { return new CofCmd(name, this); }
 void CofCmd::execute() {
     result_m.reset();
     OpalData::getInstance()->hasCofRun = true;

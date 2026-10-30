@@ -6,6 +6,7 @@
 #include "AbsBeamline/RBend.h"
 #include "AbsBeamline/RBendProfile.h"
 #include "AbsBeamline/RFCavity.h"
+#include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
 #include "Elements/OpalRBend.h"
 #include "Elements/PlacementResolver.h"
@@ -37,8 +38,10 @@ namespace {
             int argc    = 0;
             char** argv = nullptr;
             ippl::initialize(argc, argv);
-            gmsg                             = new Inform(nullptr, -1);
-            [[maybe_unused]] static auto* p0 = new RealVariable();
+            gmsg = new Inform(nullptr, -1);
+            if (OpalData::getInstance()->find("P0") == nullptr) {
+                RealVariable::defineBuiltins();
+            }
         }
         static void TearDownTestSuite() {
             delete gmsg;
@@ -54,7 +57,7 @@ namespace {
         }
         void TearDown() override { std::filesystem::remove(filename); }
         std::unique_ptr<OpalRBend> element(double theta = angle, double e1 = 0.0) {
-            auto el = std::make_unique<OpalRBend>();
+            auto el = std::make_unique<OpalRBend>("B1");
             for (const auto& [name, value] : std::vector<std::pair<std::string, double>>{
                          {"L", 0.3},
                          {"ANGLE", theta},
@@ -172,7 +175,7 @@ TEST_F(RBendSettingsTest, NativePlacementLengthAndInvalidLegacyTimeStep) {
 }
 
 TEST_F(RBendSettingsTest, GapAliasKeepsNativeModelAndItsAperture) {
-    OpalRBend a, b;
+    OpalRBend a("A"), b("B");
     for (auto* p : {&a, &b}) {
         Attributes::setReal(*p->findAttribute("L"), .3);
         Attributes::setReal(*p->findAttribute("ELEMEDGE"), 0);
@@ -347,7 +350,7 @@ TEST_F(RBendSettingsTest, PlacementUsesE1AndPreservesDownstreamReferenceTangent)
 
 TEST_F(RBendSettingsTest, PoleFaceAnglesDoNotSelectAProfileOrRequireDesignEnergy) {
     for (bool useExit : {false, true}) {
-        OpalRBend el;
+        OpalRBend el("EL");
         Attributes::setReal(*el.findAttribute("L"), .3);
         Attributes::setReal(*el.findAttribute("ANGLE"), angle);
         Attributes::setReal(*el.findAttribute("ELEMEDGE"), 0.0);
@@ -367,7 +370,7 @@ TEST_F(RBendSettingsTest, PoleFaceAnglesDoNotSelectAProfileOrRequireDesignEnergy
 }
 
 TEST_F(RBendSettingsTest, ZeroFintKeepsMaxwellFocusingWithoutAdditionalEdgeField) {
-    OpalRBend el;
+    OpalRBend el("EL");
     Attributes::setReal(*el.findAttribute("L"), .3);
     Attributes::setReal(*el.findAttribute("ANGLE"), angle);
     Attributes::setReal(*el.findAttribute("E1"), 0.0);
@@ -385,7 +388,7 @@ TEST_F(RBendSettingsTest, ZeroFintKeepsMaxwellFocusingWithoutAdditionalEdgeField
 }
 
 TEST_F(RBendSettingsTest, DesignEnergyOnlyCalibratesTheStandardField) {
-    OpalRBend el;
+    OpalRBend el("EL");
     Attributes::setReal(*el.findAttribute("L"), .3);
     Attributes::setReal(*el.findAttribute("ANGLE"), angle);
     Attributes::setReal(*el.findAttribute("ELEMEDGE"), 0.0);
@@ -407,7 +410,7 @@ TEST_F(RBendSettingsTest, DesignEnergyOnlyCalibratesTheStandardField) {
 }
 
 TEST_F(RBendSettingsTest, ProfileWithoutDesignEnergyUsesReferenceMomentum) {
-    OpalRBend el;
+    OpalRBend el("EL");
     Attributes::setReal(*el.findAttribute("L"), .3);
     Attributes::setReal(*el.findAttribute("ANGLE"), angle);
     Attributes::setReal(*el.findAttribute("E1"), 0.0);
@@ -430,7 +433,7 @@ TEST_F(RBendSettingsTest, ProfileWithoutDesignEnergyUsesReferenceMomentum) {
 }
 
 TEST_F(RBendSettingsTest, ProfileDoesNotChangeDefaultPoleFaceGeometry) {
-    OpalRBend el;
+    OpalRBend el("EL");
     Attributes::setReal(*el.findAttribute("L"), .3);
     Attributes::setReal(*el.findAttribute("ANGLE"), angle);
     Attributes::setReal(*el.findAttribute("ELEMEDGE"), 0.0);
@@ -449,7 +452,7 @@ TEST_F(RBendSettingsTest, ProfileDoesNotChangeDefaultPoleFaceGeometry) {
 }
 
 TEST_F(RBendSettingsTest, ProfilePreservesPositionedNegativeBendConvention) {
-    OpalRBend standard, mapped;
+    OpalRBend standard("STANDARD"), mapped("MAPPED");
     for (auto* el : {&standard, &mapped}) {
         Attributes::setReal(*el->findAttribute("L"), .3);
         Attributes::setReal(*el->findAttribute("ANGLE"), -angle);

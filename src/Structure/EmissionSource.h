@@ -27,13 +27,11 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    EmissionSource();
+    /// Create the emission source called [b]name[/b].
+    explicit EmissionSource(const std::string& name);
 
     virtual ~EmissionSource();
 
-    virtual bool canReplaceBy(Object* object);
-    virtual EmissionSource* clone(const std::string& name);
     virtual void execute();
 
     static EmissionSource* find(const std::string& name);
@@ -52,8 +50,6 @@ public:
 private:
     EmissionSource(const EmissionSource&);
     void operator=(const EmissionSource&);
-
-    EmissionSource(const std::string& name, EmissionSource* parent);
 };
 
 #endif  // OPAL_EMISSIONSOURCE_HH

@@ -30,10 +30,6 @@ class Action : public Object {
 public:
     virtual ~Action();
 
-    /// Test if replacement is allowed.
-    //  Always return [b]true[/b].
-    virtual bool canReplaceBy(Object* object);
-
     /// Return the object category as a string.
     //  Return the string "ACTION".
     virtual const std::string getCategory() const;
@@ -49,11 +45,8 @@ public:
     virtual bool shouldUpdate() const;
 
 protected:
-    /// Constructor for exemplars.
-    Action(int size, const char* name, const char* help);
-
-    /// Constructor for cloning.
-    Action(const std::string& name, Action* parent);
+    /// Create an object called [b]name[/b] for the input keyword [b]keyword[/b].
+    Action(const std::string& name, int size, const char* keyword, const char* help);
 
 private:
     // Not implemented.

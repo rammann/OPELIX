@@ -22,11 +22,13 @@
 #include "Track/TrackEnd.h"
 #include "Track/TrackRun.h"
 
-TrackParser::TrackParser() : trackDirectory() {
-    trackDirectory.insert("ENDTRACK", new TrackEnd());
-    trackDirectory.insert("RUN", new TrackRun());
-}
+TrackParser::TrackParser() {}
 
 TrackParser::~TrackParser() {}
 
-Object* TrackParser::find(const std::string& name) const { return trackDirectory.find(name); }
+std::unique_ptr<Object> TrackParser::makeObject(
+        const std::string& keyword, const std::string& name) const {
+    if (keyword == "RUN") return std::make_unique<TrackRun>(name);
+    if (keyword == "ENDTRACK") return std::make_unique<TrackEnd>(name);
+    return nullptr;
+}

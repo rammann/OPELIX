@@ -184,8 +184,8 @@ namespace TRACKRUN {
     };
 }  // namespace TRACKRUN
 
-TrackRun::TrackRun()
-    : Action(TRACKRUN::SIZE, "RUN",
+TrackRun::TrackRun(const std::string& name)
+    : Action(name, TRACKRUN::SIZE, "RUN",
              "The \"RUN\" sub-command tracks the defined particles through "
              "the given lattice."),
       bunch_m(nullptr),
@@ -232,26 +232,12 @@ TrackRun::TrackRun()
     opal_m = OpalData::getInstance();
 }
 
-TrackRun::TrackRun(const std::string& name, TrackRun* parent)
-    : Action(name, parent),
-      bunch_m(nullptr),
-      spaceChargeSolver_m(nullptr),
-      itsTracker_m(nullptr),
-      fs_m(nullptr),
-      ds_m(nullptr),
-      phaseSpaceSinks_m(),
-      isFollowupTrack_m(false) {
-    opal_m = OpalData::getInstance();
-}
-
 TrackRun::~TrackRun() {
     // Solvers borrow particle containers and must be destroyed before their owner.
     itsTracker_m.reset();
     spaceChargeSolver_m.reset();
     bunch_m.reset();
 }
-
-TrackRun* TrackRun::clone(const std::string& name) { return new TrackRun(name, this); }
 
 void TrackRun::execute() {
     OpalData::getInstance()->hasTrackingRun = true;
@@ -794,7 +780,8 @@ void TrackRun::setupBoundaryGeometry() {
         if (!OpalData::getInstance()->hasGlobalGeometry()) {
             const std::string geomDescriptor =
                     Attributes::getString(itsAttr[TRACKRUN::BOUNDARYGEOMETRY]);
-            BoundaryGeometry* bg = BoundaryGeometry::find(geomDescriptor)->clone(geomDescriptor);
+            BoundaryGeometry* bg = BoundaryGeometry::find(geomDescriptor);
+            if (!bg->getFilename().empty()) bg->initialize();
             OpalData::getInstance()->setGlobalGeometry(bg);
         }
     }

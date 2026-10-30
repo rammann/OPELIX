@@ -4,9 +4,9 @@
 #include "Attributes/Attributes.h"
 #include "Utilities/OpalException.h"
 
-OpalConstantFocusing::OpalConstantFocusing()
+OpalConstantFocusing::OpalConstantFocusing(const std::string& name)
     : OpalElement(
-              SIZE, "CONSTANTFOCUSING",
+              name, SIZE, "CONSTANTFOCUSING",
               "The \"CONSTANTFOCUSING\" element applies linear 3D focusing scaled from the "
               "initial space-charge field.") {
     itsAttr[STRENGTH] = Attributes::makeReal(
@@ -14,19 +14,10 @@ OpalConstantFocusing::OpalConstantFocusing()
     itsAttr[RADIUS] = Attributes::makeReal("RADIUS", "Initial beam radius in m.", 0.0);
 
     registerOwnership();
-    setElement(new ConstantFocusing("CONSTANTFOCUSING"));
-}
-
-OpalConstantFocusing::OpalConstantFocusing(const std::string& name, OpalConstantFocusing* parent)
-    : OpalElement(name, parent) {
     setElement(new ConstantFocusing(name));
 }
 
 OpalConstantFocusing::~OpalConstantFocusing() {}
-
-OpalConstantFocusing* OpalConstantFocusing::clone(const std::string& name) {
-    return new OpalConstantFocusing(name, this);
-}
 
 void OpalConstantFocusing::update() {
     OpalElement::update();

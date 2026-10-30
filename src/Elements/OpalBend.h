@@ -57,14 +57,10 @@ public:
         SIZE            // Total number of attributes.
     };
 
-    /// Exemplar constructor.
-    OpalBend(const char* name, const char* help);
+    /// Create the bend called [b]name[/b] for the input keyword [b]keyword[/b].
+    OpalBend(const std::string& name, const char* keyword, const char* help);
 
     virtual ~OpalBend();
-
-protected:
-    /// Clone constructor.
-    OpalBend(const std::string& name, OpalBend* parent);
 
 private:
     // Not implemented.

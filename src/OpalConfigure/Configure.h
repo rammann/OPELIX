@@ -2,9 +2,10 @@
 // Namespace Configure
 //   The OPAL configurator.
 //   This class must be modified to configure the commands to be contained
-//   in an executable OPAL program. For each command an exemplar object
-//   is constructed and linked to the main directory. This exemplar is then
-//   available to the OPAL parser for cloning.
+//   in an executable OPAL program. For each command keyword it registers a
+//   function in OpalData that creates a new object; the OPAL parser calls it
+//   for every statement with that keyword. It also defines the built-in
+//   objects (constants, P0, the line markers #S and #E, UNNAMED_BEAM).
 //   This class could be part of the class OpalData.  It is separated from
 //   that class and opale into a special module in order to reduce
 //   dependencies between modules.

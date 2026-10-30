@@ -26,9 +26,9 @@
 #include "Attributes/Attributes.h"
 #include "Physics/Physics.h"
 
-OpalQuadrupole::OpalQuadrupole()
+OpalQuadrupole::OpalQuadrupole(const std::string& name)
     : OpalElement(
-              SIZE, "QUADRUPOLE",
+              name, SIZE, "QUADRUPOLE",
               "The \"QUADRUPOLE\" element defines a thick quadrupole.\n"
               "It is a convenience wrapper around MULTIPOLE with a single\n"
               "quadrupole strength K1.\n"
@@ -44,19 +44,10 @@ OpalQuadrupole::OpalQuadrupole()
 
     registerOwnership();
 
-    setElement(new Multipole("QUADRUPOLE"));
-}
-
-OpalQuadrupole::OpalQuadrupole(const std::string& name, OpalQuadrupole* parent)
-    : OpalElement(name, parent) {
     setElement(new Multipole(name));
 }
 
 OpalQuadrupole::~OpalQuadrupole() {}
-
-OpalQuadrupole* OpalQuadrupole::clone(const std::string& name) {
-    return new OpalQuadrupole(name, this);
-}
 
 void OpalQuadrupole::update() {
     OpalElement::update();

@@ -7,9 +7,9 @@
 
 extern Inform* gmsg;
 
-OpalEnge::OpalEnge()
+OpalEnge::OpalEnge(const std::string& name)
     : OpalElement(
-              SIZE, "ENGE",
+              name, SIZE, "ENGE",
               "The \"ENGE\" element defines an enge field fall off for plugging"
               "into analytical field models.") {
     itsAttr[LENGTH] =
@@ -31,7 +31,3 @@ void OpalEnge::update() {
     auto efmMan = endfieldmodel::EndFieldModelManager::getEFMManager();
     efmMan->setEndFieldModel(getOpalName(), efm);
 }
-
-OpalEnge::OpalEnge(const std::string& name, OpalEnge* parent) : OpalElement(name, parent) {}
-
-OpalEnge* OpalEnge::clone(const std::string& name) { return new OpalEnge(name, this); }

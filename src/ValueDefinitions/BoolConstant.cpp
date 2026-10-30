@@ -22,9 +22,9 @@
 
 #include <iostream>
 
-BoolConstant::BoolConstant()
+BoolConstant::BoolConstant(const std::string& name)
     : ValueDefinition(
-              1, "BOOL_CONSTANT",
+              name, 1, "BOOL_CONSTANT",
               "The \"BOOL CONSTANT\" statement defines a global "
               "logical constant:\n"
               "\tBOOL CONSTANT <name> = <Bool-expression>;\n") {
@@ -33,14 +33,7 @@ BoolConstant::BoolConstant()
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-BoolConstant::BoolConstant(const std::string& name, BoolConstant* parent)
-    : ValueDefinition(name, parent) {}
-
 BoolConstant::~BoolConstant() {}
-
-bool BoolConstant::canReplaceBy(Object*) { return false; }
-
-BoolConstant* BoolConstant::clone(const std::string& name) { return new BoolConstant(name, this); }
 
 bool BoolConstant::getBool() const { return Attributes::getBool(itsAttr[0]); }
 

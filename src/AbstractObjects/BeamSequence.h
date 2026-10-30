@@ -48,13 +48,8 @@ public:
     virtual void prepareForTracking() {}
 
 protected:
-    /// Constructor for exemplars.
-    BeamSequence(int size, const char* name, const char* help);
-
-    /// Constructor for clones.
-    //  The clone will be [b]empty[/b].
-    //  It has to be filled in by the corresponding parser.
-    BeamSequence(const std::string& name, BeamSequence* parent);
+    /// Create an object called [b]name[/b] for the input keyword [b]keyword[/b].
+    BeamSequence(const std::string& name, int size, const char* keyword, const char* help);
 
 private:
     // Not implemented.

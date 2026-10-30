@@ -47,18 +47,13 @@ namespace {
     }
 }  // namespace
 
-Ring::Ring()
-    : Line("RING",
+Ring::Ring(const std::string& name)
+    : Line(name, "RING",
            "The \"RING\" statement defines a closed-topology beamline list.\n"
            "\t<name> : ring = (<list>)") {
-    fetchLine()->setBeamlineMembership(BeamlineTopology::RING, "RING");
+    // The membership name must not be empty; an unnamed ring uses its keyword.
+    fetchLine()->setBeamlineMembership(BeamlineTopology::RING, name.empty() ? getKeyword() : name);
 }
-
-Ring::Ring(const std::string& name, Ring* parent) : Line(name, parent) {
-    fetchLine()->setBeamlineMembership(BeamlineTopology::RING, name);
-}
-
-Ring* Ring::clone(const std::string& name) { return new Ring(name, this); }
 
 void Ring::parse(Statement& stat) { parseDefinition(stat, false); }
 

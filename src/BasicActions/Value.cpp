@@ -26,8 +26,8 @@
 
 extern Inform* gmsg;
 
-Value::Value()
-    : Action(1, "VALUE",
+Value::Value(const std::string& name)
+    : Action(name, 1, "VALUE",
              "The \"VALUE\" statement prints a list of expressions and "
              "their values.") {
     itsAttr[0] = Attributes::makeRealArray("VALUE", "The values to be evaluated");
@@ -35,11 +35,7 @@ Value::Value()
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-Value::Value(const std::string& name, Value* parent) : Action(name, parent) {}
-
 Value::~Value() {}
-
-Value* Value::clone(const std::string& name) { return new Value(name, this); }
 
 void Value::execute() {
     *gmsg << "\nvalue: " << itsAttr[0] << " = {";

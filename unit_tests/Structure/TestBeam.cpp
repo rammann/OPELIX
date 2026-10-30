@@ -59,7 +59,7 @@ namespace {
     }
 
     TEST_F(BeamPhotonTest, PhotonBeamAcceptsEnergyOnlyDefinition) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeValidPhotonBeam(beam);
 
         EXPECT_NO_THROW(beam.execute());
@@ -69,7 +69,7 @@ namespace {
     }
 
     TEST_F(BeamPhotonTest, PhotonBeamRequiresEnergy) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         setParticle(beam, "PHOTON");
         setNALLOC(beam, 1.0);
 
@@ -77,7 +77,7 @@ namespace {
     }
 
     TEST_F(BeamPhotonTest, PhotonBeamRejectsGamma) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeValidPhotonBeam(beam);
         setGamma(beam, 10.0);
 
@@ -85,7 +85,7 @@ namespace {
     }
 
     TEST_F(BeamPhotonTest, PhotonBeamRejectsMomentum) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeValidPhotonBeam(beam);
         setPC(beam, 1.0);
 
@@ -93,13 +93,13 @@ namespace {
     }
 
     TEST_F(BeamPhotonTest, PhotonBeamRejectsExplicitMassAndCharge) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeValidPhotonBeam(beam);
         setMass(beam, 1.0);
 
         EXPECT_THROW(beam.execute(), OpalException);
 
-        Beam beam2;
+        Beam beam2("TEST_BEAM2");
         makeValidPhotonBeam(beam2);
         setCharge(beam2, 1.0);
 
@@ -107,7 +107,7 @@ namespace {
     }
 
     TEST_F(BeamPhotonTest, PhotonBeamRejectsSources) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeValidPhotonBeam(beam);
         setSources(beam, "srcs");
 
@@ -117,7 +117,7 @@ namespace {
     // A DAUGHTERBEAM has no GAMMA/ENERGY/PC and no SOURCES. Beam::execute must accept it;
     // TrackRun requires SOURCES on every beam that is not a DAUGHTERBEAM.
     TEST_F(BeamPhotonTest, BeamWithoutEnergyOrSourcesParses) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         setParticle(beam, "ELECTRON");
         setNALLOC(beam, 1.0);
 
@@ -143,7 +143,7 @@ namespace {
     };
 
     TEST_F(BeamPolarizationTest, MuonBeamDefaultPolarizationIsZero) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeMuonBeam(beam);  // POLARIZATION unset: getPolarization() defaults to {0,0,0}.
 
         EXPECT_NO_THROW(beam.execute());
@@ -156,7 +156,7 @@ namespace {
 
     TEST_F(BeamPolarizationTest, MuonNonzeroPolarizationAccepted) {
         // Setting POLARIZATION on a muon is accepted and enables spin tracking.
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeMuonBeam(beam);
         setPolarization(beam, {0.0, 0.0, 1.0});
 
@@ -166,7 +166,7 @@ namespace {
 
     TEST_F(BeamPolarizationTest, MuonZeroPolarizationEnablesSpinTracking) {
         // An explicit {0,0,0} still counts as "set" and enables spin tracking.
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeMuonBeam(beam);
         setPolarization(beam, {0.0, 0.0, 0.0});
 
@@ -176,7 +176,7 @@ namespace {
 
     TEST_F(BeamPolarizationTest, MuonWithoutPolarizationHasSpinOff) {
         // Leaving POLARIZATION unset is valid and disables spin tracking.
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeMuonBeam(beam);
 
         EXPECT_NO_THROW(beam.execute());
@@ -184,7 +184,7 @@ namespace {
     }
 
     TEST_F(BeamPolarizationTest, PolarizationMagnitudeGreaterThanOneIsRejected) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeMuonBeam(beam);
         setPolarization(beam, {0.8, 0.8, 0.8});  // |P| ~ 1.39
 
@@ -192,7 +192,7 @@ namespace {
     }
 
     TEST_F(BeamPolarizationTest, PolarizationWrongLengthIsRejected) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         makeMuonBeam(beam);
         setPolarization(beam, {0.0, 1.0});  // length 2, not 3
 
@@ -200,7 +200,7 @@ namespace {
     }
 
     TEST_F(BeamPolarizationTest, NonMuonSpeciesRejectsNonzeroPolarization) {
-        Beam beam;
+        Beam beam("TEST_BEAM");
         setParticle(beam, "PION");
         setEnergy(beam, 1.0);
         setNALLOC(beam, 1.0);
@@ -212,7 +212,7 @@ namespace {
 
     TEST_F(BeamPolarizationTest, NonMuonSpeciesRejectsZeroPolarization) {
         // POLARIZATION is not valid on non-muon species, even at magnitude 0.
-        Beam beam;
+        Beam beam("TEST_BEAM");
         setParticle(beam, "PION");
         setEnergy(beam, 1.0);
         setNALLOC(beam, 1.0);
@@ -224,7 +224,7 @@ namespace {
 
     TEST_F(BeamPolarizationTest, NonMuonSpeciesAcceptedWhenPolarizationUnset) {
         // Leaving POLARIZATION unspecified is fine on any species.
-        Beam beam;
+        Beam beam("TEST_BEAM");
         setParticle(beam, "PION");
         setEnergy(beam, 1.0);
         setNALLOC(beam, 1.0);

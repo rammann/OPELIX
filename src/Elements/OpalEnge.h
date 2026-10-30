@@ -16,14 +16,11 @@ public:
         SIZE  // size of the enum
     };
 
-    /** Default constructor initialises UI parameters. */
-    OpalEnge();
+    /** Create the element called name and define its UI parameters. */
+    explicit OpalEnge(const std::string& name);
 
     /** Destructor does nothing */
     virtual ~OpalEnge() {}
-
-    /** Inherited copy constructor */
-    virtual OpalEnge* clone(const std::string& name);
 
     /** Update the ScalingFFA with new parameters from UI parser */
     virtual void update();
@@ -32,8 +29,5 @@ private:
     // Not implemented.
     OpalEnge(const OpalEnge&);
     void operator=(const OpalEnge&);
-
-    // Clone constructor.
-    OpalEnge(const std::string& name, OpalEnge* parent);
 };
 #endif  // OPAL_OPALENGE_H

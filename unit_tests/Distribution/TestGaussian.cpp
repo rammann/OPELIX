@@ -489,7 +489,7 @@ TEST_F(GaussianTest, ZeroWidthAppendPreservesExistingParticlesAndCutoff) {
 }
 
 TEST_F(GaussianTest, OmittedSpatialWidthsCollapseWithoutSuppressingMomentumSpread) {
-    Distribution distribution;
+    Distribution distribution("TEST_DISTRIBUTION");
     Attributes::setPredefinedString(*distribution.findAttribute("TYPE"), "GAUSS");
     const Vector_t<double, 3> sigmaP(0.02, 0.03, 0.04);
     Attributes::setReal(*distribution.findAttribute("SIGMAPX"), sigmaP[0]);

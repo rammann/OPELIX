@@ -288,9 +288,10 @@ int main(int argc, char* argv[]) {
                     }
                     OPALXMAIN::printStdoutHeader();
                     const std::string cmdName = Util::toUpper(argv[ii + 1]);
-                    Object* object            = OpalData::getInstance()->find(cmdName);
+                    std::unique_ptr<Object> object =
+                            OpalData::getInstance()->makeObject(cmdName, "");
 
-                    if (object == 0) {
+                    if (!object) {
                         *gmsg << "\nOpalParser::printHelp(): Unknown object \"" << cmdName
                               << "\".\n"
                               << endl;

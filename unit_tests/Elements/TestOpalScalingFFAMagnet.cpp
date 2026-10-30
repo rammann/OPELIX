@@ -43,7 +43,8 @@ public:
 // Does the user interface affect the correct magnet configuration
 TEST_F(TestOpalScalingFFAMagnet, UserInterface) {
     // Make the UI
-    OpalScalingFFAMagnet ui;
+    OpalScalingFFAMagnet ui("FFA");
+    Attributes::setReal(ui.itsAttr[OpalElement::ELEMEDGE], 0.0);
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalElement::LENGTH], 1);
     Attributes::setReal(ui.itsAttr[OpalScalingFFAMagnet::B0], 2);
@@ -79,7 +80,8 @@ TEST_F(TestOpalScalingFFAMagnet, UserInterface) {
 }
 
 TEST_F(TestOpalScalingFFAMagnet, Aperture) {
-    OpalScalingFFAMagnet ui;
+    OpalScalingFFAMagnet ui("FFA");
+    Attributes::setReal(ui.itsAttr[OpalElement::ELEMEDGE], 0.0);
     Attributes::setString(ui.itsAttr[OpalElement::APERT], "ABC");
     EXPECT_ANY_THROW(ui.update());
 }
@@ -89,7 +91,8 @@ TEST_F(TestOpalScalingFFAMagnet, EndFieldModel) {
     auto endField       = std::make_shared<endfieldmodel::Tanh>(22.0, 3.0, 5);
     endfieldmodel::EndFieldModelManager::getEFMManager()->setEndFieldModel(endName, endField);
 
-    OpalScalingFFAMagnet ui;
+    OpalScalingFFAMagnet ui("FFA");
+    Attributes::setReal(ui.itsAttr[OpalElement::ELEMEDGE], 0.0);
     Attributes::setString(ui.itsAttr[OpalScalingFFAMagnet::END_FIELD_MODEL], "TestEndField");
     Attributes::setReal(ui.itsAttr[OpalScalingFFAMagnet::R0], 5.0);
     EXPECT_NO_THROW(ui.update());
@@ -99,7 +102,8 @@ TEST_F(TestOpalScalingFFAMagnet, EndFieldModel) {
 }
 
 TEST_F(TestOpalScalingFFAMagnet, AzimuthalExtentDefault) {
-    OpalScalingFFAMagnet ui;
+    OpalScalingFFAMagnet ui("FFA");
+    Attributes::setReal(ui.itsAttr[OpalElement::ELEMEDGE], 0.0);
     Attributes::setReal(ui.itsAttr[OpalElement::LENGTH], 1);
     Attributes::setReal(ui.itsAttr[OpalScalingFFAMagnet::R0], 19);
     Attributes::setReal(ui.itsAttr[OpalScalingFFAMagnet::FRINGE_LENGTH], 8);

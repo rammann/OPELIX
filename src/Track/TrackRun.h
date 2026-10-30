@@ -48,13 +48,10 @@ class TrackRun : public Action {
     using emittingSamplers_t = std::vector<std::shared_ptr<SamplingBase>>;
 
 public:
-    /// Exemplar constructor.
-    TrackRun();
+    /// Create the command called [b]name[/b].
+    explicit TrackRun(const std::string& name);
 
     virtual ~TrackRun();
-
-    /// Make clone.
-    virtual TrackRun* clone(const std::string& name);
 
     /// Execute the command.
     virtual void execute();
@@ -68,9 +65,6 @@ private:
     // Not implemented.
     TrackRun(const TrackRun&);
     void operator=(const TrackRun&);
-
-    // Clone constructor.
-    TrackRun(const std::string& name, TrackRun* parent);
 
     void initDataSink(size_t numParticleContainers);
     std::vector<H5PartWrapper*> borrowedPhaseSpaceSinks() const;

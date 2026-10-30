@@ -12,13 +12,9 @@
  */
 class OpalTrimCoil : public Definition {
 public:
-    OpalTrimCoil();
-    OpalTrimCoil* clone(const std::string& name) override { return new OpalTrimCoil(name, this); }
+    explicit OpalTrimCoil(const std::string& name);
     /// Validate the definition without allocating a tracking element.
     void execute() override { model(); }
-    bool canReplaceBy(Object* object) override {
-        return dynamic_cast<OpalTrimCoil*>(object) != nullptr;
-    }
     /** @return Validated parameters by value, suitable for copying into a device view.
      * @throws OpalException For unsupported TYPE, nonfinite values, or invalid radii/slope.
      */
@@ -26,7 +22,6 @@ public:
 
 private:
     enum { TYPE, RMIN, RMAX, BMAX, SLPTC, SIZE };
-    OpalTrimCoil(const std::string& name, OpalTrimCoil* parent) : Definition(name, parent) {}
 };
 
 /** @brief Parser and host-side configuration of a placed PSI magnetic sector.
@@ -39,11 +34,10 @@ private:
  */
 class OpalCyclotronSector : public OpalElement {
 public:
-    OpalCyclotronSector();
-    OpalCyclotronSector* clone(const std::string& name) override;
+    explicit OpalCyclotronSector(const std::string& name);
     /** @brief Resolve map/coil definitions and rebuild the occurrence configuration.
-     * An empty FMAPFN is tolerated for the parser exemplar; tracking an unconfigured
-     * occurrence is rejected by CyclotronSector::initialise().
+     * An empty FMAPFN is tolerated; tracking an unconfigured occurrence is rejected by
+     * CyclotronSector::initialise().
      * @throws OpalException For invalid symmetry/bounds or an unknown trim-coil name.
      * Map loading and trim-coil validation errors are propagated.
      */
@@ -51,6 +45,5 @@ public:
 
 private:
     enum { FMAPFN = COMMON, SYM, RMIN, RMAX, VMIN, VMAX, BSCALE, TRIMCOIL, SIZE };
-    OpalCyclotronSector(const std::string& name, OpalCyclotronSector* parent);
 };
 #endif

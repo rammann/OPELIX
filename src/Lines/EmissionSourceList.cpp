@@ -7,26 +7,15 @@
 
 using namespace Expressions;
 
-EmissionSourceList::EmissionSourceList()
+EmissionSourceList::EmissionSourceList(const std::string& name)
     : Definition(
-              0, "EMISSIONSOURCELIST",
+              name, 0, "EMISSIONSOURCELIST",
               "The EMISSIONSOURCELIST statement defines a list of emission sources.\n"
               "\t<name> : EMISSIONSOURCELIST = (ES1, ES2, ...)") {
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-EmissionSourceList::EmissionSourceList(const std::string& name, EmissionSourceList* parent)
-    : Definition(name, parent) {}
-
 EmissionSourceList::~EmissionSourceList() {}
-
-bool EmissionSourceList::canReplaceBy(Object* object) {
-    return dynamic_cast<EmissionSourceList*>(object) != nullptr;
-}
-
-EmissionSourceList* EmissionSourceList::clone(const std::string& name) {
-    return new EmissionSourceList(name, this);
-}
 
 void EmissionSourceList::execute() {}
 

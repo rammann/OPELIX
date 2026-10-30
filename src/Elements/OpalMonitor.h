@@ -22,13 +22,10 @@
 
 class OpalMonitor : public OpalElement {
 public:
-    /// Exemplar constructor.
-    OpalMonitor();
+    /// Create the element called name.
+    explicit OpalMonitor(const std::string& name);
 
     virtual ~OpalMonitor();
-
-    /// Make clone.
-    virtual OpalMonitor* clone(const std::string& name);
 
     /// Update the embedded OPALX monitor.
     virtual void update();
@@ -37,9 +34,6 @@ private:
     // Not implemented.
     OpalMonitor(const OpalMonitor&);
     void operator=(const OpalMonitor&);
-
-    // Clone constructor.
-    OpalMonitor(const std::string& name, OpalMonitor* parent);
 };
 
 #endif  // OPAL_OpalMonitor_HH

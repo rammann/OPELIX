@@ -4,8 +4,8 @@
 #include "Attributes/Attributes.h"
 #include "Utilities/OpalException.h"
 
-OpalTrimCoil::OpalTrimCoil()
-    : Definition(SIZE, "TRIMCOIL", "Named cyclotron trim-coil field model.") {
+OpalTrimCoil::OpalTrimCoil(const std::string& name)
+    : Definition(name, SIZE, "TRIMCOIL", "Named cyclotron trim-coil field model.") {
     itsAttr[TYPE]  = Attributes::makeString("TYPE", "Trim-coil model.", "PSI-BFIELD-MIRRORED");
     itsAttr[RMIN]  = Attributes::makeReal("RMIN", "Inner shape radius [m].");
     itsAttr[RMAX]  = Attributes::makeReal("RMAX", "Outer shape radius [m].");
@@ -25,8 +25,8 @@ CyclotronTrimCoil OpalTrimCoil::model() const {
                 "Expected PSI-BFIELD-MIRRORED with finite SI parameters, 0<RMIN<RMAX and SLPTC>0.");
     return m;
 }
-OpalCyclotronSector::OpalCyclotronSector()
-    : OpalElement(SIZE, "CYCLOTRONSECTOR", "PSI median-plane cyclotron magnetic sector.") {
+OpalCyclotronSector::OpalCyclotronSector(const std::string& name)
+    : OpalElement(name, SIZE, "CYCLOTRONSECTOR", "PSI median-plane cyclotron magnetic sector.") {
     itsAttr[FMAPFN]   = Attributes::makeString("FMAPFN", "PSI map filename.");
     itsAttr[SYM]      = Attributes::makeReal("SYM", "Number of sectors.", 8);
     itsAttr[RMIN]     = Attributes::makeReal("RMIN", "Map minimum radius [m].");
@@ -36,19 +36,12 @@ OpalCyclotronSector::OpalCyclotronSector()
     itsAttr[BSCALE]   = Attributes::makeReal("BSCALE", "Base-map multiplier.", 1);
     itsAttr[TRIMCOIL] = Attributes::makeStringArray("TRIMCOIL", "Named trim-coil definitions.");
     registerOwnership();
-    setElement(new CyclotronSector("CYCLOTRONSECTOR"));
-}
-OpalCyclotronSector::OpalCyclotronSector(const std::string& name, OpalCyclotronSector* parent)
-    : OpalElement(name, parent) {
     setElement(new CyclotronSector(name));
-}
-OpalCyclotronSector* OpalCyclotronSector::clone(const std::string& name) {
-    return new OpalCyclotronSector(name, this);
 }
 void OpalCyclotronSector::update() {
     OpalElement::update();
     const auto filename = Attributes::getString(itsAttr[FMAPFN]);
-    if (filename.empty()) return;  // exemplar
+    if (filename.empty()) return;
     auto map         = CyclotronSectorFieldMap::read(filename);
     const double sym = Attributes::getReal(itsAttr[SYM]);
     if (!std::isfinite(sym) || sym < 2 || sym > 100000 || sym != std::round(sym))

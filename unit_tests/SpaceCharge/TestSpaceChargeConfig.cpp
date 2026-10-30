@@ -41,6 +41,8 @@ namespace opalx::spacecharge {
 
         class TestableFieldSolverCmd : public FieldSolverCmd {
         public:
+            using FieldSolverCmd::FieldSolverCmd;
+
             void setType(const std::string& type) {
                 Attributes::setPredefinedString(itsAttr[FIELDSOLVER::TYPE], type);
             }
@@ -54,6 +56,8 @@ namespace opalx::spacecharge {
 
         class TestableEmissionSource : public EmissionSource {
         public:
+            using EmissionSource::EmissionSource;
+
             void enableShiftedPlane(double planeZ, int maximumSteps) {
                 Attributes::setString(itsAttr[DISTRIBUTION], "P3M_PLANE_TEST_DISTRIBUTION");
                 Attributes::setBool(itsAttr[SHIFTED_GREENS_FUNCTION], true);
@@ -185,19 +189,18 @@ namespace opalx::spacecharge {
         }
 
         TEST(SpaceChargeConfigBuilderTest, BuildsP3MShiftedSourcePlane) {
-            Distribution distribution;
-            OpalData::getInstance()->define(distribution.clone("P3M_PLANE_TEST_DISTRIBUTION"));
-            TestableFieldSolverCmd command;
+            // Only this test defines the distribution, so it is not removed again.
+            OpalData::getInstance()->define(new Distribution("P3M_PLANE_TEST_DISTRIBUTION"));
+            TestableFieldSolverCmd command("TEST_FIELDSOLVER");
             command.setType("P3M");
             command.setCutoff(0.025);
             command.setNX(16);
             command.setNY(16);
             command.setNZ(16);
-            TestableEmissionSource source;
+            TestableEmissionSource source("TEST_SOURCE");
             source.enableShiftedPlane(0.125, 7);
             const auto config =
                     std::get<CartesianPIC3DConfig>(buildSpaceChargeConfig(command, {{&source}}));
-            OpalData::getInstance()->erase("P3M_PLANE_TEST_DISTRIBUTION");
             EXPECT_EQ(config.backend, PoissonSolverType::P3M);
             EXPECT_EQ(config.dirichletPlane.kind, DirichletPlaneType::ShiftedGreen);
             EXPECT_DOUBLE_EQ(config.dirichletPlane.planeZ, 0.125);
@@ -256,7 +259,7 @@ namespace opalx::spacecharge {
         }
 
         TEST(SpaceChargeConfigBuilderTest, RejectsRecognizedCGBeforeRuntimeConstruction) {
-            TestableFieldSolverCmd command;
+            TestableFieldSolverCmd command("TEST_FIELDSOLVER");
             command.setType("CG");
             EXPECT_THROW(static_cast<void>(buildSpaceChargeConfig(command, {})), OpalException);
         }
@@ -305,7 +308,7 @@ namespace opalx::spacecharge {
         }
 
         TEST(SpaceChargeConfigBuilderTest, ParserDefersCompatibilityAndReadsCurrentAttributes) {
-            TestableFieldSolverCmd command;
+            TestableFieldSolverCmd command("TEST_FIELDSOLVER");
             command.setType("P3M");
             command.setNX(8);
             command.setNY(8);
@@ -329,7 +332,7 @@ namespace opalx::spacecharge {
 
         TEST(SpaceChargeConfigBuilderTest, SelectsOneP3MCutoffMode) {
             auto makeCommand = [](const std::string& type) {
-                auto command = std::make_unique<TestableFieldSolverCmd>();
+                auto command = std::make_unique<TestableFieldSolverCmd>("TEST_FIELDSOLVER");
                 command->setType(type);
                 command->setNX(8);
                 command->setNY(8);
@@ -367,7 +370,7 @@ namespace opalx::spacecharge {
         }
 
         TEST(SpaceChargeConfigBuilderTest, RejectsInvalidMeshValuesBeforeIntegerConversion) {
-            TestableFieldSolverCmd command;
+            TestableFieldSolverCmd command("TEST_FIELDSOLVER");
             command.setType("OPEN");
             command.setNY(8);
             command.setNZ(8);

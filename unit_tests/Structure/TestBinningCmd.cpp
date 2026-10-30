@@ -14,8 +14,6 @@
  * - `execute()` behavior:
  *   - Mapping supported `PARAMETER` strings to the corresponding `BinningParameter` enum.
  *   - Throwing `OpalException` for unknown/unsupported parameter strings.
- * - `clone(name)`:
- *   - Copies attribute state and cached parameter selection into a new named command object.
  * - `printInfo()`:
  *   - Smoke test that the informational printing path can be invoked without throwing.
  *
@@ -31,12 +29,13 @@
 #include "Structure/BinningCmd.h"
 #include "Utilities/OpalException.h"
 
-#include <memory>
 #include <string>
 
 // Test-only helper exposing minimal setters for internal attributes.
 class TestableBinningCmd : public BinningCmd {
 public:
+    using BinningCmd::BinningCmd;
+
     void setMaxBins(int value) {
         Attributes::setReal(itsAttr[BINNING::MAXBINS], static_cast<double>(value));
     }
@@ -88,7 +87,7 @@ protected:
 // If DUMPBINSFILE is set without .json, update() appends the extension and
 // enforces a valid DUMPBINSFREQ.
 TEST_F(BinningCmdTest, UpdateAppendsJsonExtensionAndValidatesFreq) {
-    TestableBinningCmd cmd;
+    TestableBinningCmd cmd("BIN1");
 
     // Enable dumping with a filename missing the .json suffix.
     cmd.setDumpBinsFile("bins_output");
@@ -104,7 +103,7 @@ TEST_F(BinningCmdTest, UpdateAppendsJsonExtensionAndValidatesFreq) {
 // DumpBinsToFileRespectsNoneAndEmpty:
 // dumpBinsToFile() should be false for "NONE" or empty, true otherwise.
 TEST_F(BinningCmdTest, DumpBinsToFileRespectsNoneAndEmpty) {
-    TestableBinningCmd cmd;
+    TestableBinningCmd cmd("BIN1");
 
     // Default is "NONE".
     EXPECT_FALSE(cmd.dumpBinsToFile());
@@ -119,7 +118,7 @@ TEST_F(BinningCmdTest, DumpBinsToFileRespectsNoneAndEmpty) {
 // InvalidDumpFreqThrowsWhenDumpingEnabled:
 // A non-positive DUMPBINSFREQ with an active DUMPBINSFILE must raise.
 TEST_F(BinningCmdTest, InvalidDumpFreqThrowsWhenDumpingEnabled) {
-    TestableBinningCmd cmd;
+    TestableBinningCmd cmd("BIN1");
 
     cmd.setDumpBinsFile("bins.json");
     cmd.setDumpBinsFreq(0.0);
@@ -130,16 +129,16 @@ TEST_F(BinningCmdTest, InvalidDumpFreqThrowsWhenDumpingEnabled) {
 // InvalidTablePrintFrequencyThrowsWhenNegative:
 // Negative TABLEPRINTFREQ values are rejected by update().
 TEST_F(BinningCmdTest, InvalidTablePrintFrequencyThrowsWhenNegative) {
-    TestableBinningCmd cmd;
+    TestableBinningCmd cmd("BIN1");
 
     cmd.setTablePrintFrequency(-1.0);
     EXPECT_THROW(cmd.update(), OpalException);
 }
 
 // ConstructionDefaults:
-// Verify that a freshly constructed exemplar has the documented defaults.
+// Verify that a freshly constructed command has the documented defaults.
 TEST_F(BinningCmdTest, ConstructionDefaults) {
-    BinningCmd cmd;
+    BinningCmd cmd("BIN1");
 
     EXPECT_EQ(cmd.getMaxBins(), 128);
     EXPECT_DOUBLE_EQ(cmd.getDesiredWidth(), 0.1);
@@ -156,7 +155,7 @@ TEST_F(BinningCmdTest, ConstructionDefaults) {
 // GettersReflectAttributes:
 // Changing the underlying attributes via the helper should be reflected by the getters.
 TEST_F(BinningCmdTest, GettersReflectAttributes) {
-    TestableBinningCmd cmd;
+    TestableBinningCmd cmd("BIN1");
 
     cmd.setMaxBins(42);
     cmd.setDesiredWidth(0.25);
@@ -193,7 +192,7 @@ TEST_F(BinningCmdTest, ExecuteMapsKnownParameters) {
             {"GAMMAZ", BinningParameter::GAMMAZ}};
 
     for (const auto& c : cases) {
-        TestableBinningCmd cmd;
+        TestableBinningCmd cmd("BIN1");
         cmd.setParameterString(c.name);
 
         // execute() calls setParameterType() and then update().
@@ -208,7 +207,7 @@ TEST_F(BinningCmdTest, ExecuteMapsKnownParameters) {
 // An unsupported PARAMETER string should surface as an OpalException
 // when setParameterType() (via execute()) cannot map it.
 TEST_F(BinningCmdTest, ExecuteThrowsOnUnknownParameter) {
-    TestableBinningCmd cmd;
+    TestableBinningCmd cmd("BIN1");
 
     // This value is not present in the BinningParameter mapping table.
     cmd.setParameterString("FOO");
@@ -216,38 +215,10 @@ TEST_F(BinningCmdTest, ExecuteThrowsOnUnknownParameter) {
     EXPECT_THROW(cmd.execute(), OpalException);
 }
 
-// CloneCopiesState:
-// clone(name) should copy attribute state and cached parameter type/name.
-TEST_F(BinningCmdTest, CloneCopiesState) {
-    TestableBinningCmd original;
-    original.setMaxBins(7);
-    original.setDesiredWidth(0.3);
-    original.setBinningAlpha(0.8);
-    original.setBinningBeta(1.2);
-    original.setAdaptiveBinning(false);
-    original.setParameterString("POSITIONZ");
-
-    original.execute();  // ensure parameterType_m is updated
-
-    std::unique_ptr<BinningCmd> copy(original.clone("BINNING_COPY"));
-
-    ASSERT_NE(copy, nullptr);
-    EXPECT_EQ(copy->getOpalName(), "BINNING_COPY");
-
-    EXPECT_EQ(copy->getMaxBins(), original.getMaxBins());
-    EXPECT_DOUBLE_EQ(copy->getDesiredWidth(), original.getDesiredWidth());
-    EXPECT_DOUBLE_EQ(copy->getBinningAlpha(), original.getBinningAlpha());
-    EXPECT_DOUBLE_EQ(copy->getBinningBeta(), original.getBinningBeta());
-    EXPECT_EQ(copy->getAdaptiveBinning(), original.getAdaptiveBinning());
-
-    EXPECT_EQ(copy->getParameter(), original.getParameter());
-    EXPECT_EQ(copy->getParameterType(), original.getParameterType());
-}
-
 // PrintInfoDoesNotThrow:
 // Smoke test that printInfo can be called without throwing.
 TEST_F(BinningCmdTest, PrintInfoDoesNotThrow) {
-    BinningCmd cmd;
+    BinningCmd cmd("BIN1");
 
     // Inform is defined in Ippl; using a simple instance here is sufficient
     // to exercise the printing path.

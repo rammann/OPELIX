@@ -22,38 +22,27 @@
 
 #include <iostream>
 
-RealVariable::RealVariable()
+RealVariable::RealVariable(const std::string& name)
     : ValueDefinition(
-              1, "REAL_VARIABLE",
+              name, 1, "REAL_VARIABLE",
               "The \"REAL VARIABLE\" statement defines a global "
               "real variable:\n"
               "\tREAL VARIABLE <name>=<real-expression>;\n") {
     itsAttr[0] = Attributes::makeReal("VALUE", "The variable value", 0.0);
 
     registerOwnership(AttributeHandler::STATEMENT);
-
-    // Construct the P0 variable.
-    RealVariable* p0 = new RealVariable("P0", this, 1.0);
-    OpalData::getInstance()->create(p0);
-    OpalData::getInstance()->setP0(p0);
 }
 
-RealVariable::RealVariable(const std::string& name, RealVariable* parent, double value)
-    : ValueDefinition(name, parent) {
+RealVariable::RealVariable(const std::string& name, double value) : RealVariable(name) {
     Attributes::setReal(itsAttr[0], value);
 }
 
-RealVariable::RealVariable(const std::string& name, RealVariable* parent)
-    : ValueDefinition(name, parent) {}
-
-RealVariable::~RealVariable() {}
-
-bool RealVariable::canReplaceBy(Object* object) {
-    // Replace only by another variable.
-    return (dynamic_cast<RealVariable*>(object) != 0);
+void RealVariable::defineBuiltins() {
+    // OpalData::define() also makes P0 the reference momentum.
+    OpalData::getInstance()->define(new RealVariable("P0", 1.0));
 }
 
-RealVariable* RealVariable::clone(const std::string& name) { return new RealVariable(name, this); }
+RealVariable::~RealVariable() {}
 
 double RealVariable::getReal() const { return Attributes::getReal(itsAttr[0]); }
 

@@ -31,13 +31,11 @@
 #include "OpalParser/Statement.h"
 #include "Utilities/ParseError.h"
 
-MacroCmd::MacroCmd()
-    : Macro(0u, "MACRO",
+MacroCmd::MacroCmd(const std::string& name)
+    : Macro(name, 0u, "MACRO",
             "A \"MACRO\" command defines a subroutine:\n"
             "\t<name>(<arguments>):MACRO{<body>}"),
       body() {}
-
-MacroCmd::MacroCmd(const std::string& name, MacroCmd* parent) : Macro(name, parent), body() {}
 
 MacroCmd::~MacroCmd() {}
 
@@ -63,7 +61,7 @@ Object* MacroCmd::makeInstance(
     }
 
     // Substitute the actual arguments.
-    auto macro       = std::make_unique<MacroCmd>(name, this);
+    auto macro       = std::make_unique<MacroCmd>(name);
     macro->itsParser = parser;
     for (const Token& token : body) {
         bool found = false;
@@ -87,7 +85,7 @@ Object* MacroCmd::makeInstance(
 }
 
 Object* MacroCmd::makeTemplate(const std::string& name, TokenStream&, Statement& statement) {
-    auto macro = std::make_unique<MacroCmd>(name, this);
+    auto macro = std::make_unique<MacroCmd>(name);
     macro->parseFormals(statement);
 
     // Parse macro body->

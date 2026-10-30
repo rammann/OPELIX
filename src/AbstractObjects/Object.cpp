@@ -42,11 +42,6 @@ Object::~Object() {
     }
 }
 
-bool Object::canReplaceBy(Object*) {
-    // Default action: no replacement allowed.
-    return false;
-}
-
 void Object::copyAttributes(const Object& source) { itsAttr = source.itsAttr; }
 
 void Object::execute() {
@@ -132,10 +127,9 @@ void Object::parseShortcut(Statement& stat, bool eval) {
 
 void Object::print(std::ostream& msg) const {
     std::string head = getOpalName();
-    Object* parent   = getParent();
-    if (parent != 0 && !parent->getOpalName().empty()) {
+    if (!getKeyword().empty()) {
         if (!getOpalName().empty()) head += ':';
-        head += parent->getOpalName();
+        head += getKeyword();
     }
 
     msg << head;
@@ -154,12 +148,9 @@ void Object::registerReference(Invalidator* ref) { references.insert(ref); }
 void Object::unregisterReference(Invalidator* ref) { references.erase(ref); }
 
 void Object::registerOwnership(const AttributeHandler::OwnerType& itsClass) const {
-    if (getParent() != 0) return;
-
     const unsigned int end = itsAttr.size();
-    const std::string name = getOpalName();
     for (unsigned int i = 0; i < end; ++i) {
-        AttributeHandler::addAttributeOwner(name, itsClass, itsAttr[i].getName());
+        AttributeHandler::addAttributeOwner(getKeyword(), itsClass, itsAttr[i].getName());
     }
 }
 
@@ -219,59 +210,20 @@ void Object::printHelp(std::ostream& /*os*/) const {
     *gmsg << endl;
 }
 
-void Object::replace(Object*, Object*) {
-    // Default action: do nothing.
-}
-
 void Object::update() {
     // Default action: do nothing.
 }
 
-bool Object::isBuiltin() const { return builtin; }
-
-bool Object::isShared() const { return sharedFlag; }
-
-void Object::setShared(bool flag) { sharedFlag = flag; }
-
 const std::string& Object::getOpalName() const { return itsName; }
 
-Object* Object::getParent() const { return itsParent; }
-
-bool Object::isTreeMember(const Object* classObject) const {
-    const Object* object = this;
-
-    while (object != 0 && object != classObject) {
-        object = object->itsParent;
-    }
-
-    return object != 0;
-}
+const std::string& Object::getKeyword() const { return itsKeyword; }
 
 void Object::setOpalName(const std::string& name) { itsName = name; }
 
-void Object::setParent(Object* parent) { itsParent = parent; }
-
-void Object::clear() { occurrence = 0; }
-
-int Object::increment() { return ++occurrence; }
-
-Object::Object(int size, const char* name, const char* help)
-    : itsAttr(size), itsParent(0), itsName(name), itsHelp(help), occurrence(0), sharedFlag(false) {
+Object::Object(const std::string& name, int size, const char* keyword, const char* help)
+    : itsAttr(size), itsName(name), itsKeyword(keyword), itsHelp(help) {
     // NOTE: The derived classes must define the attribute handlers and
     //       any initial values for the attributes.
-
-    // The object is an exemplar and must not be saved in the data base.
-    builtin = true;
-}
-
-Object::Object(const std::string& name, Object* parent)
-    : itsAttr(parent->itsAttr),
-      itsParent(parent),
-      itsName(name),
-      itsHelp(parent->itsHelp),
-      occurrence(0),
-      sharedFlag(false) {
-    builtin = false;
 }
 
 std::ostream& operator<<(std::ostream& os, const Object& object) {

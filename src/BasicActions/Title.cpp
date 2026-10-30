@@ -19,8 +19,8 @@
 
 #include "Attributes/Attributes.h"
 
-Title::Title()
-    : Action(1, "TITLE",
+Title::Title(const std::string& name)
+    : Action(name, 1, "TITLE",
              "The \"TITLE\" statement defines a new page title for subsequent "
              "output.") {
     itsAttr[0] = Attributes::makeString("STRING", "The title string");
@@ -28,11 +28,7 @@ Title::Title()
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-Title::Title(const std::string& name, Title* parent) : Action(name, parent) {}
-
 Title::~Title() {}
-
-Title* Title::clone(const std::string& name) { return new Title(name, this); }
 
 void Title::execute() {}
 

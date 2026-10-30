@@ -58,9 +58,9 @@ namespace {
             storageConfig.periodicParticleBoundary = true;
 
             dataSink = std::make_shared<DataSink>();
-            beam     = std::make_shared<Beam>();
-            testBeam = Beam::find("UNNAMED_BEAM");
-            ASSERT_NE(testBeam, nullptr);
+            beam     = std::make_shared<Beam>("TEST_BEAM");
+            beam->update();
+            testBeam = beam.get();
 
             const double q0 = 1.0e-9;
             const double q1 = 2.0e-9;

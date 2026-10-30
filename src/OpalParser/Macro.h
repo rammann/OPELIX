@@ -32,18 +32,10 @@ class TokenStream;
 
 class Macro : public Object {
 public:
-    /// Exemplar constructor.
-    Macro(int size, const char* name, const char* help);
-
-    /// Clone constructor.
-    Macro(const std::string& name, Object* parent);
+    /// Create the macro called [b]name[/b] for the input keyword [b]keyword[/b].
+    Macro(const std::string& name, int size, const char* keyword, const char* help);
 
     virtual ~Macro();
-
-    /// Make clone.
-    //  Throw ParseError, since for macro we must make a template and not
-    //  a clone.
-    virtual Macro* clone(const std::string& name);
 
     /// Return the object category as a string.
     //  Return the string "MACRO".

@@ -510,7 +510,12 @@ protected:
         cavity.initialise(nullptr);
     }
     std::shared_ptr<PartBunch_t> makeBunch(size_t count) {
-        beam       = std::make_shared<Beam>();
+        // A full run defines UNNAMED_BEAM; OpalData owns it, so it outlives the bunch.
+        if (OpalData::getInstance()->find("UNNAMED_BEAM") == nullptr) {
+            auto* defaultBeam = new Beam("UNNAMED_BEAM");
+            defaultBeam->update();
+            OpalData::getInstance()->define(defaultBeam);
+        }
         auto bunch = std::make_shared<PartBunch_t>(
                 std::vector{1.0}, std::vector{1.0}, std::vector<Beam*>{Beam::find("UNNAMED_BEAM")},
                 std::vector<size_t>{count}, 1.0, "LF2",
@@ -519,7 +524,6 @@ protected:
         return bunch;
     }
     RFCavity cavity{"ideal"};
-    std::shared_ptr<Beam> beam;
 };
 
 TEST_F(IdealRFCavityTest, GradientPhaseAndVariableRFConvention) {
@@ -600,7 +604,9 @@ TEST_F(IdealRFCavityTest, ReferenceExcludesErrorsAndClonePreservesMode) {
 }
 
 TEST_F(IdealRFCavityTest, InputValidationAndDefaultMode) {
-    OpalCavity input;
+    OpalCavity input("INPUT");
+    // An element must be placed, otherwise update() rejects it.
+    Attributes::setReal(input.itsAttr[OpalElement::ELEMEDGE], 0.0);
     auto* rep = dynamic_cast<RFCavity*>(input.getElement());
     ASSERT_NE(rep, nullptr);
     EXPECT_NO_THROW(input.update());

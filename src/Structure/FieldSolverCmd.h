@@ -64,13 +64,10 @@ namespace FIELDSOLVER {
 /** @brief Parsed FIELDSOLVER attributes; solver compatibility is validated in SpaceCharge. */
 class FieldSolverCmd : public Definition {
 public:
-    /// Exemplar constructor.
-    FieldSolverCmd();
+    /// Create the field solver definition called [b]name[/b].
+    explicit FieldSolverCmd(const std::string& name);
 
     virtual ~FieldSolverCmd();
-
-    /// Make clone.
-    virtual FieldSolverCmd* clone(const std::string& name);
 
     /// Find named FieldSolverCmd.
     static FieldSolverCmd* find(const std::string& name);
@@ -139,9 +136,6 @@ private:
     // Not implemented.
     FieldSolverCmd(const FieldSolverCmd&);
     void operator=(const FieldSolverCmd&);
-
-    // Clone constructor.
-    FieldSolverCmd(const std::string& name, FieldSolverCmd* parent);
 };
 
 inline Inform& operator<<(Inform& os, const FieldSolverCmd& fs) { return fs.printInfo(os); }

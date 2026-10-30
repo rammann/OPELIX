@@ -25,6 +25,7 @@
 #include <functional>
 #include <iosfwd>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 #include "OPALTypes.h"
@@ -77,24 +78,19 @@ public:
     /// reset object for consecutive runs
     void reset();
 
-    /// Apply a function to all objects.
-    //  Loop over the directory and apply the given functor object to each
-    //  object in turn.
-    void apply(const std::function<void(Object*)>&);
+    /// Function that creates a new object with the given name.
+    using ObjectMaker = std::function<std::unique_ptr<Object>(const std::string& name)>;
 
-    /// Create new object.
-    //  No replacement is allowed; if an object with the same name exists,
-    //  throw [b]OpalException[/b].
-    void create(Object* newObject);
+    /// Register the input keyword [b]keyword[/b]; [b]make[/b] creates its objects.
+    void addKeyword(const std::string& keyword, ObjectMaker make);
+
+    /// Create a new object called [b]name[/b] for the input keyword [b]keyword[/b].
+    //  Return nullptr, if [b]keyword[/b] is not a known keyword.
+    std::unique_ptr<Object> makeObject(const std::string& keyword, const std::string& name) const;
 
     /// Define a new object.
-    //  Replacement is allowed; however [b]OpalException[/b] is thrown,
-    //  if the replacement cannot be done.
+    //  Throw [b]OpalException[/b], if an object with the same name exists.
     void define(Object* newObject);
-
-    /// Delete existing entry.
-    //  Identified by [b]name[/b].
-    void erase(const std::string& name);
 
     /// Find entry.
     //  Identified by [b]name[/b].

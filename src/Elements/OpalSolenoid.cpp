@@ -21,8 +21,8 @@
 #include "Attributes/Attributes.h"
 #include "Physics/Physics.h"
 
-OpalSolenoid::OpalSolenoid()
-    : OpalElement(SIZE, "SOLENOID", "The \"SOLENOID\" element defines a Solenoid.") {
+OpalSolenoid::OpalSolenoid(const std::string& name)
+    : OpalElement(name, SIZE, "SOLENOID", "The \"SOLENOID\" element defines a Solenoid.") {
     itsAttr[KS]     = Attributes::makeReal("KS", "Normalised solenoid strength in m**(-1)");
     itsAttr[DKS]    = Attributes::makeReal("DKS", "Normalised solenoid strength error in m**(-1)");
     itsAttr[FMAPFN] = Attributes::makeString("FMAPFN", "Solenoid field map filename ");
@@ -35,17 +35,10 @@ OpalSolenoid::OpalSolenoid()
 
     registerOwnership();
 
-    setElement(new Solenoid("SOLENOID"));
-}
-
-OpalSolenoid::OpalSolenoid(const std::string& name, OpalSolenoid* parent)
-    : OpalElement(name, parent) {
     setElement(new Solenoid(name));
 }
 
 OpalSolenoid::~OpalSolenoid() {}
-
-OpalSolenoid* OpalSolenoid::clone(const std::string& name) { return new OpalSolenoid(name, this); }
 
 void OpalSolenoid::update() {
     OpalElement::update();

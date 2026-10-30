@@ -82,6 +82,8 @@ public:
 
     class TestableFieldSolverCmd : public FieldSolverCmd {
     public:
+        using FieldSolverCmd::FieldSolverCmd;
+
         void setType(const std::string& t) {
             Attributes::setPredefinedString(this->itsAttr[FIELDSOLVER::TYPE], t);
         }
@@ -102,7 +104,7 @@ public:
 
     std::shared_ptr<PartBunch_t> makeBunch(const size_t numParticles) {
         dataSink_m       = std::make_shared<DataSink>();
-        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>();
+        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>("TEST_FIELDSOLVER");
         fsCmdBase_m      = fsCmd;
         fsCmd->setType("NONE");
         fsCmd->setNX(8);
@@ -111,7 +113,12 @@ public:
         fsCmd->setBCX("PERIODIC");
         fsCmd->setBCY("PERIODIC");
         fsCmd->setBCZ("PERIODIC");
-        auto beam    = std::make_shared<Beam>();
+        // A full run defines UNNAMED_BEAM; OpalData owns it, so it outlives the bunch.
+        if (OpalData::getInstance()->find("UNNAMED_BEAM") == nullptr) {
+            auto* defaultBeam = new Beam("UNNAMED_BEAM");
+            defaultBeam->update();
+            OpalData::getInstance()->define(defaultBeam);
+        }
         Beam* opBeam = Beam::find("UNNAMED_BEAM");
         auto bunch   = std::make_shared<PartBunch_t>(
                 /*qi=*/std::vector{1.0}, /*mi=*/std::vector{1.0},

@@ -23,9 +23,9 @@
 #include <iostream>
 #include <vector>
 
-RealVector::RealVector()
+RealVector::RealVector(const std::string& name)
     : ValueDefinition(
-              1, "REAL_VECTOR",
+              name, 1, "REAL_VECTOR",
               "The \"REAL VECTOR\" statement defines a global "
               "real vector.\n"
               "\tREAL VECTOR<name>=<real-vector-expression>;\n") {
@@ -34,17 +34,7 @@ RealVector::RealVector()
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-RealVector::RealVector(const std::string& name, RealVector* parent)
-    : ValueDefinition(name, parent) {}
-
 RealVector::~RealVector() {}
-
-bool RealVector::canReplaceBy(Object* object) {
-    // Replace only by another vector.
-    return (dynamic_cast<RealVector*>(object) != 0);
-}
-
-RealVector* RealVector::clone(const std::string& name) { return new RealVector(name, this); }
 
 void RealVector::print(std::ostream& os) const {
     // WARNING: Cannot print in OPAL-8 format.

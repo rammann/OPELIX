@@ -43,6 +43,8 @@ namespace {
 
     class TestableFieldSolverCmd final : public FieldSolverCmd {
     public:
+        using FieldSolverCmd::FieldSolverCmd;
+
         void setType(const std::string& t) {
             Attributes::setPredefinedString(this->itsAttr[FIELDSOLVER::TYPE], t);
         }
@@ -291,7 +293,7 @@ namespace {
                 std::filesystem::remove("data/unit_test_DesignPath.dat");
             }
             // Keep mesh small so scatter/solve/gather are quick.
-            fsCmd_m = std::make_shared<TestableFieldSolverCmd>();
+            fsCmd_m = std::make_shared<TestableFieldSolverCmd>("TEST_FIELDSOLVER");
             fsCmd_m->setType("NONE");
             fsCmd_m->setNX(nx);
             fsCmd_m->setNY(ny);
@@ -299,8 +301,13 @@ namespace {
             fsCmd_m->setParallelDimensions(true, true, true);
             fsCmd_m->execute();
 
-            dataSink_m     = std::make_shared<DataSink>();
-            beam_m         = std::make_shared<Beam>();
+            dataSink_m = std::make_shared<DataSink>();
+            // A full run defines UNNAMED_BEAM; OpalData owns it, so it outlives the bunch.
+            if (OpalData::getInstance()->find("UNNAMED_BEAM") == nullptr) {
+                auto* defaultBeam = new Beam("UNNAMED_BEAM");
+                defaultBeam->update();
+                OpalData::getInstance()->define(defaultBeam);
+            }
             Beam* testBeam = Beam::find("UNNAMED_BEAM");
 
             // qi/mi/lbt are used by rho scaling; but with NullSolver we mostly validate
@@ -672,7 +679,6 @@ namespace {
         std::unique_ptr<FFT2D5Algorithm> solver_m;
         std::shared_ptr<TestableFieldSolverCmd> fsCmd_m;
         std::shared_ptr<DataSink> dataSink_m;
-        std::shared_ptr<Beam> beam_m;
         std::shared_ptr<PartBunch_t> bunch_m;
         std::shared_ptr<ParticleContainer_t> pc_m;
     };

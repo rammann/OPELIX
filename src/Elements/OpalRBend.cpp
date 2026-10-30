@@ -25,20 +25,14 @@
 #include "Physics/Units.h"
 #include "Utilities/OpalException.h"
 
-OpalRBend::OpalRBend()
-    : OpalBend("RBEND", "The \"RBEND\" element defines a rectangular bending magnet.") {
+OpalRBend::OpalRBend(const std::string& name)
+    : OpalBend(name, "RBEND", "The \"RBEND\" element defines a rectangular bending magnet.") {
     registerOwnership();
 
-    setElement(new RBend("RBEND"));
-}
-
-OpalRBend::OpalRBend(const std::string& name, OpalRBend* parent) : OpalBend(name, parent) {
     setElement(new RBend(name));
 }
 
 OpalRBend::~OpalRBend() {}
-
-OpalRBend* OpalRBend::clone(const std::string& name) { return new OpalRBend(name, this); }
 
 void OpalRBend::update() {
     OpalElement::update();

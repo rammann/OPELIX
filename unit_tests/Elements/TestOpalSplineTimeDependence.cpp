@@ -20,21 +20,21 @@
 #include "gtest/gtest.h"
 
 TEST(TestOpalSplineTimeDependence, ConstructorTest) {
-    OpalSplineTimeDependence dep;
-    const OpalSplineTimeDependence* dep_clone = dep.clone("new name");
-    EXPECT_EQ(dep_clone->getOpalName(), "new name");
+    const OpalSplineTimeDependence dep("TD1");
+    EXPECT_EQ(dep.getOpalName(), "TD1");
+    EXPECT_EQ(dep.getKeyword(), "SPLINE_TIME_DEPENDENCE");
 }
 
 TEST(TestOpalSplineTimeDependence, PrintTest) {
-    const OpalSplineTimeDependence dep;
+    const OpalSplineTimeDependence dep("TD1");
     std::stringstream _string;
     dep.print(_string);
-    EXPECT_EQ(_string.str(), "SPLINE_TIME_DEPENDENCE;\n");
+    EXPECT_EQ(_string.str(), "TD1:SPLINE_TIME_DEPENDENCE;\n");
 }
 
 TEST(TestOpalSplineTimeDependence, UserInterface) {
     // Make the UI
-    OpalSplineTimeDependence ui;
+    OpalSplineTimeDependence ui("TD1");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalSplineTimeDependence::ORDER], 3);
     Attributes::setRealArray(ui.itsAttr[OpalSplineTimeDependence::TIMES], {1, 2, 3, 4});
@@ -43,7 +43,7 @@ TEST(TestOpalSplineTimeDependence, UserInterface) {
     EXPECT_NO_THROW(ui.update());
     // Check the values
     auto* myDependency = dynamic_cast<SplineTimeDependence*>(
-            AbstractTimeDependence::getTimeDependence("SPLINE_TIME_DEPENDENCE").get());
+            AbstractTimeDependence::getTimeDependence("TD1").get());
     EXPECT_TRUE(myDependency);
     EXPECT_EQ(myDependency->getSplineOrder(), 3);
     EXPECT_EQ(myDependency->getTimes(), (std::vector{1.0, 2.0, 3.0, 4.0}));
@@ -52,14 +52,14 @@ TEST(TestOpalSplineTimeDependence, UserInterface) {
 
 TEST(TestOpalSplineTimeDependence, DefaultValues) {
     // Make the UI
-    OpalSplineTimeDependence ui;
+    OpalSplineTimeDependence ui("TD1");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalSplineTimeDependence::ORDER], 1);
     // Update the object
     EXPECT_NO_THROW(ui.update());
     // Check the values
     auto* myDependency = dynamic_cast<SplineTimeDependence*>(
-            AbstractTimeDependence::getTimeDependence("SPLINE_TIME_DEPENDENCE").get());
+            AbstractTimeDependence::getTimeDependence("TD1").get());
     EXPECT_TRUE(myDependency);
     EXPECT_EQ(myDependency->getSplineOrder(), 1);
     EXPECT_EQ(myDependency->getTimes(), (std::vector{0.0, 1.0}));
@@ -68,7 +68,7 @@ TEST(TestOpalSplineTimeDependence, DefaultValues) {
 
 TEST(TestOpalSplineTimeDependence, UserInterfaceBadOrder) {
     // Make the UI
-    OpalSplineTimeDependence ui;
+    OpalSplineTimeDependence ui("TD1");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalSplineTimeDependence::ORDER], 2);
     Attributes::setRealArray(ui.itsAttr[OpalSplineTimeDependence::TIMES], {1, 2, 3, 4});

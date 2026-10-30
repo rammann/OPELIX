@@ -22,9 +22,9 @@
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 
-OpalTravelingWave::OpalTravelingWave()
+OpalTravelingWave::OpalTravelingWave(const std::string& name)
     : OpalElement(
-              SIZE, "TRAVELINGWAVE",
+              name, SIZE, "TRAVELINGWAVE",
               "The \"TRAVELINGWAVE\" element defines a traveling wave structure.") {
     itsAttr[VOLT]   = Attributes::makeReal("VOLT", "RF voltage in MV/m");
     itsAttr[DVOLT]  = Attributes::makeReal("DVOLT", "RF voltage error in MV/m");
@@ -43,19 +43,10 @@ OpalTravelingWave::OpalTravelingWave()
 
     registerOwnership();
 
-    setElement(new TravelingWave("TRAVELINGWAVE"));
-}
-
-OpalTravelingWave::OpalTravelingWave(const std::string& name, OpalTravelingWave* parent)
-    : OpalElement(name, parent) {
     setElement(new TravelingWave(name));
 }
 
 OpalTravelingWave::~OpalTravelingWave() {}
-
-OpalTravelingWave* OpalTravelingWave::clone(const std::string& name) {
-    return new OpalTravelingWave(name, this);
-}
 
 void OpalTravelingWave::update() {
     OpalElement::update();

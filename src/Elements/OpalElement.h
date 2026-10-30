@@ -83,11 +83,8 @@ public:
     virtual void update();
 
 protected:
-    /// Exemplar constructor.
-    OpalElement(int size, const char* name, const char* help);
-
-    /// Clone constructor.
-    OpalElement(const std::string& name, OpalElement* parent);
+    /// Create the element called [b]name[/b] for the input keyword [b]keyword[/b].
+    OpalElement(const std::string& name, int size, const char* keyword, const char* help);
 
     void registerOwnership() const;
 
@@ -100,8 +97,7 @@ private:
     //  @param hasElemEdge true if ELEMEDGE was set (placement along the reference path).
     //  @param has6DPose   true if any of X, Y, Z, THETA, PHI was set (6D lab-frame pose).
     //                     PSI is shared between both modes and is excluded from this test.
-    //  Throws OpalException if both or neither method is given. Skipped for the builtin
-    //  prototype, whose attributes are all unset.
+    //  Throws OpalException if both or neither method is given.
     void validatePlacement(bool hasElemEdge, bool has6DPose) const;
 
     // The original size of the attribute list.

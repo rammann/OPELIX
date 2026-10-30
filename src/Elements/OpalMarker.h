@@ -26,13 +26,10 @@
 
 class OpalMarker : public OpalElement {
 public:
-    /// Exemplar constructor.
-    OpalMarker();
+    /// Create the element called name.
+    explicit OpalMarker(const std::string& name);
 
     virtual ~OpalMarker();
-
-    /// Make clone.
-    virtual OpalMarker* clone(const std::string& name);
 
     /// Update the embedded OPALX marker.
     virtual void update();
@@ -41,9 +38,6 @@ private:
     // Not implemented.
     OpalMarker(const OpalMarker&);
     void operator=(const OpalMarker&);
-
-    // Clone constructor.
-    OpalMarker(const std::string& name, OpalMarker* parent);
 };
 
 #endif  // OPAL_OpalMarker_HH

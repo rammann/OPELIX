@@ -61,7 +61,7 @@ protected:
 };
 
 TEST_F(DeviceExternalFieldTest, OrderedCandidatesPreserveOccurrencesAndRejectUnknowns) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -99,7 +99,7 @@ TEST_F(DeviceExternalFieldTest, OrderedCandidatesPreserveOccurrencesAndRejectUnk
 }
 
 TEST_F(DeviceExternalFieldTest, PreparedOrderMakesDeviceFrameAndFieldWorkIndependentOfAddresses) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     const auto particles = bunch.getParticleContainer();
@@ -187,7 +187,7 @@ TEST_F(DeviceExternalFieldTest, PreparedOrderMakesDeviceFrameAndFieldWorkIndepen
 }
 
 TEST_F(DeviceExternalFieldTest, ThinMagnetDeviceImpulseEnergyAndSpectators) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -234,7 +234,7 @@ TEST_F(DeviceExternalFieldTest, ThinMagnetDeviceImpulseEnergyAndSpectators) {
 }
 
 TEST_F(DeviceExternalFieldTest, DeviceFieldsMatchPlacedHostBendsWithFringesAndMultipole) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     for (int kind = 0; kind < 3; ++kind) {
@@ -314,7 +314,7 @@ TEST_F(DeviceExternalFieldTest, FrameTransformAndReverseDriftStayOnDevice) {
 }
 
 TEST_F(DeviceExternalFieldTest, UniformRFCavityGeometryUsesItsWidthAndRejectsMagneticOnlyOracle) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -361,7 +361,7 @@ TEST_F(DeviceExternalFieldTest, UniformRFCavityGeometryUsesItsWidthAndRejectsMag
 }
 
 TEST_F(DeviceExternalFieldTest, RejectsUnimplementedDeviceFieldInsteadOfHostFallback) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -397,7 +397,7 @@ TEST_F(DeviceExternalFieldTest, RejectsUnimplementedDeviceFieldInsteadOfHostFall
 
 TEST_F(DeviceExternalFieldTest,
        EligibilityAcceptsPassivesAndRejectsOtherFieldModelsWithoutMutation) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -455,7 +455,7 @@ TEST_F(DeviceExternalFieldTest, CyclotronSectorRetainsItsMappedTrackingPath) {
     }
     const auto map = CyclotronSectorFieldMap::read(filename.string());
     std::filesystem::remove(filename);
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     Beamline line;
@@ -479,7 +479,7 @@ TEST_F(DeviceExternalFieldTest, CyclotronSectorRetainsItsMappedTrackingPath) {
 }
 
 TEST_F(DeviceExternalFieldTest, EligibilityRejectsHigherBendComponentsButAllowsZeroPadding) {
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     for (unsigned kind = 0; kind < 2; ++kind) {

@@ -25,19 +25,10 @@
 // Class Macro
 // ------------------------------------------------------------------------
 
-Macro::Macro(int size, const char* name, const char* help)
-    : Object(size, name, help), formals(), actuals() {}
-
-Macro::Macro(const std::string& name, Object* parent)
-    : Object(name, parent), formals(), actuals() {}
+Macro::Macro(const std::string& name, int size, const char* keyword, const char* help)
+    : Object(name, size, keyword, help), formals(), actuals() {}
 
 Macro::~Macro() {}
-
-Macro* Macro::clone(const std::string&) {
-    throw ParseError(
-            "Macro::clone()",
-            "You cannot execute the command \"" + getOpalName() + "\" without parameters.");
-}
 
 const std::string Macro::getCategory() const { return "MACRO"; }
 

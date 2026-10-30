@@ -70,11 +70,8 @@ public:
     const Attribute& value() const;
 
 protected:
-    /// Constructor for exemplars.
-    ValueDefinition(int size, const char* name, const char* help);
-
-    /// Constructor for clones.
-    ValueDefinition(const std::string& name, ValueDefinition* parent);
+    /// Create an object called [b]name[/b] for the input keyword [b]keyword[/b].
+    ValueDefinition(const std::string& name, int size, const char* keyword, const char* help);
 
     /// The declaration prefix.
     //  A string representing the value type in OPAL-9 input format:

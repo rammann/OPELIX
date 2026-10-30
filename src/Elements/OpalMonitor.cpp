@@ -21,20 +21,16 @@
 #include "Attributes/Attributes.h"
 #include "Utilities/Util.h"
 
-OpalMonitor::OpalMonitor()
-    : OpalElement(COMMON, "MONITOR", "The \"MONITOR\" element defines a monitor for both planes.") {
+OpalMonitor::OpalMonitor(const std::string& name)
+    : OpalElement(
+              name, COMMON, "MONITOR",
+              "The \"MONITOR\" element defines a monitor for both planes.") {
     registerOwnership();
 
-    setElement(new Monitor("MONITOR"));
-}
-
-OpalMonitor::OpalMonitor(const std::string& name, OpalMonitor* parent) : OpalElement(name, parent) {
     setElement(new Monitor(name));
 }
 
 OpalMonitor::~OpalMonitor() {}
-
-OpalMonitor* OpalMonitor::clone(const std::string& name) { return new OpalMonitor(name, this); }
 
 void OpalMonitor::update() {
     OpalElement::update();

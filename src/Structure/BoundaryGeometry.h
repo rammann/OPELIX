@@ -53,12 +53,8 @@ enum class Topology : unsigned short { RECTANGULAR, BOXCORNER, ELLIPTIC };
 
 class BoundaryGeometry : public Definition {
 public:
-    BoundaryGeometry();
+    explicit BoundaryGeometry(const std::string& name);
     virtual ~BoundaryGeometry();
-
-    virtual bool canReplaceBy(Object* object);
-
-    virtual BoundaryGeometry* clone(const std::string& name);
 
     // Check the GEOMETRY data.
     virtual void execute();
@@ -71,6 +67,7 @@ public:
 
     void updateElement(ElementBase* element);
 
+    /// Read the geometry file named by FGEOM and build the voxel mesh.
     void initialize();
 
     int partInside(
@@ -214,9 +211,6 @@ private:
 
     BoundaryGeometry(const BoundaryGeometry&);
     void operator=(const BoundaryGeometry&);
-
-    // Clone constructor.
-    BoundaryGeometry(const std::string& name, BoundaryGeometry* parent);
 
     inline const Vector_t<double, 3>& getPoint(const int triangle_id, const int vertex_id) {
         PAssert(1 <= vertex_id && vertex_id <= 3);

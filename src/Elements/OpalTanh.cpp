@@ -8,9 +8,9 @@
 
 extern Inform* gmsg;
 
-OpalTanh::OpalTanh()
+OpalTanh::OpalTanh(const std::string& name)
     : OpalElement(
-              SIZE, "TANH",
+              name, SIZE, "TANH",
               "The \"TANH\" element defines a tanh field fall off for plugging"
               "into analytical field models.") {
     itsAttr[LENGTH] =
@@ -29,7 +29,3 @@ void OpalTanh::update() {
     auto efmMan = endfieldmodel::EndFieldModelManager::getEFMManager();
     efmMan->setEndFieldModel(getOpalName(), efm);
 }
-
-OpalTanh::OpalTanh(const std::string& name, OpalTanh* parent) : OpalElement(name, parent) {}
-
-OpalTanh* OpalTanh::clone(const std::string& name) { return new OpalTanh(name, this); }

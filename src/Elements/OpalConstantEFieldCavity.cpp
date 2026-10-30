@@ -3,9 +3,9 @@
 #include "Attributes/Attributes.h"
 #include "Physics/Units.h"
 
-OpalConstantEFieldCavity::OpalConstantEFieldCavity()
+OpalConstantEFieldCavity::OpalConstantEFieldCavity(const std::string& name)
     : OpalElement(
-              SIZE, "CONSTANTEFIELDCAVITY",
+              name, SIZE, "CONSTANTEFIELDCAVITY",
               "The \"CONSTANTEFIELDCAVITY\" element defines a constant accelerating "
               "electric field in z-direction.") {
     itsAttr[EX] = Attributes::makeReal("EX", "Electric field strength Ex in MV/m", 0.0);
@@ -14,20 +14,10 @@ OpalConstantEFieldCavity::OpalConstantEFieldCavity()
 
     registerOwnership();
 
-    setElement(new ConstantEFieldCavity("CONSTANTEFIELDCAVITY"));
-}
-
-OpalConstantEFieldCavity::OpalConstantEFieldCavity(
-        const std::string& name, OpalConstantEFieldCavity* parent)
-    : OpalElement(name, parent) {
     setElement(new ConstantEFieldCavity(name));
 }
 
 OpalConstantEFieldCavity::~OpalConstantEFieldCavity() {}
-
-OpalConstantEFieldCavity* OpalConstantEFieldCavity::clone(const std::string& name) {
-    return new OpalConstantEFieldCavity(name, this);
-}
 
 void OpalConstantEFieldCavity::update() {
     OpalElement::update();

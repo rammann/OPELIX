@@ -96,5 +96,10 @@ std::multimap<AttributeHandler::OwnerType, std::string> AttributeHandler::getOwn
 void AttributeHandler::addAttributeOwner(
         const std::string& owner, const AttributeHandler::OwnerType& type,
         const std::string& name) {
+    // Every object registers its attributes when it is created, so skip known pairs.
+    auto range = attributeOwnerDictionary_s.equal_range(name);
+    for (auto it = range.first; it != range.second; ++it) {
+        if (it->second.first == type && it->second.second == owner) return;
+    }
     attributeOwnerDictionary_s.insert(std::make_pair(name, std::make_pair(type, owner)));
 }

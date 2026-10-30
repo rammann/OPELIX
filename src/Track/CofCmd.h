@@ -12,14 +12,12 @@
  */
 class CofCmd : public Action {
 public:
-    CofCmd();
-    CofCmd* clone(const std::string& name) override;
+    explicit CofCmd(const std::string& name);
     void execute() override;
     /// Resolve a completed named solve; templates and unrelated objects are rejected.
     static const ClosedOrbitInitialState& findResult(const std::string& name);
 
 private:
-    CofCmd(const std::string& name, CofCmd* parent);
     std::optional<ClosedOrbitInitialState> result_m;
 };
 #endif

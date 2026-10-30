@@ -89,9 +89,9 @@ namespace DISTRIBUTION {
     };
 }
 
-Distribution::Distribution()
+Distribution::Distribution(const std::string& name)
     : Definition(
-              DISTRIBUTION::SIZE, "DISTRIBUTION",
+              name, DISTRIBUTION::SIZE, "DISTRIBUTION",
               "The DISTRIBUTION statement defines data for the 6D particle distribution."),
       totalNumberParticles_m(0),
       distrTypeT_m(DistributionType::NODIST),
@@ -181,9 +181,6 @@ Distribution::Distribution()
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-Distribution::Distribution(const std::string& name, Distribution* parent)
-    : Definition(name, parent) {}
-
 Distribution::~Distribution() {}
 
 /**
@@ -204,11 +201,6 @@ size_t Distribution::getNumOfLocalParticlesToCreate(size_t n) {
 
     return locNumber;
 }
-
-/// Distribution can only be replaced by another distribution.
-bool Distribution::canReplaceBy(Object* object) { return dynamic_cast<Distribution*>(object) != 0; }
-
-Distribution* Distribution::clone(const std::string& name) { return new Distribution(name, this); }
 
 void Distribution::execute() {
     setAttributes();

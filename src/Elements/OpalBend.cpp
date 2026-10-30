@@ -26,7 +26,8 @@
 // Class OpalBend
 // ------------------------------------------------------------------------
 
-OpalBend::OpalBend(const char* name, const char* help) : OpalElement(SIZE, name, help) {
+OpalBend::OpalBend(const std::string& name, const char* keyword, const char* help)
+    : OpalElement(name, SIZE, keyword, help) {
     itsAttr[ANGLE] = Attributes::makeReal("ANGLE", "Upright dipole coefficient in m^(-1)");
     itsAttr[K0]    = Attributes::makeReal("K0", "Normal dipole coefficient in m^(-1)");
     itsAttr[K0S]   = Attributes::makeReal("K0S", "Skew dipole coefficient in m^(-1)");
@@ -62,7 +63,5 @@ OpalBend::OpalBend(const char* name, const char* help) : OpalElement(SIZE, name,
     itsAttr[NSLICES]       = Attributes::makeReal(
             "NSLICES", "The number of slices/ steps for this element in Map Tracking", 1);
 }
-
-OpalBend::OpalBend(const std::string& name, OpalBend* parent) : OpalElement(name, parent) {}
 
 OpalBend::~OpalBend() {}

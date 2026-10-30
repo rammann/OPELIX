@@ -22,13 +22,10 @@
 
 class Echo : public Action {
 public:
-    /// Exemplar constructor.
-    Echo();
+    /// Create the command called [b]name[/b].
+    explicit Echo(const std::string& name);
 
     virtual ~Echo();
-
-    /// Make clone.
-    virtual Echo* clone(const std::string& name);
 
     /// Execute the command.
     virtual void execute();
@@ -40,9 +37,6 @@ private:
     // Not implemented.
     Echo(const Echo&);
     void operator=(const Echo&);
-
-    // Clone constructor.
-    Echo(const std::string& name, Echo* parent);
 };
 
 #endif  // OPAL_Echo_HH

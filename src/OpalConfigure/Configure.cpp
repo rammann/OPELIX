@@ -2,9 +2,10 @@
 // Namespace Configure
 //   The OPAL configurator.
 //   This class must be modified to configure the commands to be contained
-//   in an executable OPAL program. For each command an exemplar object
-//   is constructed and linked to the main directory. This exemplar is then
-//   available to the OPAL parser for cloning.
+//   in an executable OPAL program. For each command keyword it registers a
+//   function in OpalData that creates a new object; the OPAL parser calls it
+//   for every statement with that keyword. It also defines the built-in
+//   objects (constants, P0, the line markers #S and #E, UNNAMED_BEAM).
 //   This class could be part of the class OpalData.  It is separated from
 //   that class and opale into a special module in order to reduce
 //   dependencies between modules.
@@ -98,80 +99,104 @@
 
 #include "changes.h"
 
+#include <memory>
+
 // Modify these methods to add new commands.
 // ------------------------------------------------------------------------
 
 namespace {
 
+    /// Register the input keyword of class T.
+    //  Building one object reads its keyword and records which keyword owns
+    //  which attribute, for the hints in parse error messages.
+    template <class T>
+    void add() {
+        OpalData::getInstance()->addKeyword(T("").getKeyword(), [](const std::string& name) {
+            return std::make_unique<T>(name);
+        });
+    }
+
     void makeActions() {
-        OpalData* opal = OpalData::getInstance();
-        opal->create(new Call());
-        opal->create(new DumpEMFields());
-        opal->create(new Echo());
-        opal->create(new Help());
-        opal->create(new Option());
-        opal->create(new Stop());
-        opal->create(new Quit());
-        opal->create(new PSystem());
-        opal->create(new System());
-        opal->create(new Title());
-        opal->create(new TrackCmd());
-        opal->create(new CofCmd());
-        opal->create(new Value());
+        add<Call>();
+        add<DumpEMFields>();
+        add<Echo>();
+        add<Help>();
+        add<Option>();
+        add<Stop>();
+        add<Quit>();
+        add<PSystem>();
+        add<System>();
+        add<Title>();
+        add<TrackCmd>();
+        add<CofCmd>();
+        add<Value>();
     }
 
     void makeDefinitions() {
-        OpalData* opal = OpalData::getInstance();
-        // Must create the value definitions first.
-        opal->create(new BoolConstant());
-        opal->create(new RealConstant());
-        opal->create(new RealVariable());
-        opal->create(new RealVector());
-        opal->create(new StringConstant());
+        add<MacroCmd>();
 
-        opal->create(new MacroCmd());
-
-        opal->create(new Beam());
-        opal->create(new EmissionSource());
-        opal->create(new FieldSolverCmd());
-        opal->create(new Distribution());
-        opal->create(new EmissionSourceList());
-        opal->create(new BinningCmd());
+        add<Beam>();
+        add<EmissionSource>();
+        add<FieldSolverCmd>();
+        add<Distribution>();
+        add<EmissionSourceList>();
+        add<BinningCmd>();
     }
 
     void makeElements() {
-        OpalData* opal = OpalData::getInstance();
-        opal->create(new OpalCavity());
-        opal->create(new OpalTravelingWave());
-        opal->create(new OpalConstantEFieldCavity());
-        opal->create(new OpalConstantFocusing());
-        opal->create(new OpalCyclotronSector());
-        opal->create(new OpalTrimCoil());
-        opal->create(new OpalBox());
-        opal->create(new OpalCollimator());
-        opal->create(new OpalDrift());
-        opal->create(new OpalLaser());
-        opal->create(new OpalMonitor());
-        opal->create(new OpalMarker());
-        opal->create(new OpalProbe());
-        opal->create(new OpalMultipole());
-        opal->create(new OpalQuadrupole());
-        opal->create(new OpalRBend());
-        opal->create(new OpalSBend());
-        opal->create(new OpalScalingFFAMagnet());
-        opal->create(new OpalFieldmapElement());
-        opal->create(new OpalSolenoid());
-        opal->create(new Line());
-        opal->create(new Ring());
-        opal->create(new OpalPolynomialTimeDependence());
-        opal->create(new OpalSinusoidalTimeDependence());
-        opal->create(new OpalSplineTimeDependence());
-        opal->create(new OpalMultipoleT());
-        opal->create(new OpalVariableRFCavity());
+        add<OpalCavity>();
+        add<OpalTravelingWave>();
+        add<OpalConstantEFieldCavity>();
+        add<OpalConstantFocusing>();
+        add<OpalCyclotronSector>();
+        add<OpalTrimCoil>();
+        add<OpalBox>();
+        add<OpalCollimator>();
+        add<OpalDrift>();
+        add<OpalLaser>();
+        add<OpalMonitor>();
+        add<OpalMarker>();
+        add<OpalProbe>();
+        add<OpalMultipole>();
+        add<OpalQuadrupole>();
+        add<OpalRBend>();
+        add<OpalSBend>();
+        add<OpalScalingFFAMagnet>();
+        add<OpalFieldmapElement>();
+        add<OpalSolenoid>();
+        add<Line>();
+        add<Ring>();
+        add<OpalPolynomialTimeDependence>();
+        add<OpalSinusoidalTimeDependence>();
+        add<OpalSplineTimeDependence>();
+        add<OpalMultipoleT>();
+        add<OpalVariableRFCavity>();
 
-        opal->create(new OpalEnge());
-        opal->create(new OpalTanh());
-        opal->create(new OpalAsymmetricEnge());
+        add<OpalEnge>();
+        add<OpalTanh>();
+        add<OpalAsymmetricEnge>();
+    }
+
+    /// Define the objects that exist before the input is read.
+    void makeBuiltins() {
+        RealConstant::defineBuiltins();
+        RealVariable::defineBuiltins();
+        StringConstant::defineBuiltins();
+
+        // The begin and end markers that Line puts around every beam line.
+        for (const char* name : {"#S", "#E"}) {
+            auto* marker = new OpalMarker(name);
+            marker->getElement()->makeSharable();
+            OpalData::getInstance()->define(marker);
+        }
+
+        // The beam TRACK uses when BEAM is not given.
+        auto defBeam = std::make_unique<Beam>("UNNAMED_BEAM");
+        try {
+            defBeam->update();
+            OpalData::getInstance()->define(defBeam.release());
+        } catch (...) {
+        }
     }
 };  // namespace
 
@@ -180,6 +205,7 @@ namespace Configure {
         makeDefinitions();
         makeElements();
         makeActions();
+        makeBuiltins();
         Versions::fillChanges();
     }
 };  // namespace Configure

@@ -32,13 +32,10 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    OpalSolenoid();
+    /// Create the element called name.
+    explicit OpalSolenoid(const std::string& name);
 
     virtual ~OpalSolenoid();
-
-    /// Make clone.
-    virtual OpalSolenoid* clone(const std::string& name);
 
     /// Update the embedded OPALX solenoid.
     virtual void update();
@@ -47,9 +44,6 @@ private:
     // Not implemented.
     OpalSolenoid(const OpalSolenoid&);
     void operator=(const OpalSolenoid&);
-
-    // Clone constructor.
-    OpalSolenoid(const std::string& name, OpalSolenoid* parent);
 };
 
 #endif  // OPAL_OpalSolenoid_HH

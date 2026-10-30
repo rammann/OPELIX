@@ -52,6 +52,9 @@ struct OpalDataImpl {
     // The main object directory.
     Directory mainDirectory;
 
+    // The input keywords and the functions that create their objects.
+    std::map<std::string, OpalData::ObjectMaker> keywords;
+
     // The value of the global momentum.
     ValueDefinition* referenceMomentum;
 
@@ -280,49 +283,21 @@ void OpalData::setGlobalGeometry(BoundaryGeometry* bg) { p->bg_m = bg; }
 
 bool OpalData::hasGlobalGeometry() { return p->bg_m != nullptr; }
 
-void OpalData::apply(const std::function<void(Object*)>& fun) {
-    for (ObjectDir::iterator i = p->mainDirectory.begin(); i != p->mainDirectory.end(); ++i) {
-        fun(&*i->second);
-    }
+void OpalData::addKeyword(const std::string& keyword, ObjectMaker make) {
+    p->keywords[keyword] = std::move(make);
 }
 
-void OpalData::create(Object* newObject) {
-    // Test for existing node with same name.
-    const std::string name = newObject->getOpalName();
-    Object* oldObject      = p->mainDirectory.find(name);
-
-    if (oldObject != nullptr) {
-        throw OpalException(
-                "OpalData::create()", "You cannot replace the object \"" + name + "\".");
-    } else {
-        p->mainDirectory.insert(name, newObject);
-    }
+std::unique_ptr<Object> OpalData::makeObject(
+        const std::string& keyword, const std::string& name) const {
+    auto it = p->keywords.find(keyword);
+    return it == p->keywords.end() ? nullptr : it->second(name);
 }
 
 void OpalData::define(Object* newObject) {
-    // Test for existing node with same name.
     const std::string name = newObject->getOpalName();
-    Object* oldObject      = p->mainDirectory.find(name);
-
-    if (oldObject != nullptr && oldObject != newObject) {
-        // Attempt to replace an object.
-        if (oldObject->isBuiltin() || !oldObject->canReplaceBy(newObject)) {
-            throw OpalException(
-                    "OpalData::define()", "You cannot replace the object \"" + name + "\".");
-        } else {
-            if (Options::info) {
-                *ippl::Info << "Replacing the object \"" << name << "\"." << endl;
-            }
-
-            // Replace all references to this object.
-            for (ObjectDir::iterator i = p->mainDirectory.begin(); i != p->mainDirectory.end();
-                 ++i) {
-                (*i).second->replace(oldObject, newObject);
-            }
-
-            // Remove old object.
-            erase(name);
-        }
+    if (p->mainDirectory.find(name) != nullptr) {
+        throw OpalException(
+                "OpalData::define()", "The object \"" + name + "\" is already defined.");
     }
 
     // Force re-evaluation of expressions.
@@ -334,22 +309,6 @@ void OpalData::define(Object* newObject) {
         if (ValueDefinition* p0 = dynamic_cast<ValueDefinition*>(newObject)) {
             setP0(p0);
         }
-    }
-}
-
-void OpalData::erase(const std::string& name) {
-    Object* oldObject = p->mainDirectory.find(name);
-
-    if (oldObject != nullptr) {
-        // Relink all children of "this" to "this->getParent()".
-        for (ObjectDir::iterator i = p->mainDirectory.begin(); i != p->mainDirectory.end(); ++i) {
-            Object* child = &*i->second;
-            if (child->getParent() == oldObject) {
-                child->setParent(oldObject->getParent());
-            }
-        }
-        // Remove the object.
-        p->mainDirectory.erase(name);
     }
 }
 

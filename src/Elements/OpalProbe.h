@@ -32,13 +32,10 @@ public:
         STEP,             // Step size of the probe
         SIZE
     };
-    /// Exemplar constructor.
-    OpalProbe();
+    /// Create the element called name.
+    explicit OpalProbe(const std::string& name);
 
     virtual ~OpalProbe();
-
-    /// Make clone.
-    virtual OpalProbe* clone(const std::string& name);
 
     /// Update the embedded OPALX probe.
     virtual void update();
@@ -47,9 +44,6 @@ private:
     // Not implemented.
     OpalProbe(const OpalProbe&);
     void operator=(const OpalProbe&);
-
-    // Clone constructor.
-    OpalProbe(const std::string& name, OpalProbe* parent);
 };
 
 #endif  // OPAL_OpalProbe_HH

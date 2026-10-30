@@ -26,19 +26,18 @@ namespace {
 
     class TestableRing : public Ring {
     public:
+        using Ring::Ring;
+
         Beamline* line() { return fetchLine(); }
     };
 }  // namespace
 
 class RingTest : public ::testing::Test {
 protected:
-    Ring* makeRing(const std::string& name) { return exemplar_m.clone(name); }
-
-private:
-    Ring exemplar_m;
+    Ring* makeRing(const std::string& name) { return new Ring(name); }
 };
 
-TEST_F(RingTest, ClonesAndPrintsRingDefinition) {
+TEST_F(RingTest, PrintsRingDefinition) {
     std::unique_ptr<Ring> ring(makeRing("TEST_RING"));
 
     std::ostringstream output;
@@ -80,7 +79,7 @@ TEST(RingMembershipTest, ClonesAndTagsOccurrencesRecursively) {
     auto nested    = std::make_shared<Beamline>("SUBLINE");
     nested->push_back(FlaggedElmPtr(prototype));
 
-    TestableRing ring;
+    TestableRing ring("RING");
     ring.line()->push_back(FlaggedElmPtr(marker));
     ring.line()->push_back(FlaggedElmPtr(prototype));
     ring.line()->push_back(FlaggedElmPtr(prototype));
@@ -114,10 +113,8 @@ TEST(RingMembershipTest, ClonesAndTagsOccurrencesRecursively) {
 
 TEST(RingMembershipTest, KeepsSharedPrototypeIndependentAcrossRings) {
     auto prototype = std::make_shared<Drift>("SHARED");
-    TestableRing first;
-    TestableRing second;
-    first.setOpalName("R1");
-    second.setOpalName("R2");
+    TestableRing first("R1");
+    TestableRing second("R2");
     first.line()->push_back(FlaggedElmPtr(prototype));
     second.line()->push_back(FlaggedElmPtr(prototype));
 
@@ -144,7 +141,7 @@ TEST(RingMembershipTest, CircumferenceCountsNominalArcsAndDriftsNotFringeSupport
     auto nested = std::make_shared<Beamline>("CELL");
     nested->push_back(FlaggedElmPtr(bend));
     nested->push_back(FlaggedElmPtr(drift));
-    TestableRing ring;
+    TestableRing ring("RING");
     ring.line()->push_back(FlaggedElmPtr(nested));
     ring.line()->push_back(FlaggedElmPtr(nested));
     for (const double gap : {0.0, 0.1, 0.2}) {

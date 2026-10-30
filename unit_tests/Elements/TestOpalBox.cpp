@@ -26,19 +26,13 @@ namespace {
 
     class TestOpalBox : public testing::Test {
     public:
-        TestOpalBox() = default;
-
         /**
          * @brief A BOX as an input file would define it.
-         *
-         * The tests must run against a *clone*, not the exemplar: OpalData
-         * calls update() on the builtin prototype too, and the attribute
-         * validation is skipped there.
          */
         std::unique_ptr<OpalBox> makeBox(
                 double length, double width, double height,
                 const std::optional<std::string>& aperture = std::nullopt) {
-            std::unique_ptr<OpalBox> box(exemplar_m.clone("B1"));
+            auto box = std::make_unique<OpalBox>("B1");
             Attributes::setReal(*box->findAttribute("L"), length);
             Attributes::setReal(*box->findAttribute("WIDTH"), width);
             Attributes::setReal(*box->findAttribute("HEIGHT"), height);
@@ -49,10 +43,6 @@ namespace {
             box->update();
             return box;
         }
-
-    private:
-        /// Outlives every clone made from it.
-        OpalBox exemplar_m;
     };
 
 }  // namespace
@@ -81,9 +71,4 @@ TEST_F(TestOpalBox, ApertureThrows) {
     // The aperture decides whether the element is registered along the
     // reference path, so a BOX must keep the wide-open default.
     EXPECT_THROW(makeBox(0.1, 0.02, 0.04, "CIRCLE(0.02)"), OpalException);
-}
-
-TEST_F(TestOpalBox, BuiltinExemplarPassesValidation) {
-    OpalBox exemplar;
-    EXPECT_NO_THROW(exemplar.update());
 }

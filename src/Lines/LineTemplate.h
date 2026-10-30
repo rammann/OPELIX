@@ -35,12 +35,8 @@ class LineTemplate : public Macro {
     friend class Line;
 
 public:
-    LineTemplate();
+    explicit LineTemplate(const std::string& name);
     virtual ~LineTemplate();
-
-    /// Make clone.
-    //  Throw OpalException, since the template cannot be cloned.
-    virtual LineTemplate* clone(const std::string& name);
 
     /// Make line instance.
     //  The instance gets the name [b]name[/b], and its actual arguments
@@ -59,9 +55,6 @@ private:
     // Not implemented.
     LineTemplate(const LineTemplate&);
     void operator=(const LineTemplate&);
-
-    // Clone constructor.
-    LineTemplate(const std::string& name, Object* parent);
 
     // The contained beam line element list.
     MacroStream body;

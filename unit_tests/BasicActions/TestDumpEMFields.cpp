@@ -127,10 +127,10 @@ namespace {
 
     TEST(TestDumpEMFields, ConstructorDestructor) {
         // neither in the set and grid is null
-        const auto* dump1 = new DumpEMFields();
+        const auto* dump1 = new DumpEMFields("DUMP1");
         delete dump1;
         // grid is not null and it is in the set
-        auto* dump2 = new DumpEMFields();
+        auto* dump2 = new DumpEMFields("DUMP2");
         setAttributesCart(dump2, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., "/dev/null");
         dump2->execute();
         delete dump2;
@@ -149,7 +149,7 @@ namespace {
     TEST(TestDumpEMFields, executeTest) {
         gmsg = new Inform(nullptr, -1);
         // dump the fields
-        DumpEMFields dump1;
+        DumpEMFields dump1("DUMP1");
         execute_throws(&dump1, "should throw due to nsteps < 1");
         setAttributesCart(&dump1, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., "/dev/null");
         dump1.execute();  // should be okay (normal)
@@ -195,16 +195,16 @@ namespace {
         std::string fname4 = "test8";
 
         clear_files({fname1, fname2, fname3, fname4});
-        DumpEMFields dump1;
+        DumpEMFields dump1("DUMP1");
         setAttributesCart(&dump1, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., fname1);
         dump1.execute();
-        DumpEMFields dump2;
+        DumpEMFields dump2("DUMP2");
         setAttributesCart(&dump2, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., fname2);
         dump2.execute();
-        DumpEMFields dump3;
+        DumpEMFields dump3("DUMP3");
         setAttributesCart(&dump3, 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., 1., fname3);
         // note we don't execute dump3; so it should not be written
-        DumpEMFields dump4;
+        DumpEMFields dump4("DUMP4");
         setAttributesCart(&dump4, 0.1, 0.1, 3., -0.1, 0.2, 2., 0.2, 0.3, 2., 1., 1., 2., fname4);
         dump4.execute();
         std::set<std::shared_ptr<ElementBase>> elements;
@@ -266,7 +266,7 @@ namespace {
         std::string fnameCyl = "testCyl";
 
         clear_files({fnameCyl});
-        DumpEMFields dump;
+        DumpEMFields dump("DUMP");
         setAttributesCyl(
                 &dump, 0.1, 0.1, 3., 90. * Units::deg2rad, 45. * Units::deg2rad, 16, 0.2, 0.3, 2.,
                 1., 1., 2., fnameCyl);
@@ -330,12 +330,12 @@ namespace {
         std::string fnameCyl2 = "testCyl2";
 
         clear_files({fnameCyl1, fnameCyl2});
-        DumpEMFields dump1;
+        DumpEMFields dump1("DUMP1");
         setAttributesCyl(
                 &dump1, 0.1, 0., 1., 45. * Units::deg2rad, 0., 1, -0.1, 0., 1., 1., 0., 1.,
                 fnameCyl1);
         dump1.execute();
-        DumpEMFields dump2;
+        DumpEMFields dump2("DUMP2");
         setAttributesCyl(
                 &dump2, 0.1, 0., 1., 45. * Units::deg2rad, 0., 1, -0.1, 0., 1., 1., 0., 1.,
                 fnameCyl2);
@@ -397,7 +397,7 @@ namespace {
         std::string fnameCyl = "testCyl";
 
         clear_files({fnameCyl});
-        DumpEMFields dump;
+        DumpEMFields dump("DUMP");
         setAttributesCyl(
                 &dump, 0.1, 0.1, 3., 90. * Units::deg2rad, 45. * Units::deg2rad, 16, 0.2, 0.3, 2.,
                 1., 1., 2., fnameCyl);
@@ -414,7 +414,7 @@ namespace {
         std::filesystem::create_directory(auxDirectory);
         gmsg                 = new Inform(nullptr, -1);
         std::string fnameCyl = ".";  // Opening for write to a directory always fails
-        DumpEMFields dump;
+        DumpEMFields dump("DUMP");
         setAttributesCyl(
                 &dump, 0.1, 0.1, 3., 90. * Units::deg2rad, 45. * Units::deg2rad, 16, 0.2, 0.3, 2.,
                 1., 1., 2., fnameCyl);
@@ -430,7 +430,7 @@ namespace {
         std::filesystem::create_directory(auxDirectory);
         gmsg                 = new Inform(nullptr, -1);
         std::string fnameCyl = "testCyl";
-        DumpEMFields dump;
+        DumpEMFields dump("DUMP");
         setAttributesCyl(
                 &dump, 0.1, 0.1, 3., 90. * Units::deg2rad, 45. * Units::deg2rad, 16, 0.2, 0.3, 2.,
                 1., 1., 2., fnameCyl);

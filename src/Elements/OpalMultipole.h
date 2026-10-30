@@ -31,13 +31,10 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    OpalMultipole();
+    /// Create the element called name.
+    explicit OpalMultipole(const std::string& name);
 
     virtual ~OpalMultipole();
-
-    /// Make clone.
-    virtual OpalMultipole* clone(const std::string& name);
 
     /// Update the embedded OPALX multipole.
     virtual void update();
@@ -46,9 +43,6 @@ private:
     // Not implemented.
     OpalMultipole(const OpalMultipole&);
     void operator=(const OpalMultipole&);
-
-    // Clone constructor.
-    OpalMultipole(const std::string& name, OpalMultipole* parent);
 };
 
 #endif  // OPAL_OpalMultipole_HH

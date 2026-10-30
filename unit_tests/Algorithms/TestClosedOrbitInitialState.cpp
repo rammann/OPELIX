@@ -65,13 +65,15 @@ TEST(ClosedOrbitInitialState, CompatibilityAndIndependentSnapshots) {
 }
 
 TEST(ClosedOrbitInitialState, CofAttributesAreOnSingleCommand) {
-    CofCmd command;
+    CofCmd command("COF");
     for (const auto* name :
          {"LINE", "BEAM", "DT", "X", "PX", "Y", "PY", "XTOL", "PTOL", "OUTPUT", "FDSTEP", "SCALES"})
         EXPECT_NE(command.findAttribute(name), nullptr) << name;
     EXPECT_TRUE(command.findAttribute("OUTPUT")->defaultUsed());
     EXPECT_TRUE(Attributes::getString(*command.findAttribute("OUTPUT")).empty());
-    std::unique_ptr<CofCmd> copy(command.clone("IC"));
-    EXPECT_EQ(copy->getOpalName(), "IC");
-    EXPECT_TRUE(copy->findAttribute("OUTPUT")->defaultUsed());
+    // A second command does not see attributes set on the first.
+    Attributes::setString(*command.findAttribute("OUTPUT"), "cof_out");
+    CofCmd other("IC");
+    EXPECT_EQ(other.getOpalName(), "IC");
+    EXPECT_TRUE(other.findAttribute("OUTPUT")->defaultUsed());
 }

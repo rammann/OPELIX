@@ -23,7 +23,7 @@
 TEST(TestOpalTanh, TestSetup) {
     Kokkos::initialize();
     // Make the UI
-    OpalTanh ui;
+    OpalTanh ui("TANH");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalTanh::LENGTH], 4);
     Attributes::setReal(ui.itsAttr[OpalTanh::FRINGE_LENGTH], 2);

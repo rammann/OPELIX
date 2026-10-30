@@ -29,13 +29,10 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    OpalBox();
+    /// Create the element called name.
+    explicit OpalBox(const std::string& name);
 
     virtual ~OpalBox();
-
-    /// Make clone.
-    virtual OpalBox* clone(const std::string& name);
 
     /**
      * @brief Update the embedded OPALX box.
@@ -49,9 +46,6 @@ private:
     // Not implemented.
     OpalBox(const OpalBox&);
     void operator=(const OpalBox&);
-
-    // Clone constructor.
-    OpalBox(const std::string& name, OpalBox* parent);
 };
 
 #endif  // OPAL_OpalBox_HH

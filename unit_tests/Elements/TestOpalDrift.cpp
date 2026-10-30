@@ -31,7 +31,7 @@ namespace {
     };
 
     std::unique_ptr<OpalDrift> makeDrift(const std::optional<std::string>& aperture) {
-        auto drift = std::make_unique<OpalDrift>();
+        auto drift = std::make_unique<OpalDrift>("D1");
         Attributes::setReal(*drift->findAttribute("L"), 2.0);
         Attributes::setReal(*drift->findAttribute("ELEMEDGE"), 0.0);
         if (aperture.has_value()) {

@@ -91,6 +91,8 @@ protected:
 
     class TestableFieldSolverCmd : public FieldSolverCmd {
     public:
+        using FieldSolverCmd::FieldSolverCmd;
+
         void setType(const std::string& t) {
             Attributes::setPredefinedString(this->itsAttr[FIELDSOLVER::TYPE], t);
         }
@@ -110,7 +112,7 @@ protected:
 
     std::shared_ptr<PartBunch_t> makeBunch(const size_t numParticles) {
         dataSink_m       = std::make_shared<DataSink>();
-        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>();
+        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>("TEST_FIELDSOLVER");
         fsCmdBase_m      = fsCmd;
         fsCmd->setType("NONE");
         fsCmd->setNX(8);
@@ -120,7 +122,12 @@ protected:
         fsCmd->setBCY("PERIODIC");
         fsCmd->setBCZ("PERIODIC");
 
-        auto beam    = std::make_shared<Beam>();
+        // A full run defines UNNAMED_BEAM; OpalData owns it, so it outlives the bunch.
+        if (OpalData::getInstance()->find("UNNAMED_BEAM") == nullptr) {
+            auto* defaultBeam = new Beam("UNNAMED_BEAM");
+            defaultBeam->update();
+            OpalData::getInstance()->define(defaultBeam);
+        }
         Beam* opBeam = Beam::find("UNNAMED_BEAM");
         EXPECT_NE(opBeam, nullptr);
 
@@ -425,7 +432,7 @@ TEST_F(OpalBeamlinePlacementTest, RBendModeAMatchesModeB) {
 TEST_F(OpalBeamlinePlacementTest, SBendRejectsPoleFaceAngleE1) {
     // E1/E2 pole-face rotations are not wired yet; specifying one must error instead of being
     // silently ignored.
-    OpalSBend sbend;
+    OpalSBend sbend("SBEND");
     Attributes::setReal(*sbend.findAttribute("L"), 0.5);
     Attributes::setReal(*sbend.findAttribute("ELEMEDGE"), 0.0);
     Attributes::setReal(*sbend.findAttribute("ANGLE"), 0.3);
@@ -434,8 +441,10 @@ TEST_F(OpalBeamlinePlacementTest, SBendRejectsPoleFaceAngleE1) {
 }
 
 TEST_F(OpalBeamlinePlacementTest, RBendDerivesEntranceAngleFromE2) {
-    [[maybe_unused]] static auto* p0Owner = new RealVariable();
-    OpalRBend rbend;
+    if (OpalData::getInstance()->find("P0") == nullptr) {
+        RealVariable::defineBuiltins();
+    }
+    OpalRBend rbend("RBEND");
     Attributes::setReal(*rbend.findAttribute("L"), 0.5);
     Attributes::setReal(*rbend.findAttribute("ELEMEDGE"), 0.0);
     Attributes::setReal(*rbend.findAttribute("ANGLE"), 0.3);

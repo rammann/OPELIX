@@ -18,9 +18,9 @@
 #include "AbsBeamline/MultipoleT.h"
 #include "Attributes/Attributes.h"
 
-OpalMultipoleT::OpalMultipoleT()
+OpalMultipoleT::OpalMultipoleT(const std::string& name)
     : OpalElement(
-              SIZE, "MULTIPOLET",
+              name, SIZE, "MULTIPOLET",
               "The \"MULTIPOLET\" element defines a combined function multipole.") {
     // Attributes for a straight multipole
     itsAttr[TP] = Attributes::makeRealArray(
@@ -57,16 +57,7 @@ OpalMultipoleT::OpalMultipoleT()
             "The name of the time dependence model, which should give a scaling factor.");
 
     registerOwnership();
-    setElement(new MultipoleT("MULTIPOLET"));
-}
-
-OpalMultipoleT::OpalMultipoleT(const std::string& name, OpalMultipoleT* parent)
-    : OpalElement(name, parent) {
     setElement(new MultipoleT(name));
-}
-
-OpalMultipoleT* OpalMultipoleT::clone(const std::string& name) {
-    return new OpalMultipoleT(name, this);
 }
 
 void OpalMultipoleT::update() {

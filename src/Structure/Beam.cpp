@@ -56,9 +56,9 @@ namespace {
     };
 }  // namespace
 
-Beam::Beam()
+Beam::Beam(const std::string& name)
     : Definition(
-              SIZE, "BEAM",
+              name, SIZE, "BEAM",
               "The \"BEAM\" statement defines data for the particles "
               "in a beam."),
       reference(1.0, Physics::m_p * Units::GeV2eV, 1.0 * Units::GeV2eV) {
@@ -120,31 +120,10 @@ Beam::Beam()
             "value is overwritten by the decay, but POLARIZATION must still be set to "
             "enable the spin storage that receives it.");
 
-    // Set up default beam.
-    Beam* defBeam    = clone("UNNAMED_BEAM");
-    defBeam->builtin = true;
-
-    try {
-        defBeam->update();
-        OpalData::getInstance()->define(defBeam);
-    } catch (...) {
-        delete defBeam;
-    }
-
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-Beam::Beam(const std::string& name, Beam* parent)
-    : Definition(name, parent), reference(parent->reference) {}
-
 Beam::~Beam() {}
-
-bool Beam::canReplaceBy(Object* object) {
-    // Can replace only by another BEAM.
-    return dynamic_cast<Beam*>(object) != 0;
-}
-
-Beam* Beam::clone(const std::string& name) { return new Beam(name, this); }
 
 void Beam::execute() {
     const bool photon = itsAttr[PARTICLE] && getParticleName() == photonParticleName;

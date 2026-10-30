@@ -58,9 +58,9 @@ namespace {
             Options::useQMAttributes               = false;
             storageConfig.periodicParticleBoundary = true;
 
-            beamObject = std::make_unique<Beam>();
-            beam       = Beam::find("UNNAMED_BEAM");
-            ASSERT_NE(beam, nullptr);
+            beamObject = std::make_unique<Beam>("TEST_BEAM");
+            beamObject->update();
+            beam = beamObject.get();
         }
 
         void TearDown() override {

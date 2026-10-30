@@ -19,8 +19,8 @@
 #include "AbsBeamline/Drift.h"
 #include "Attributes/Attributes.h"
 
-OpalDrift::OpalDrift()
-    : OpalElement(SIZE, "DRIFT", "The \"DRIFT\" element defines a drift space.") {
+OpalDrift::OpalDrift(const std::string& name)
+    : OpalElement(name, SIZE, "DRIFT", "The \"DRIFT\" element defines a drift space.") {
     itsAttr[GEOMETRY] = Attributes::makeString("GEOMETRY", "BoundaryGeometry for Drifts");
 
     itsAttr[NSLICES] = Attributes::makeReal(
@@ -28,16 +28,10 @@ OpalDrift::OpalDrift()
 
     registerOwnership();
 
-    setElement(new Drift("DRIFT"));
-}
-
-OpalDrift::OpalDrift(const std::string& name, OpalDrift* parent) : OpalElement(name, parent) {
     setElement(new Drift(name));
 }
 
 OpalDrift::~OpalDrift() {}
-
-OpalDrift* OpalDrift::clone(const std::string& name) { return new OpalDrift(name, this); }
 
 bool OpalDrift::isDrift() const { return true; }
 

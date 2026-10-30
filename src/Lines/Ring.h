@@ -23,13 +23,10 @@
  */
 class Ring : public Line {
 public:
-    /// Exemplar constructor.
-    Ring();
+    /// Create the empty ring called [b]name[/b]; the parser fills it.
+    explicit Ring(const std::string& name);
 
     ~Ring() override = default;
-
-    /// Make an empty clone which is filled by the parser.
-    Ring* clone(const std::string& name) override;
 
     /// Parse a closed-topology sequence definition.
     void parse(Statement& stat) override;
@@ -63,8 +60,6 @@ protected:
     const char* getSequenceKeyword() const override;
 
 private:
-    Ring(const std::string& name, Ring* parent);
-
     Ring(const Ring&)           = delete;
     void operator=(const Ring&) = delete;
 };

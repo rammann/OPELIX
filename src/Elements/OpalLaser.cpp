@@ -42,9 +42,9 @@ namespace {
     }
 }  // namespace
 
-OpalLaser::OpalLaser()
+OpalLaser::OpalLaser(const std::string& name)
     : OpalElement(
-              SIZE, "LASER",
+              name, SIZE, "LASER",
               "The \"LASER\" element defines a passive analytic laser pulse for OPALX.") {
     itsAttr[WAVELENGTH]  = Attributes::makeReal("WAVELENGTH", "Laser wavelength in m.");
     itsAttr[PULSEENERGY] = Attributes::makeReal("PULSEENERGY", "Total laser pulse energy in J.");
@@ -57,16 +57,10 @@ OpalLaser::OpalLaser()
 
     registerOwnership();
 
-    setElement(new Laser("LASER"));
-}
-
-OpalLaser::OpalLaser(const std::string& name, OpalLaser* parent) : OpalElement(name, parent) {
     setElement(new Laser(name));
 }
 
 OpalLaser::~OpalLaser() {}
-
-OpalLaser* OpalLaser::clone(const std::string& name) { return new OpalLaser(name, this); }
 
 void OpalLaser::update() {
     constexpr const char* where = "OpalLaser::update()";
@@ -78,19 +72,16 @@ void OpalLaser::update() {
         return;
     }
 
-    // OpalData::update() calls update() on every object in the directory,
-    // including the prototype instance whose required attributes are all unset.
-    // Skip propagation silently only when none of the required attributes has
-    // been configured yet (i.e. this is truly the unmodified prototype).
+    // Skip propagation silently when none of the required attributes is set.
     //
     /// \todo Refactor to follow the standard OPAL element pattern:
     //   1. Register every attribute with a sentinel default in the constructor
     //      (e.g. Attributes::makeReal("WAVELENGTH", "...", 0.0)) so that
-    //      Attributes::getReal() always returns a well-defined value, even on
-    //      the prototype. OpalSolenoid and OpalCavity are good examples.
+    //      Attributes::getReal() always returns a well-defined value.
+    //      OpalSolenoid and OpalCavity are good examples.
     //   2. In update(), read all attributes unconditionally with
     //      Attributes::getReal() / Attributes::getRealArray() and forward them
-    //      to Laser without throwing. No prototype guard is needed because
+    //      to Laser without throwing. No guard is needed because
     //      zero/sentinel values are harmless.
     //   3. Move the "must be positive / must be set" validation into Laser,
     //      e.g. in initialise() which is called only when the element is

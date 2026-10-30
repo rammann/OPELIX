@@ -26,8 +26,8 @@
 #include "Structure/BoundaryGeometry.h"
 #include "Utilities/OpalException.h"
 
-OpalCavity::OpalCavity()
-    : OpalElement(SIZE, "RFCAVITY", "The \"RFCAVITY\" element defines an RF cavity."),
+OpalCavity::OpalCavity(const std::string& name)
+    : OpalElement(name, SIZE, "RFCAVITY", "The \"RFCAVITY\" element defines an RF cavity."),
       obgeo_m(nullptr) {
     itsAttr[TYPE] = Attributes::makePredefinedString(
             "TYPE",
@@ -63,17 +63,10 @@ OpalCavity::OpalCavity()
 
     registerOwnership();
 
-    setElement(new RFCavity("RFCAVITY"));
-}
-
-OpalCavity::OpalCavity(const std::string& name, OpalCavity* parent)
-    : OpalElement(name, parent), obgeo_m(nullptr) {
     setElement(new RFCavity(name));
 }
 
 OpalCavity::~OpalCavity() {}
-
-OpalCavity* OpalCavity::clone(const std::string& name) { return new OpalCavity(name, this); }
 
 void OpalCavity::update() {
     OpalElement::update();

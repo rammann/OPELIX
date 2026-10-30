@@ -26,25 +26,17 @@
 #include "Utility/PAssert.h"
 
 #include <vector>
-#include "AbstractObjects/OpalData.h"
 #include "Lines/Line.h"
 #include "OpalParser/SimpleStatement.h"
 #include "Utilities/ParseError.h"
 
-LineTemplate::LineTemplate()
-    : Macro(0, "LINE",
+LineTemplate::LineTemplate(const std::string& name)
+    : Macro(name, 0, "LINE",
             "This object defines a beamline list with arguments.\n"
             "\t<name>(<args>);"),
-      body("LINE") {}
-
-LineTemplate::LineTemplate(const std::string& name, Object* parent)
-    : Macro(name, parent), body(name) {}
+      body(name) {}
 
 LineTemplate::~LineTemplate() {}
-
-LineTemplate* LineTemplate::clone(const std::string& /*name*/) {
-    throw ParseError("LineTemplate::clone()", "You cannot use this object without attributes.");
-}
 
 Object* LineTemplate::makeInstance(const std::string& name, Statement& statement, const Parser*) {
     Line* instance = 0;
@@ -82,9 +74,7 @@ Object* LineTemplate::makeInstance(const std::string& name, Statement& statement
         }
 
         // Parse the modified line.
-        Line* model = dynamic_cast<Line*>(OpalData::getInstance()->find("LINE"));
-        instance    = model->clone(name);
-        instance->copyAttributes(*this);
+        instance = new Line(name);
         expansion.start();
         instance->parse(expansion);
     } catch (...) {

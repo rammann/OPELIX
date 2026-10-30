@@ -40,10 +40,6 @@ class Element : public Object {
 public:
     virtual ~Element();
 
-    /// Test if replacement is allowed.
-    //  Return true, if the replacement is also an Element.
-    virtual bool canReplaceBy(Object* object);
-
     /// Find named Element.
     //  If an element with the name [b]name[/b] exists,
     //  return a pointer to that element.
@@ -67,10 +63,6 @@ public:
     /// Return element length.
     virtual double getLength() const = 0;
 
-    /// Set shared flag.
-    //  If true, all references to this name are to the same object.
-    virtual void setShared(bool);
-
     /// Return the embedded OPALX element.
     //  Return a pointer to the embedded OPALX ElementBase
     inline ElementBase* getElement() const;
@@ -83,11 +75,8 @@ public:
     inline void setElement(std::shared_ptr<ElementBase> base);
 
 protected:
-    /// Constructor for exemplars.
-    Element(int size, const char* name, const char* help);
-
-    /// Constructor for clones.
-    Element(const std::string& name, Element* parent);
+    /// Create an object called [b]name[/b] for the input keyword [b]keyword[/b].
+    Element(const std::string& name, int size, const char* keyword, const char* help);
 
 private:
     // Not implemented.

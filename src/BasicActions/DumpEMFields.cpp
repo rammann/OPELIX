@@ -29,8 +29,8 @@ extern Inform* gmsg;
 
 std::unordered_set<std::unique_ptr<DumpEMFields>> DumpEMFields::dumpsSet_m;
 
-DumpEMFields::DumpEMFields()
-    : Action(SIZE, "DUMPEMFIELDS",
+DumpEMFields::DumpEMFields(const std::string& name)
+    : Action(name, SIZE, "DUMPEMFIELDS",
              "The \"DUMPEMFIELDS\" statement dumps a field map to a user-defined "
              "field file, for checking that fields are generated correctly. "
              "The fields are written out on a grid in space and time.") {
@@ -94,10 +94,10 @@ DumpEMFields::DumpEMFields()
     registerOwnership(AttributeHandler::STATEMENT);
 }
 
-DumpEMFields::DumpEMFields(const std::string& name, DumpEMFields* parent) : Action(name, parent) {}
-
-DumpEMFields* DumpEMFields::clone(const std::string& name) {
-    auto* dumper = new DumpEMFields(name, this);
+std::unique_ptr<DumpEMFields> DumpEMFields::copyForWriting() const {
+    auto dumper = std::make_unique<DumpEMFields>(getOpalName());
+    // print() reads the attributes when the fields are written.
+    dumper->copyAttributes(*this);
     if (grid_m != nullptr) {
         dumper->grid_m.reset(grid_m->clone());
     }
@@ -119,8 +119,8 @@ void DumpEMFields::execute() {
     // the routine for action (OpalParser/OpalParser) calls execute and then
     // deletes 'this'; so we must build a copy that lasts until the field maps
     // are constructed and we are ready for tracking (which is when the field
-    // maps are written). Hence the clone call below.
-    dumpsSet_m.insert(std::unique_ptr<DumpEMFields>(this->clone("")));
+    // maps are written). Hence the copy below.
+    dumpsSet_m.insert(copyForWriting());
 }
 
 void DumpEMFields::buildGrid() {

@@ -20,7 +20,6 @@
 #include "BasicActions/Option.h"
 #include "Ippl.h"
 
-#include "AbstractObjects/OpalData.h"
 #include "Algorithms/LinearTransferMapBuilder.h"
 #include "Attributes/Attributes.h"
 #include "OpalParser/FileStream.h"
@@ -80,8 +79,8 @@ namespace {
     };
 }  // namespace
 
-Option::Option()
-    : Action(SIZE, "OPTION", "The \"OPTION\" statement defines OPAL execution options.") {
+Option::Option(const std::string& name)
+    : Action(name, SIZE, "OPTION", "The \"OPTION\" statement defines OPAL execution options.") {
     itsAttr[ECHO] = Attributes::makeBool("ECHO", "If true, give echo of input", echo);
 
     itsAttr[INFO] = Attributes::makeBool("INFO", "If true, print information messages", info);
@@ -267,9 +266,9 @@ Option::Option()
     registerOwnership(AttributeHandler::STATEMENT);
 
     FileStream::setEcho(echo);
-}
 
-Option::Option(const std::string& name, Option* parent) : Action(name, parent) {
+    // Start from the current option values, so that options not given in this command keep the
+    // value set by an earlier OPTION command.
     Attributes::setBool(itsAttr[ECHO], echo);
     Attributes::setBool(itsAttr[INFO], info);
     Attributes::setBool(itsAttr[TRACE], mtrace);
@@ -309,8 +308,6 @@ Option::Option(const std::string& name, Option* parent) : Action(name, parent) {
 }
 
 Option::~Option() {}
-
-Option* Option::clone(const std::string& name) { return new Option(name, this); }
 
 void Option::execute() {
     // Validate the complete map configuration before publishing any of its globals.
@@ -450,15 +447,4 @@ void Option::execute() {
 
     // Set message flags.
     FileStream::setEcho(echo);
-
-    Option* main = dynamic_cast<Option*>(OpalData::getInstance()->find("OPTION"));
-    if (main) {
-        main->update(itsAttr);
-    }
-}
-
-void Option::update(const std::vector<Attribute>& othersAttributes) {
-    for (int i = 0; i < SIZE; ++i) {
-        itsAttr[i] = othersAttributes[i];
-    }
 }

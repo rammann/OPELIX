@@ -29,6 +29,5 @@ bool Definition::shouldTrace() const { return false; }
 
 bool Definition::shouldUpdate() const { return false; }
 
-Definition::Definition(int size, const char* name, const char* help) : Object(size, name, help) {}
-
-Definition::Definition(const std::string& name, Definition* parent) : Object(name, parent) {}
+Definition::Definition(const std::string& name, int size, const char* keyword, const char* help)
+    : Object(name, size, keyword, help) {}

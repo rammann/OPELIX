@@ -21,7 +21,7 @@
 
 TEST(TestOpalSinusoidalTimeDependence, UserInterface) {
     // Make the UI
-    OpalSinusoidalTimeDependence ui;
+    OpalSinusoidalTimeDependence ui("TD1");
     // Set the attributes
     Attributes::setRealArray(ui.itsAttr[OpalSinusoidalTimeDependence::FREQUENCIES], {1, 2});
     Attributes::setRealArray(ui.itsAttr[OpalSinusoidalTimeDependence::PHASE_OFFSETS], {3, 4});
@@ -31,7 +31,7 @@ TEST(TestOpalSinusoidalTimeDependence, UserInterface) {
     EXPECT_NO_THROW(ui.update());
     // Check the values
     auto* myDependency = dynamic_cast<SinusoidalTimeDependence*>(
-            AbstractTimeDependence::getTimeDependence("SINUSOIDAL_TIME_DEPENDENCE").get());
+            AbstractTimeDependence::getTimeDependence("TD1").get());
     EXPECT_TRUE(myDependency);
     EXPECT_TRUE((myDependency->getFrequencies() == std::vector{1.0, 2.0}));
     EXPECT_TRUE((myDependency->getPhases() == std::vector{3.0, 4.0}));
@@ -40,14 +40,14 @@ TEST(TestOpalSinusoidalTimeDependence, UserInterface) {
 }
 
 TEST(TestOpalSinusoidalTimeDependence, ConstructorTest) {
-    OpalSinusoidalTimeDependence dep;
-    const OpalSinusoidalTimeDependence* dep_clone = dep.clone("new name");
-    EXPECT_EQ(dep_clone->getOpalName(), "new name");
+    const OpalSinusoidalTimeDependence dep("TD1");
+    EXPECT_EQ(dep.getOpalName(), "TD1");
+    EXPECT_EQ(dep.getKeyword(), "SINUSOIDAL_TIME_DEPENDENCE");
 }
 
 TEST(TestOpalSinusoidalTimeDependence, PrintTest) {
-    const OpalSinusoidalTimeDependence dep;
+    const OpalSinusoidalTimeDependence dep("TD1");
     std::stringstream _string;
     dep.print(_string);
-    EXPECT_EQ(_string.str(), "SINUSOIDAL_TIME_DEPENDENCE;\n");
+    EXPECT_EQ(_string.str(), "TD1:SINUSOIDAL_TIME_DEPENDENCE;\n");
 }

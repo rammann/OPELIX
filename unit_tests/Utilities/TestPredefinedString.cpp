@@ -9,7 +9,7 @@
 using namespace Attributes;
 
 TEST(PredefinedStringTest, TestDistributionType) {
-    Distribution dist;
+    Distribution dist("TEST_DISTRIBUTION");
 
     auto* typeAttr = dist.findAttribute("TYPE");
     ASSERT_NE(typeAttr, nullptr);

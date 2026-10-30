@@ -35,19 +35,17 @@ class Statement;
 //
 //  The type of the attribute is determined by the class of AttributeHandler
 //  attached.  The attribute handler must be set for all attributes by the
-//  exemplar constructor for a command object.  The clone constructor does
-//  not copy the handlers, but it creates new references to the same handlers.
+//  constructor of a command object.
 //
 //  The value is stored in the object pointed at by base.  An object can be
-//  created for the default value of an attribute by the exemplar constructor,
+//  created for the default value of an attribute by the constructor,
 //  or it can be null, meaning an as yet undefined value.  The validity of
 //  the pointer can be tested by the method Attribute::isValid().
 //
 //  Each OPAL command object (derived from class Object) has a
 //  vector<Attribute> containing the command attributes read by the parser.
-//  This attribute vector is first filled by the clone constructor of the
-//  command class by copying the pointers in the model, and possibly by the
-//  OPAL parser with the values given by the user.
+//  This attribute vector is first filled by the constructor of the
+//  command class, and then by the OPAL parser with the values given by the user.
 
 class Attribute {
 public:

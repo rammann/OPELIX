@@ -24,8 +24,8 @@ const std::string OpalVariableRFCavity::doc_string =
         std::string("The \"VARIABLE_RF_CAVITY\" element defines an RF cavity ")
         + std::string("with time dependent frequency, phase and amplitude.");
 
-OpalVariableRFCavity::OpalVariableRFCavity()
-    : OpalElement(SIZE, "VARIABLE_RF_CAVITY", doc_string.c_str()) {
+OpalVariableRFCavity::OpalVariableRFCavity(const std::string& name)
+    : OpalElement(name, SIZE, "VARIABLE_RF_CAVITY", doc_string.c_str()) {
     itsAttr[PHASE_MODEL] = Attributes::makeUpperCaseString(
             "PHASE_MODEL",
             "The name of the phase time dependence model, which should give the phase in [rad].");
@@ -46,21 +46,7 @@ OpalVariableRFCavity::OpalVariableRFCavity()
 
     registerOwnership();
 
-    setElement(new VariableRFCavity("VARIABLE_RF_CAVITY"));
-}
-
-OpalVariableRFCavity::OpalVariableRFCavity(const std::string& name, OpalVariableRFCavity* parent)
-    : OpalElement(name, parent) {
-    const VariableRFCavity* cavity = dynamic_cast<VariableRFCavity*>(parent->getElement());
-    setElement(new VariableRFCavity(*cavity));
-}
-
-OpalVariableRFCavity* OpalVariableRFCavity::clone(const std::string& name) {
-    return new OpalVariableRFCavity(name, this);
-}
-
-OpalVariableRFCavity* OpalVariableRFCavity::clone() {
-    return new OpalVariableRFCavity(this->getOpalName(), this);
+    setElement(new VariableRFCavity(name));
 }
 
 void OpalVariableRFCavity::update() {

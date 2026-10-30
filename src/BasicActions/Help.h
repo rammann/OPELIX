@@ -22,13 +22,10 @@
 
 class Help : public Action {
 public:
-    /// Exemplar constructor.
-    Help();
+    /// Create the command called [b]name[/b].
+    explicit Help(const std::string& name);
 
     virtual ~Help();
-
-    /// Make clone.
-    virtual Help* clone(const std::string& name);
 
     /// Execute the command.
     virtual void execute();
@@ -40,9 +37,6 @@ private:
     // Not implemented.
     Help(const Help&);
     void operator=(const Help&);
-
-    // Clone constructor.
-    Help(const std::string& name, Help* parent);
 };
 
 #endif  // OPAL_Help_HH

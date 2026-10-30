@@ -25,11 +25,9 @@
 
 class TrackCmd : public Action {
 public:
-    TrackCmd();
+    explicit TrackCmd(const std::string& name);
 
     virtual ~TrackCmd();
-
-    virtual TrackCmd* clone(const std::string& name);
 
     virtual void execute();
 
@@ -56,9 +54,6 @@ private:
     // Not implemented.
     TrackCmd(const TrackCmd&);
     void operator=(const TrackCmd&);
-
-    // Clone constructor.
-    TrackCmd(const std::string& name, TrackCmd* parent);
 };
 
 #endif  // OPAL_TrackCmd_HH

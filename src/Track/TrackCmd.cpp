@@ -46,7 +46,8 @@ namespace {
     };
 }  // namespace
 
-TrackCmd::TrackCmd() : Action(SIZE, "TRACK", "The \"TRACK\" command initiates tracking.") {
+TrackCmd::TrackCmd(const std::string& name)
+    : Action(name, SIZE, "TRACK", "The \"TRACK\" command initiates tracking.") {
     itsAttr[INITIALORBIT] = Attributes::makeString(
             "INITIALORBIT", "Named COF launch for orbit-local generated distributions.");
     itsAttr[LINE] = Attributes::makeString("LINE", "Name of lattice to be tracked.");
@@ -83,11 +84,7 @@ TrackCmd::TrackCmd() : Action(SIZE, "TRACK", "The \"TRACK\" command initiates tr
     AttributeHandler::addAttributeOwner("TRACK", AttributeHandler::COMMAND, "ENDTRACK");
 }
 
-TrackCmd::TrackCmd(const std::string& name, TrackCmd* parent) : Action(name, parent) {}
-
 TrackCmd::~TrackCmd() {}
-
-TrackCmd* TrackCmd::clone(const std::string& name) { return new TrackCmd(name, this); }
 
 std::vector<double> TrackCmd::getDT() const {
     std::vector<double> dTs = Attributes::getRealArray(itsAttr[DT]);

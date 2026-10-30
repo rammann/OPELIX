@@ -31,14 +31,10 @@ class Line : public BeamSequence {
     friend class LineTemplate;
 
 public:
-    /// Exemplar constructor.
-    Line();
+    /// Create the empty line called [b]name[/b]; the parser fills it.
+    explicit Line(const std::string& name);
 
     virtual ~Line();
-
-    /// Make clone.
-    //  The new object is an empty line, it will be filled by the parser.
-    virtual Line* clone(const std::string& name);
 
     /// Return line length.
     virtual double getLength() const;
@@ -56,11 +52,8 @@ public:
     virtual void print(std::ostream& stream) const;
 
 protected:
-    /// Exemplar constructor for LINE-compatible sequence statements.
-    Line(const char* keyword, const char* help);
-
-    // Clone constructor for LINE-compatible sequence statements.
-    Line(const std::string& name, Line* parent);
+    /// Constructor for LINE-compatible sequence statements.
+    Line(const std::string& name, const char* keyword, const char* help);
 
     /// Parse a LINE-compatible definition.
     void parseDefinition(Statement& stat, bool allowModifiers);
@@ -79,9 +72,6 @@ private:
 
     // Parse sub-list.
     void parseList(Statement&, bool allowModifiers);
-
-    // Replace references to elements.
-    virtual void replace(Object* oldObject, Object* newObject);
 };
 
 #endif  // OPAL_Line_HH

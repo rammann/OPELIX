@@ -28,6 +28,11 @@
 #include "OpalParser/CompoundStatement.h"
 #include "OpalParser/IfStatement.h"
 #include "OpalParser/WhileStatement.h"
+#include "ValueDefinitions/BoolConstant.h"
+#include "ValueDefinitions/RealConstant.h"
+#include "ValueDefinitions/RealVariable.h"
+#include "ValueDefinitions/RealVector.h"
+#include "ValueDefinitions/StringConstant.h"
 
 #include <cmath>
 #include <ctime>
@@ -60,8 +65,7 @@ OpalParser::~OpalParser() {}
 
 void OpalParser::parse(Statement& stat) const {
     if (stat.keyword("SHARED")) {
-        // "SHARED ...": Shared object definition.
-        parseDefine(stat);
+        throw ParseError("OpalParser::parse()", "The \"SHARED\" prefix is not supported.");
     } else if (
             stat.keyword("CONSTANT") || stat.keyword("CONST") || stat.keyword("BOOL")
             || stat.keyword("REAL") || stat.keyword("STRING") || stat.keyword("VECTOR")) {
@@ -140,8 +144,9 @@ void OpalParser::execute(Object* object, const std::string& name) const {
     }
 }
 
-Object* OpalParser::find(const std::string& name) const {
-    return OpalData::getInstance()->find(name);
+std::unique_ptr<Object> OpalParser::makeObject(
+        const std::string& keyword, const std::string& name) const {
+    return OpalData::getInstance()->makeObject(keyword, name);
 }
 
 void OpalParser::parseAction(Statement& stat) const {
@@ -155,18 +160,15 @@ void OpalParser::parseAction(Statement& stat) const {
     } else if (cmdName == "HELP" && stat.delimiter(',')) {
         cmdName = parseString(stat, "Object name expected");
         printHelp(cmdName);
-    } else if (Object* object = find(cmdName)) {
-        Object* copy = 0;
-        try {
-            copy = object->clone("");
-            copy->parse(stat);
-            parseEnd(stat);
-            execute(copy, cmdName);
-            delete copy;
-        } catch (...) {
-            delete copy;
-            throw;
-        }
+    } else if (std::unique_ptr<Object> object = makeObject(cmdName, "")) {
+        object->parse(stat);
+        parseEnd(stat);
+        execute(object.get(), cmdName);
+    } else if (OpalData::getInstance()->find(cmdName) != nullptr) {
+        throw ParseError(
+                "OpalParser::parseAction()",
+                "\"" + cmdName + "\" is a defined object, not a command. To change one of its "
+                        + "attributes write \"" + cmdName + "->ATTRIBUTE = value;\".");
     } else {
         std::string hint = getHint(cmdName, "command");
         if (!hint.empty()) {
@@ -181,17 +183,6 @@ void OpalParser::parseAssign(Statement& stat) const {
     stat.start();
 
     // Find various model objects.
-    /*static*/
-    Object* boolConstant = OpalData::getInstance()->find("BOOL_CONSTANT");
-    /*static*/
-    Object* realConstant = OpalData::getInstance()->find("REAL_CONSTANT");
-    /*static*/
-    Object* realVariable = OpalData::getInstance()->find("REAL_VARIABLE");
-    /*static*/
-    Object* realVector = OpalData::getInstance()->find("REAL_VECTOR");
-    /*static*/
-    Object* stringConstant = OpalData::getInstance()->find("STRING_CONSTANT");
-
     // Gobble up any prefix.
     int code = 0x00;
     while (true) {
@@ -229,41 +220,34 @@ void OpalParser::parseAssign(Statement& stat) const {
     } else {
         // Assignment to variable-like object.
         if ((object = OpalData::getInstance()->find(objName)) == 0) {
-            Object* model = 0;
             switch (code) {
                 case 0x01:  // CONSTANT
                 case 0x05:  // CONSTANT REAL
-                    model = realConstant;
+                    object = new RealConstant(objName);
                     break;
                 case 0x02:  // BOOL
                 case 0x03:  // BOOL CONSTANT
-                    model = boolConstant;
+                    object = new BoolConstant(objName);
                     break;
                 case 0x00:  // empty <type>.
                 case 0x04:  // REAL
-                    model = realVariable;
+                    object = new RealVariable(objName);
                     break;
                 case 0x10:  // VECTOR
                 case 0x11:  // CONSTANT VECTOR
                 case 0x14:  // REAL VECTOR
                 case 0x15:  // CONSTANT REAL VECTOR
-                    model = realVector;
+                    object = new RealVector(objName);
                     break;
                 case 0x08:  // STRING
                 case 0x09:  // STRING CONSTANT
-                    model = stringConstant;
+                    object = new StringConstant(objName);
                     break;
                 default:
-                    break;
+                    throw ParseError("OpalParser::parseAssign()", "Invalid <type> field.");
             }
-
-            if (model != 0) {
-                object = model->clone(objName);
-                OpalData::getInstance()->define(object);
-            } else {
-                throw ParseError("OpalParser::parseAssign()", "Invalid <type> field.");
-            }
-        } else if (object->isTreeMember(realConstant)) {
+            OpalData::getInstance()->define(object);
+        } else if (dynamic_cast<RealConstant*>(object) != nullptr) {
             throw ParseError(
                     "OpalParser::parseAssign()",
                     "You cannot redefine the constant \"" + objName + "\".");
@@ -286,7 +270,7 @@ void OpalParser::parseAssign(Statement& stat) const {
 
     if (object != 0) {
         if (Attribute* attr = object->findAttribute(attrName)) {
-            if (stat.delimiter('=') || object->isTreeMember(realConstant)) {
+            if (stat.delimiter('=') || dynamic_cast<RealConstant*>(object) != nullptr) {
                 if (index > 0) {
                     attr->parseComponent(stat, true, index);
                 } else {
@@ -306,50 +290,47 @@ void OpalParser::parseAssign(Statement& stat) const {
 
 void OpalParser::parseDefine(Statement& stat) const {
     stat.start();
-    bool isShared       = stat.keyword("SHARED");
     std::string objName = parseString(stat, "Object name expected.");
+    parseDelimiter(stat, ':');
+    std::string clsName = parseString(stat, "Class name expected.");
 
-    if (stat.delimiter(':')) {
-        std::string clsName = parseString(stat, "Class name expected.");
-        Object* classObject = find(clsName);
+    if (OpalData::getInstance()->find(objName) != nullptr) {
+        throw ParseError(
+                "OpalParser::parseDefine()", "The object \"" + objName + "\" is already defined.");
+    }
 
-        if (classObject == 0) {
-            if (clsName == "SURFACEPHYSICS")
+    std::unique_ptr<Object> object;
+    if (stat.delimiter('(')) {
+        // Instance of a MACRO or LINE template defined earlier.
+        Object* classObject = OpalData::getInstance()->find(clsName);
+        if (classObject == nullptr) {
+            throw ParseError(
+                    "OpalParser::parseDefine()", "The object \"" + clsName + "\" is unknown.");
+        }
+        object.reset(classObject->makeInstance(objName, stat, this));
+    } else {
+        object = makeObject(clsName, objName);
+        if (!object) {
+            if (clsName == "SURFACEPHYSICS") {
                 throw ParseError(
                         "OpalParser::parseDefine()",
                         "The object \"" + clsName
                                 + "\" is changed to \"PARTICLEMATTERINTERACTION\".");
-            else
+            } else if (OpalData::getInstance()->find(clsName) != nullptr) {
                 throw ParseError(
-                        "OpalParser::parseDefine()", "The object \"" + clsName + "\" is unknown.");
-        }
-
-        Object* copy = 0;
-        try {
-            if (stat.delimiter('(')) {
-                // Macro-like objects are always classes, instances never.
-                // There is no further check required.
-                copy = classObject->makeInstance(objName, stat, this);
-            } else {
-                copy = classObject->clone(objName);
-                copy->parse(stat);
-                copy->setShared(isShared);
+                        "OpalParser::parseDefine()",
+                        "\"" + clsName + "\" is a defined object, not a keyword. A definition "
+                                + "cannot be derived from another definition.");
             }
-
-            parseEnd(stat);
-            execute(copy, clsName);
-            OpalData::getInstance()->define(copy);
-        } catch (...) {
-            delete copy;
-            throw;
+            throw ParseError(
+                    "OpalParser::parseDefine()", "The object \"" + clsName + "\" is unknown.");
         }
-    } else {
-        // Redefine an object to be a class.
-        Object* classObject = find(objName);
-        Object* copy        = classObject->clone(objName);
-        copy->parse(stat);
-        copy->setShared(isShared);
+        object->parse(stat);
     }
+
+    parseEnd(stat);
+    execute(object.get(), clsName);
+    OpalData::getInstance()->define(object.release());
 }
 
 void OpalParser::parseEnd(Statement& stat) const {
@@ -389,7 +370,13 @@ void OpalParser::parseMacro(const std::string& macName, Statement& stat) const {
         // Macro definition.
         std::string className = parseString(stat, "Class name expected.");
 
-        if (Object* macro = OpalData::getInstance()->find(className)) {
+        if (OpalData::getInstance()->find(macName) != nullptr) {
+            throw ParseError(
+                    "OpalParser::parseMacro()",
+                    "The object \"" + macName + "\" is already defined.");
+        }
+
+        if (std::unique_ptr<Object> macro = makeObject(className, "")) {
             // Backtrack to first argument.
             stat.restore();
 
@@ -418,12 +405,12 @@ void OpalParser::parseMacro(const std::string& macName, Statement& stat) const {
 }
 
 void OpalParser::printHelp(const std::string& cmdName) const {
-    Object* object = find(cmdName);
-
-    if (object == 0) {
-        *gmsg << "\nOpalParser::printHelp(): Unknown object \"" << cmdName << "\".\n" << endl;
-    } else {
+    if (std::unique_ptr<Object> object = makeObject(cmdName, "")) {
         object->printHelp(std::cerr);
+    } else if (Object* object = OpalData::getInstance()->find(cmdName)) {
+        object->printHelp(std::cerr);
+    } else {
+        *gmsg << "\nOpalParser::printHelp(): Unknown object \"" << cmdName << "\".\n" << endl;
     }
 }
 

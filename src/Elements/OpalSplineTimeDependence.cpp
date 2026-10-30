@@ -27,8 +27,8 @@ const std::string OpalSplineTimeDependence::doc_string =
 
 // I investigated using a StringArray or RealArray here;
 // Don't seem to have capacity to handle variables, so for now not implemented
-OpalSplineTimeDependence::OpalSplineTimeDependence()
-    : OpalElement(static_cast<int>(SIZE), "SPLINE_TIME_DEPENDENCE", doc_string.c_str()) {
+OpalSplineTimeDependence::OpalSplineTimeDependence(const std::string& name)
+    : OpalElement(name, static_cast<int>(SIZE), "SPLINE_TIME_DEPENDENCE", doc_string.c_str()) {
     itsAttr[ORDER] = Attributes::makeReal(
             "ORDER",
             "Order of the lookup - either 1 for linear interpolation, "
@@ -50,15 +50,7 @@ OpalSplineTimeDependence::OpalSplineTimeDependence()
     registerOwnership();
 }
 
-OpalSplineTimeDependence* OpalSplineTimeDependence::clone(const std::string& name) {
-    return new OpalSplineTimeDependence(name, this);
-}
-
 void OpalSplineTimeDependence::print(std::ostream& out) const { OpalElement::print(out); }
-
-OpalSplineTimeDependence::OpalSplineTimeDependence(
-        const std::string& name, OpalSplineTimeDependence* parent)
-    : OpalElement(name, parent) {}
 
 void OpalSplineTimeDependence::update() {
     const double order = Attributes::getReal(itsAttr[ORDER]);

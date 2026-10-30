@@ -42,14 +42,11 @@ public:
         SIZE  // size of the enum
     };
 
-    /** Default constructor initialises UI parameters. */
-    OpalScalingFFAMagnet();
+    /** Create the element called name and define its UI parameters. */
+    explicit OpalScalingFFAMagnet(const std::string& name);
 
     /** Destructor does nothing */
     virtual ~OpalScalingFFAMagnet();
-
-    /** Inherited copy constructor */
-    virtual OpalScalingFFAMagnet* clone(const std::string& name);
 
     /** Update the ScalingFFA with new parameters from UI parser */
     virtual void update();
@@ -58,9 +55,6 @@ private:
     // Not implemented.
     OpalScalingFFAMagnet(const OpalScalingFFAMagnet&);
     void operator=(const OpalScalingFFAMagnet&);
-
-    // Clone constructor.
-    OpalScalingFFAMagnet(const std::string& name, OpalScalingFFAMagnet* parent);
 
     void setupNamedEndField();
     void setupDefaultEndField();

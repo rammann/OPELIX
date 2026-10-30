@@ -22,7 +22,8 @@
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 
-OpalProbe::OpalProbe() : OpalElement(SIZE, "PROBE", "The \"PROBE\" element defines a Probe.") {
+OpalProbe::OpalProbe(const std::string& name)
+    : OpalElement(name, SIZE, "PROBE", "The \"PROBE\" element defines a Probe.") {
     itsAttr[XSTART] = Attributes::makeReal("XSTART", " Start of x coordinate [mm]");
     itsAttr[XEND]   = Attributes::makeReal("XEND", " End of x coordinate [mm]");
     itsAttr[YSTART] = Attributes::makeReal("YSTART", "Start of y coordinate [mm]");
@@ -32,16 +33,10 @@ OpalProbe::OpalProbe() : OpalElement(SIZE, "PROBE", "The \"PROBE\" element defin
 
     registerOwnership();
 
-    setElement(new Probe("PROBE"));
-}
-
-OpalProbe::OpalProbe(const std::string& name, OpalProbe* parent) : OpalElement(name, parent) {
     setElement(new Probe(name));
 }
 
 OpalProbe::~OpalProbe() {}
-
-OpalProbe* OpalProbe::clone(const std::string& name) { return new OpalProbe(name, this); }
 
 void OpalProbe::update() {
     OpalElement::update();

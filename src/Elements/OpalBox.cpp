@@ -21,25 +21,19 @@
 #include "Attributes/Attributes.h"
 #include "Utilities/OpalException.h"
 
-OpalBox::OpalBox()
+OpalBox::OpalBox(const std::string& name)
     : OpalElement(
-              SIZE, "BOX",
+              name, SIZE, "BOX",
               "The \"BOX\" element is a solid block that deletes every particle inside it.") {
     itsAttr[WIDTH]  = Attributes::makeReal("WIDTH", "Full width of the block along local x [m]");
     itsAttr[HEIGHT] = Attributes::makeReal("HEIGHT", "Full height of the block along local y [m]");
 
     registerOwnership();
 
-    setElement(new Box("BOX"));
-}
-
-OpalBox::OpalBox(const std::string& name, OpalBox* parent) : OpalElement(name, parent) {
     setElement(new Box(name));
 }
 
 OpalBox::~OpalBox() {}
-
-OpalBox* OpalBox::clone(const std::string& name) { return new OpalBox(name, this); }
 
 void OpalBox::update() {
     // Applies the common attributes, including DELETEONTRANSVERSEEXIT, to the
@@ -50,22 +44,17 @@ void OpalBox::update() {
     const double width  = Attributes::getReal(itsAttr[WIDTH]);
     const double height = Attributes::getReal(itsAttr[HEIGHT]);
 
-    // OpalData::update() calls update() on every object in the directory,
-    // including the unmodified builtin prototype whose attributes are all
-    // unset. Only validate real (cloned) element instances.
-    if (!isBuiltin()) {
-        // The aperture decides whether the element is registered along the
-        // reference path (ElementBase::isInside), so it must stay wide open.
-        if (itsAttr[APERT] && !Attributes::getString(itsAttr[APERT]).empty()) {
-            throw OpalException(
-                    "OpalBox::update()",
-                    "BOX \"" + getOpalName() + "\" takes WIDTH and HEIGHT, not APERTURE");
-        }
-        if (width <= 0.0 || height <= 0.0 || length <= 0.0) {
-            throw OpalException(
-                    "OpalBox::update()",
-                    "BOX \"" + getOpalName() + "\" requires WIDTH > 0, HEIGHT > 0 and L > 0");
-        }
+    // The aperture decides whether the element is registered along the
+    // reference path (ElementBase::isInside), so it must stay wide open.
+    if (itsAttr[APERT] && !Attributes::getString(itsAttr[APERT]).empty()) {
+        throw OpalException(
+                "OpalBox::update()",
+                "BOX \"" + getOpalName() + "\" takes WIDTH and HEIGHT, not APERTURE");
+    }
+    if (width <= 0.0 || height <= 0.0 || length <= 0.0) {
+        throw OpalException(
+                "OpalBox::update()",
+                "BOX \"" + getOpalName() + "\" requires WIDTH > 0, HEIGHT > 0 and L > 0");
     }
 
     Box* box = dynamic_cast<Box*>(getElement());

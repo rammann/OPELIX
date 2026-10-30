@@ -43,11 +43,8 @@ public:
         SIZE            // size of the enum
     };
 
-    /** Default constructor initialises UI parameters. */
-    OpalMultipoleT();
-
-    /** Inherited copy constructor */
-    OpalMultipoleT* clone(const std::string& name) override;
+    /** Create the element called name and define its UI parameters. */
+    explicit OpalMultipoleT(const std::string& name);
 
     /** Destructor, nothing special */
     ~OpalMultipoleT() override = default;
@@ -65,9 +62,6 @@ private:
     static constexpr double MinimumMAXFORDER = 1.0;
     static constexpr double MaximumMAXFORDER = 9.0;
     static constexpr double DefaultMAXXORDER = 20.0;
-
-    // Clone constructor.
-    OpalMultipoleT(const std::string& name, OpalMultipoleT* parent);
 };
 
 #endif  // OPAL_OpalMultipoleT_HH

@@ -282,7 +282,7 @@ TEST_F(FM3DDynamicTest, ParticleKernelAccumulatesWithIndependentRFScalesAndBound
     const auto path = writeMap();
     auto* map       = dynamic_cast<FM3DDynamic*>(load(path));
     ASSERT_NE(map, nullptr);
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     auto particles = bunch.getParticleContainer();
@@ -323,7 +323,7 @@ TEST_F(FM3DDynamicTest, ParticleKernelAccumulatesWithIndependentRFScalesAndBound
 
 TEST_F(FM3DDynamicTest, RFCavityParticleAndPointEvaluationAgreeAtMidstepTime) {
     const auto path = writeMap();
-    Beam beam;
+    Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     bunch.setT(1.3e-9);

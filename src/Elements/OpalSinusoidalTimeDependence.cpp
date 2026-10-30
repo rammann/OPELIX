@@ -26,8 +26,8 @@ const std::string OpalSinusoidalTimeDependence::doc_string =
         "frequency, phase offset, amplitude, DC offset, given by "
         "f(t) = sigma_over_i(a[i] / 2 * sin(2 * pi * f[i] * t + p[i]) + o[i])";
 
-OpalSinusoidalTimeDependence::OpalSinusoidalTimeDependence()
-    : OpalElement(static_cast<int>(SIZE), "SINUSOIDAL_TIME_DEPENDENCE", doc_string.c_str()) {
+OpalSinusoidalTimeDependence::OpalSinusoidalTimeDependence(const std::string& name)
+    : OpalElement(name, static_cast<int>(SIZE), "SINUSOIDAL_TIME_DEPENDENCE", doc_string.c_str()) {
     itsAttr[FREQUENCIES] = Attributes::makeRealArray(
             "FREQUENCIES",
             "Sine wave frequencies, length determines the number of sine waves included.");
@@ -41,15 +41,7 @@ OpalSinusoidalTimeDependence::OpalSinusoidalTimeDependence()
     registerOwnership();
 }
 
-OpalSinusoidalTimeDependence* OpalSinusoidalTimeDependence::clone(const std::string& name) {
-    return new OpalSinusoidalTimeDependence(name, this);
-}
-
 void OpalSinusoidalTimeDependence::print(std::ostream& out) const { OpalElement::print(out); }
-
-OpalSinusoidalTimeDependence::OpalSinusoidalTimeDependence(
-        const std::string& name, OpalSinusoidalTimeDependence* parent)
-    : OpalElement(name, parent) {}
 
 void OpalSinusoidalTimeDependence::update() {
     AbstractTimeDependence::setTimeDependence(

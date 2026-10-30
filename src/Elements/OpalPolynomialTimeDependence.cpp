@@ -25,8 +25,8 @@ const std::string OpalPolynomialTimeDependence::doc_string =
         "f(t) = P0+P1*t+P2*t^2+P3*t^3 where t is the time in ns";
 
 // Use either P0..P3 or COEFFICIENTS.  If COEFFICIENTS are present, P0..P3 are ignored.
-OpalPolynomialTimeDependence::OpalPolynomialTimeDependence()
-    : OpalElement(static_cast<int>(SIZE), "POLYNOMIAL_TIME_DEPENDENCE", doc_string.c_str()) {
+OpalPolynomialTimeDependence::OpalPolynomialTimeDependence(const std::string& name)
+    : OpalElement(name, static_cast<int>(SIZE), "POLYNOMIAL_TIME_DEPENDENCE", doc_string.c_str()) {
     itsAttr[P0] = Attributes::makeReal("P0", "Constant term in the polynomial expansion.");
     itsAttr[P1] =
             Attributes::makeReal("P1", "First order (linear) term in the polynomial expansion.");
@@ -40,15 +40,7 @@ OpalPolynomialTimeDependence::OpalPolynomialTimeDependence()
     registerOwnership();
 }
 
-OpalPolynomialTimeDependence* OpalPolynomialTimeDependence::clone(const std::string& name) {
-    return new OpalPolynomialTimeDependence(name, this);
-}
-
 void OpalPolynomialTimeDependence::print(std::ostream& out) const { OpalElement::print(out); }
-
-OpalPolynomialTimeDependence::OpalPolynomialTimeDependence(
-        const std::string& name, OpalPolynomialTimeDependence* parent)
-    : OpalElement(name, parent) {}
 
 void OpalPolynomialTimeDependence::update() {
     // getOpalName() comes from AbstractObjects/Object.h

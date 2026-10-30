@@ -45,11 +45,8 @@ public:
     virtual bool shouldUpdate() const;
 
 protected:
-    /// Constructor for exemplars.
-    Definition(int size, const char* name, const char* help);
-
-    /// Constructor for clones.
-    Definition(const std::string& name, Definition* parent);
+    /// Create an object called [b]name[/b] for the input keyword [b]keyword[/b].
+    Definition(const std::string& name, int size, const char* keyword, const char* help);
 
 private:
     // Not implemented.

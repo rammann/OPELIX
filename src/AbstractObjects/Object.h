@@ -37,23 +37,12 @@ class TokenStream;
 //  All known Objects use standard C++ memory management.
 //
 //  Objects are linked by name to the OPAL directory, which resides in
-//  the global object [b]OpalData[/b].  Each Object has a pointer pointing
-//  to its parent object.  This may be an exemplar object, or a previously
-//  generated command or definition object.  This mechanism allows to find
-//  easily whether an Object belongs to a given class (see isTreeMember()).
+//  the global object [b]OpalData[/b].  The parser creates each Object
+//  from its keyword through the keyword table in [b]OpalData[/b].
 
 class Object {
 public:
     virtual ~Object();
-
-    /// Test if replacement is allowed.
-    //  By default redefinition of an existing Object is not allowed.
-    virtual bool canReplaceBy(Object* object);
-
-    /// Return a clone.
-    //  Call the [b]clone[/b] constructor to generate a copy of [b]this[/b]
-    //  with a new name [b]name[/b].
-    virtual Object* clone(const std::string& name) = 0;
 
     /// Copy attributes from another object.
     void copyAttributes(const Object&);
@@ -119,14 +108,6 @@ public:
     //  Print help information for [b]this[/b] on the default output stream (argument not used).
     virtual void printHelp(std::ostream&) const;
 
-    /// Replace references.
-    //  Called for all defined objects, when an object [b]oldObject[/b] is
-    //  replaced by a new definition [b]newObject[/b].
-    //  This default version does nothing.
-    //  Some derived classes may react to the redefinition by invalidating
-    //  themselves or by replacing reference inside their data.
-    virtual void replace(Object* oldObject, Object* newObject);
-
     /// Update this object.
     //  Called for all defined objects, before an action command is executed.
     //  This default version does nothing.
@@ -134,42 +115,14 @@ public:
     //  The beam line elements can update their OPALX counterpart.
     virtual void update();
 
-    /// True, if [b]this[/b] is a built-in object.
-    bool isBuiltin() const;
-
-    /// Shared flag.
-    //  If true, this object cannot be cloned to create new elements.
-    //  If it is an element or a line, all references are to the same object.
-    virtual bool isShared() const;
-
-    /// Set/reset shared flag.
-    //  If true, this object cannot be cloned to create new elements.
-    //  If it is an element or a line, all references are to the same object.
-    virtual void setShared(bool);
-
     /// Return object name.
     const std::string& getOpalName() const;
 
-    /// Return parent pointer.
-    Object* getParent() const;
-
-    /// Test for tree membership.
-    //  Return true, if [b]this[/b] has been directly or indirectly derived
-    //  from [b]subTree[/b].
-    bool isTreeMember(const Object* subTree) const;
+    /// Return the keyword that creates this kind of object, e.g. "DRIFT".
+    const std::string& getKeyword() const;
 
     /// Set object name.
     void setOpalName(const std::string& name);
-
-    /// Set parent object.
-    //  This method should normally be called only from Directory.
-    void setParent(Object*);
-
-    /// Clear the occurrence counter.
-    void clear();
-
-    /// Increment and return the occurrence counter.
-    int increment();
 
     /// Register a reference to this object.
     //  Place [b]a[/b] in the list of references.  Whenever [b]this[/b]
@@ -187,20 +140,12 @@ public:
     std::vector<Attribute> itsAttr;
 
 protected:
-    /// Constructor for exemplars.
-    //  The exemplar object will have the name [b]name[/b], and the help
-    //  text [b]help[/b]; it initially reserves [b]size[/b] attributes.
-    Object(int size, const char* name, const char* help);
-
-    /// Constructor for clones.
-    //  The clone object will have the name [b]name[/b]; it inherits its
-    //  attributes (shared) from the object [b]*parent[/b].
-    Object(const std::string& name, Object* parent);
-
-    /// Built-in flag.
-    //  True, if the object is built-in to OPAL-9, i. e. if it is an exemplar
-    //  or a predefined definition.
-    bool builtin;
+    /**
+     * @brief Create an object called @p name that reserves @p size attributes.
+     * @param keyword the input keyword that creates this kind of object
+     * @param help    the help text
+     */
+    Object(const std::string& name, int size, const char* keyword, const char* help);
 
 private:
     // Not implemented.
@@ -208,27 +153,18 @@ private:
     Object(const Object& object);
     void operator=(const Object&);
 
-    // Pointer to the parent object.
-    Object* itsParent;
-
     // The object name.
     std::string itsName;
+
+    // The keyword that creates this kind of object.
+    std::string itsKeyword;
 
     // The help text.
     std::string itsHelp;
 
-    // The occurrence counter.
-    int occurrence;
-
-    // The DOOM data base time stamp.
-    double timeStamp;
-
     // The set of all references to this object.
     // This allows to invalidate the references when [b]this[/b] is deleted.
     std::set<Invalidator*> references;
-
-    // If true, the object is shared.
-    bool sharedFlag;
 };
 
 // Implementation.

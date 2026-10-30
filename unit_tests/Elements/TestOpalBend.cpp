@@ -17,6 +17,7 @@
 #include "Ippl.h"
 
 #include "AbsBeamline/ElementBase.h"
+#include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
 #include "Elements/OpalElement.h"
 #include "Elements/OpalRBend.h"
@@ -49,9 +50,9 @@ namespace {
     std::unique_ptr<OpalElement> makeBend(BendKind kind, const BendSpec& spec) {
         std::unique_ptr<OpalElement> bend;
         if (kind == BendKind::SBend) {
-            bend = std::make_unique<OpalSBend>();
+            bend = std::make_unique<OpalSBend>("B1");
         } else {
-            bend = std::make_unique<OpalRBend>();
+            bend = std::make_unique<OpalRBend>("B1");
         }
 
         Attributes::setReal(*bend->findAttribute("L"), 1.0);
@@ -96,10 +97,12 @@ namespace {
 
         void SetUp() override {
             // Both bends read OpalData::getP0() when scaling their multipole coefficients.
-            // In a full run the RealVariable exemplar creates and registers the P0 variable;
-            // without it getP0() dereferences a null pointer. Created once for the suite and
-            // intentionally never deleted, since OpalData keeps referring to it.
-            [[maybe_unused]] static RealVariable* p0Owner = new RealVariable();
+            // In a full run Configure::configure() defines the P0 variable; without it
+            // getP0() dereferences a null pointer. Defined once per process and owned by
+            // OpalData.
+            if (OpalData::getInstance()->find("P0") == nullptr) {
+                RealVariable::defineBuiltins();
+            }
         }
     };
 

@@ -36,13 +36,10 @@ public:
         SIZE
     };
 
-    /// Exemplar constructor.
-    OpalQuadrupole();
+    /// Create the element called name.
+    explicit OpalQuadrupole(const std::string& name);
 
     virtual ~OpalQuadrupole();
-
-    /// Make clone.
-    virtual OpalQuadrupole* clone(const std::string& name);
 
     /// Update the embedded OPALX multipole.
     virtual void update();
@@ -51,9 +48,6 @@ private:
     // Not implemented.
     OpalQuadrupole(const OpalQuadrupole&);
     void operator=(const OpalQuadrupole&);
-
-    // Clone constructor.
-    OpalQuadrupole(const std::string& name, OpalQuadrupole* parent);
 };
 
 #endif  // OPAL_OpalQuadrupole_HH

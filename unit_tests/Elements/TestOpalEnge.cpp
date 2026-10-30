@@ -34,7 +34,7 @@ public:
 
 TEST_F(TestOpalEnge, TestSetup) {
     // Make the UI
-    OpalEnge ui;
+    OpalEnge ui("ENGE");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalEnge::LENGTH], 4);
     Attributes::setReal(ui.itsAttr[OpalEnge::FRINGE_LENGTH], 2);

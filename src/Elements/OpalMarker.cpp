@@ -18,7 +18,6 @@
 
 #include "Elements/OpalMarker.h"
 #include "AbsBeamline/Marker.h"
-#include "AbstractObjects/OpalData.h"
 #include "Utilities/Options.h"
 
 #include <iostream>
@@ -26,29 +25,11 @@
 // Class OpalMarker
 // ------------------------------------------------------------------------
 
-OpalMarker::OpalMarker()
-    : OpalElement(COMMON, "MARKER", "The \"MARKER\" element defines a marker.") {
-    setElement(new Marker("MARKER"));
-
-    // Construct the begin marker for beam lines.
-    OpalMarker* S = new OpalMarker("#S", this);
-    S->getElement()->makeSharable();
-    S->builtin = true;
-    OpalData::getInstance()->create(S);
-
-    // Construct the end marker for beam lines.
-    OpalMarker* E = new OpalMarker("#E", this);
-    E->getElement()->makeSharable();
-    E->builtin = true;
-    OpalData::getInstance()->create(E);
-}
-
-OpalMarker::OpalMarker(const std::string& name, OpalMarker* parent) : OpalElement(name, parent) {
+OpalMarker::OpalMarker(const std::string& name)
+    : OpalElement(name, COMMON, "MARKER", "The \"MARKER\" element defines a marker.") {
     setElement(new Marker(name));
 }
 
 OpalMarker::~OpalMarker() {}
-
-OpalMarker* OpalMarker::clone(const std::string& name) { return new OpalMarker(name, this); }
 
 void OpalMarker::update() {}

@@ -82,21 +82,11 @@ public:
         SIZE
     };
 
-    /** Constructor */
-    DumpEMFields();
-
-    /** Constructor */
-    DumpEMFields(const std::string& name, DumpEMFields* parent);
+    /** Create the command called name */
+    explicit DumpEMFields(const std::string& name);
 
     /** Destructor */
     ~DumpEMFields() override = default;
-
-    /** Make a clone (overloadable copy-constructor).
-     *    @param name not used
-     *  If this is in the dumpsSet_m, so will the clone. Not sure how the
-     *  itsAttr stuff works, so this may not get properly copied?
-     */
-    DumpEMFields* clone(const std::string& name) override;
 
     /** Builds the grid but does not write the field map
      *
@@ -146,6 +136,9 @@ private:
     virtual void writeFieldThis(const std::set<std::shared_ptr<ElementBase>>& elements);
     virtual void buildGrid();
     void parseCoordinateSystem();
+    /** Copy the attributes, grid, file name, coordinate system and cylindrical origin into a
+     *  new object that is kept in dumpsSet_m until the fields are written. */
+    std::unique_ptr<DumpEMFields> copyForWriting() const;
     static void checkInt(double value, const std::string& name, double tolerance = 1e-9);
     void writeHeader(std::ofstream& fout) const;
     void writeFieldLine(

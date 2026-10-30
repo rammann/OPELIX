@@ -17,15 +17,11 @@
 //
 #include "BasicActions/Stop.h"
 
-Stop::Stop()
-    : Action(0, "STOP",
+Stop::Stop(const std::string& name)
+    : Action(name, 0, "STOP",
              "The \"STOP\" statement terminates program execution "
              "or reading of a called file.") {}
 
-Stop::Stop(const std::string& name, Stop* parent) : Action(name, parent) {}
-
 Stop::~Stop() {}
-
-Stop* Stop::clone(const std::string& name) { return new Stop(name, this); }
 
 void Stop::execute() {}

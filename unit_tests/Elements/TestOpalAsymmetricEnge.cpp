@@ -35,7 +35,7 @@ public:
 
 TEST_F(TestOpalAsymmetricEnge, TestSetup) {
     // Make the UI
-    OpalAsymmetricEnge ui;
+    OpalAsymmetricEnge ui("ASYMMETRIC_ENGE");
     // Set the attributes
     Attributes::setReal(ui.itsAttr[OpalAsymmetricEnge::START_HALF_LENGTH], 7);
     Attributes::setReal(ui.itsAttr[OpalAsymmetricEnge::START_FRINGE_LENGTH], 8);

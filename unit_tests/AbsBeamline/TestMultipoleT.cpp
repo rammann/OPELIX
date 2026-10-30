@@ -35,6 +35,8 @@ public:
 
     class TestableFieldSolverCmd final : public FieldSolverCmd {
     public:
+        using FieldSolverCmd::FieldSolverCmd;
+
         void setType(const std::string& t) {
             Attributes::setPredefinedString(this->itsAttr[FIELDSOLVER::TYPE], t);
         }
@@ -51,7 +53,7 @@ public:
     };
 
     static std::shared_ptr<FieldSolverCmd> makeNoFieldSolver() {
-        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>();
+        const auto fsCmd = std::make_shared<TestableFieldSolverCmd>("TEST_FIELDSOLVER");
         fsCmd->setType("NONE");
         fsCmd->setNX(8);
         fsCmd->setNY(8);
@@ -251,8 +253,13 @@ TEST_F(TestMultipoleT, ApplySingleParticleThrowsForMultiContainerBunch) {
     // Build a multi-container bunch.
     const auto dataSink = std::make_shared<DataSink>();
     const auto fsCmd    = makeNoFieldSolver();
-    const auto beam     = std::make_shared<Beam>();
-    Beam* testBeam      = Beam::find("UNNAMED_BEAM");
+    // A full run defines UNNAMED_BEAM; OpalData owns it, so it outlives the bunch.
+    if (OpalData::getInstance()->find("UNNAMED_BEAM") == nullptr) {
+        auto* defaultBeam = new Beam("UNNAMED_BEAM");
+        defaultBeam->update();
+        OpalData::getInstance()->define(defaultBeam);
+    }
+    Beam* testBeam = Beam::find("UNNAMED_BEAM");
     ASSERT_NE(testBeam, nullptr);
     const auto bunch = std::make_shared<PartBunch_t>(
             std::vector{1.0e-9, 2.0e-9}, std::vector{0.511e-3, 0.938},

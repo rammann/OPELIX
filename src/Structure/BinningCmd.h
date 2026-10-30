@@ -52,13 +52,10 @@ namespace BINNING {
 
 class BinningCmd : public Definition {
 public:
-    /// Exemplar constructor.
-    BinningCmd();
+    /// Create the binning definition called [b]name[/b].
+    explicit BinningCmd(const std::string& name);
 
     virtual ~BinningCmd();
-
-    /// Make clone.
-    virtual BinningCmd* clone(const std::string& name);
 
     /// Find named BINNING command.
     static BinningCmd* find(const std::string& name);
@@ -97,9 +94,6 @@ private:
     // Not implemented.
     BinningCmd(const BinningCmd&);
     void operator=(const BinningCmd&);
-
-    // Clone constructor.
-    BinningCmd(const std::string& name, BinningCmd* parent);
 
     /// Recompute the enum-valued parameter from the string attribute.
     void setParameterType();

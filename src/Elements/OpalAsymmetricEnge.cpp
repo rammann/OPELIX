@@ -8,9 +8,9 @@
 
 extern Inform* gmsg;
 
-OpalAsymmetricEnge::OpalAsymmetricEnge()
+OpalAsymmetricEnge::OpalAsymmetricEnge(const std::string& name)
     : OpalElement(
-              SIZE, "ASYMMETRIC_ENGE",
+              name, SIZE, "ASYMMETRIC_ENGE",
               "The \"ASYMMETRIC_ENGE\" element defines an enge field fall off for"
               "plugging into analytical field models. The Asymmetric version"
               "has different parameters for the start and end of the field.") {
@@ -46,11 +46,4 @@ void OpalAsymmetricEnge::update() {
             aVecStart, x0Start, lambdaStart, aVecEnd, x0End, lambdaEnd);
     auto efmMan = endfieldmodel::EndFieldModelManager::getEFMManager();
     efmMan->setEndFieldModel(getOpalName(), efm);
-}
-
-OpalAsymmetricEnge::OpalAsymmetricEnge(const std::string& name, OpalAsymmetricEnge* parent)
-    : OpalElement(name, parent) {}
-
-OpalAsymmetricEnge* OpalAsymmetricEnge::clone(const std::string& name) {
-    return new OpalAsymmetricEnge(name, this);
 }

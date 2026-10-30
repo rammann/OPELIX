@@ -27,25 +27,17 @@
 
 class Option : public Action {
 public:
-    Option();
+    /// Create the command called [b]name[/b], starting from the current option values.
+    explicit Option(const std::string& name);
     virtual ~Option();
-
-    /// Make clone.
-    virtual Option* clone(const std::string& name);
 
     /// Execute the command.
     virtual void execute();
 
 private:
-    using Object::update;
-    void update(const std::vector<Attribute>&);
-
     // Not implemented.
     Option(const Option&);
     void operator=(const Option&);
-
-    // Clone constructor.
-    Option(const std::string& name, Option* parent);
 };
 
 #endif  // OPAL_Option_HH

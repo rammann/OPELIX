@@ -32,23 +32,8 @@ public:
         SIZE  // size of the enum
     };
 
-    /** Copy constructor **/
-    OpalVariableRFCavity(const std::string& name, OpalVariableRFCavity* parent);
-
-    /** Default constructor **/
-    OpalVariableRFCavity();
-
-    /** Inherited copy constructor
-     *
-     *  Call on a base class to instantiate an object of derived class's type
-     **/
-    OpalVariableRFCavity* clone();
-
-    /** Inherited copy constructor
-     *
-     *  Call on a base class to instantiate an object of derived class's type
-     */
-    OpalVariableRFCavity* clone(const std::string& name) override;
+    /** Create the element called name **/
+    explicit OpalVariableRFCavity(const std::string& name);
 
     /** Destructor does nothing */
     ~OpalVariableRFCavity() override = default;

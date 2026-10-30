@@ -22,13 +22,10 @@
 
 class Quit : public Action {
 public:
-    /// Exemplar constructor.
-    Quit();
+    /// Create the command called [b]name[/b].
+    explicit Quit(const std::string& name);
 
     virtual ~Quit();
-
-    /// Make clone.
-    virtual Quit* clone(const std::string& name);
 
     /// Execute the command.
     virtual void execute();
@@ -37,9 +34,6 @@ private:
     // Not implemented.
     Quit(const Quit&);
     void operator=(const Quit&);
-
-    // Clone constructor.
-    Quit(const std::string& name, Quit* parent);
 };
 
 #endif  // OPAL_Quit_HH

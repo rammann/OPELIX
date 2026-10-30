@@ -7,17 +7,13 @@ class OpalConstantFocusing : public OpalElement {
 public:
     enum { STRENGTH = COMMON, RADIUS, SIZE };
 
-    OpalConstantFocusing();
+    explicit OpalConstantFocusing(const std::string& name);
     ~OpalConstantFocusing() override;
-
-    OpalConstantFocusing* clone(const std::string& name) override;
     void update() override;
 
 private:
     OpalConstantFocusing(const OpalConstantFocusing&);
     void operator=(const OpalConstantFocusing&);
-
-    OpalConstantFocusing(const std::string& name, OpalConstantFocusing* parent);
 };
 
 #endif  // OPAL_OpalConstantFocusing_HH
