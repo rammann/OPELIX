@@ -90,15 +90,11 @@ void Object::parse(Statement& stat) {
 
                 if (stat.delimiter('=')) {
                     attr->parseComponent(stat, true, index);
-                } else if (stat.delimiter(":=")) {
-                    attr->parseComponent(stat, false, index);
                 } else {
-                    throw ParseError("Object::parse()", "Delimiter \"=\" or \":=\" expected.");
+                    throw ParseError("Object::parse()", "Delimiter \"=\" expected.");
                 }
             } else if (stat.delimiter('=')) {
                 attr->parse(stat, true);
-            } else if (stat.delimiter(":=")) {
-                attr->parse(stat, false);
             } else {
                 attr->setDefault();
             }
@@ -120,15 +116,6 @@ void Object::parseShortcut(Statement& stat, bool eval) {
             if (stat.delimiter('=')) {
                 if (Attribute* attr = findAttribute(name)) {
                     attr->parse(stat, eval);
-                    return;
-                } else {
-                    throw ParseError(
-                            "Object::parseShortcut()",
-                            "Object \"" + getOpalName() + "\" has no attribute \"" + name + "\".");
-                }
-            } else if (stat.delimiter(":=")) {
-                if (Attribute* attr = findAttribute(name)) {
-                    attr->parse(stat, false);
                     return;
                 } else {
                     throw ParseError(

@@ -292,12 +292,6 @@ void OpalParser::parseAssign(Statement& stat) const {
                 } else {
                     attr->parse(stat, true);
                 }
-            } else if (stat.delimiter(":=")) {
-                if (index > 0) {
-                    attr->parseComponent(stat, false, index);
-                } else {
-                    attr->parse(stat, false);
-                }
             }
         } else {
             throw ParseError(

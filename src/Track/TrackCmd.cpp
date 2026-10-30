@@ -22,7 +22,6 @@
 #include "AbstractObjects/BeamSequence.h"
 #include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
-#include "Lines/EmissionSourceList.h"
 #include "Structure/Beam.h"
 #include "Track/Track.h"
 #include "Track/TrackParser.h"
@@ -31,45 +30,26 @@
 namespace {
     // The attributes of class TrackCmd
     enum {
-        LINE,      // The name of lattice to be tracked.
-        SOURCES,   // The name of the emission sources list (EMISSIONSOURCELIST).
-        BEAM,      // The name of beam to be used.
-        BEAMS,     // The names of beams to be used (replaces BEAM for input).
-        DT,        // The integration timestep in second.
-                   // In case of the adaptive integrator, time step guideline for
-                   // external field integration.
-        DTSCINIT,  // Only for adaptive integrator: Initial time step for space charge integration.
-        DTAU,      // Only for adaptive integrator: Alternative way to set accuracy of space
-                   // charge integration. Has no direct interpretation like DTSCINIT, but lower
-                   // means smaller steps and more accurate. If given, DTSCINIT is not used. Useful
-                   // for continuing with same step size in follow-up tracks.
-        T0,        // The elapsed time (sec) of the bunch
-        MAXSTEPS,  // The maximum timesteps we integrate
-        ZSTART,    // Defines a z-location [m] where the reference particle starts
-        ZSTOP,     // Defines a z-location [m], after which the simulation stops when the last
-                   // particles passes
-        STEPSPERTURN,    // Return the timsteps per revolution period. ONLY available for OPAL-cycl.
-        TIMEINTEGRATOR,  // the name of time integrator
-        EKINSTOP,        // Optional SINGLEGAP reference kinetic-energy target [GeV].
+        LINE,          // The name of lattice to be tracked.
+        BEAM,          // The name of beam to be used.
+        BEAMS,         // The names of beams to be used (replaces BEAM for input).
+        DT,            // The integration timestep in second.
+        T0,            // The elapsed time (sec) of the bunch
+        MAXSTEPS,      // The maximum timesteps we integrate
+        ZSTART,        // Defines a z-location [m] where the reference particle starts
+        ZSTOP,         // Defines a z-location [m], after which the simulation stops when the last
+                       // particles passes
+        STEPSPERTURN,  // Return the timsteps per revolution period. ONLY available for OPAL-cycl.
+        EKINSTOP,      // Optional SINGLEGAP reference kinetic-energy target [GeV].
         INITIALORBIT,
         SIZE
     };
 }  // namespace
 
-const std::map<std::string, Steppers::TimeIntegrator> TrackCmd::stringTimeIntegrator_s = {
-        {"RK-4", Steppers::TimeIntegrator::RK4},
-        {"RK4", Steppers::TimeIntegrator::RK4},
-        {"LF-2", Steppers::TimeIntegrator::LF2},
-        {"LF2", Steppers::TimeIntegrator::LF2},
-        {"MTS", Steppers::TimeIntegrator::MTS}};
-
 TrackCmd::TrackCmd() : Action(SIZE, "TRACK", "The \"TRACK\" command initiates tracking.") {
     itsAttr[INITIALORBIT] = Attributes::makeString(
             "INITIALORBIT", "Named COF launch for orbit-local generated distributions.");
     itsAttr[LINE] = Attributes::makeString("LINE", "Name of lattice to be tracked.");
-
-    itsAttr[SOURCES] = Attributes::makeString(
-            "SOURCES", "Name of the emission sources list (EMISSIONSOURCELIST).");
 
     itsAttr[BEAM] = Attributes::makeString("BEAM", "Name of beam to be used.", "UNNAMED_BEAM");
 
@@ -77,15 +57,6 @@ TrackCmd::TrackCmd() : Action(SIZE, "TRACK", "The \"TRACK\" command initiates tr
             Attributes::makeStringArray("BEAMS", "Names of beams to be used (replaces BEAM).");
 
     itsAttr[DT] = Attributes::makeRealArray("DT", "The integration timestep in [s].");
-
-    itsAttr[DTSCINIT] = Attributes::makeReal(
-            "DTSCINIT",
-            "Only for adaptive integrator: Initial time step for space charge integration.", 1e-12);
-
-    itsAttr[DTAU] = Attributes::makeReal(
-            "DTAU",
-            "Only for adaptive integrator: Alternative way to set accuracy of space integration.",
-            -1.0);
 
     itsAttr[T0] = Attributes::makeReal("T0", "The elapsed time of the bunch in seconds", 0.0);
 
@@ -106,10 +77,6 @@ TrackCmd::TrackCmd() : Action(SIZE, "TRACK", "The \"TRACK\" command initiates tr
     itsAttr[EKINSTOP] = Attributes::makeReal(
             "EKINSTOP", "Stop after the first complete RF kick reaching this kinetic energy [GeV].",
             0.0);
-
-    itsAttr[TIMEINTEGRATOR] = Attributes::makePredefinedString(
-            "TIMEINTEGRATOR", "Name of time integrator to be used.",
-            {"RK-4", "RK4", "LF-2", "LF2", "MTS"}, "RK4");
 
     registerOwnership(AttributeHandler::COMMAND);
     AttributeHandler::addAttributeOwner("TRACK", AttributeHandler::COMMAND, "RUN");
@@ -135,10 +102,6 @@ std::vector<double> TrackCmd::getDT() const {
     }
     return dTs;
 }
-
-double TrackCmd::getDTSCINIT() const { return Attributes::getReal(itsAttr[DTSCINIT]); }
-
-double TrackCmd::getDTAU() const { return Attributes::getReal(itsAttr[DTAU]); }
 
 double TrackCmd::getT0() const { return Attributes::getReal(itsAttr[T0]); }
 
@@ -174,17 +137,9 @@ std::vector<unsigned long long> TrackCmd::getMaxSteps() const {
 
 int TrackCmd::getStepsPerTurn() const { return (int)Attributes::getReal(itsAttr[STEPSPERTURN]); }
 
-Steppers::TimeIntegrator TrackCmd::getTimeIntegrator() {
-    std::string name = Attributes::getString(itsAttr[TIMEINTEGRATOR]);
-    return stringTimeIntegrator_s.at(name);
-}
-
 void TrackCmd::execute() {
     // Find BeamSequence
     BeamSequence* theLineToTrack = BeamSequence::find(Attributes::getString(itsAttr[LINE]));
-
-    // TRACK,SOURCES is optional (and ignored); emission sources come from the selected BEAM.
-    EmissionSourceList* emissionSourcesList = nullptr;
 
     // Resolve beams (BEAMS has precedence over BEAM).
     std::vector<std::string> beamNames = Attributes::getStringArray(itsAttr[BEAMS]);
@@ -209,14 +164,10 @@ void TrackCmd::execute() {
 
     std::vector<double> dt                   = getDT();
     double t0                                = getT0();
-    double dtScInit                          = getDTSCINIT();
-    double deltaTau                          = getDTAU();
     std::vector<unsigned long long> maxsteps = getMaxSteps();
     int stepsperturn                         = getStepsPerTurn();
     double zstart                            = getZStart();
     std::vector<double> zstop                = getZStop();
-
-    Steppers::TimeIntegrator timeintegrator = getTimeIntegrator();
 
     size_t numTracks = dt.size();
     numTracks        = std::max(numTracks, maxsteps.size());
@@ -253,7 +204,7 @@ void TrackCmd::execute() {
     }
     Track::block = new Track(
             theLineToTrack, beam->getReference(), dt, maxsteps, stepsperturn, zstart, zstop,
-            timeintegrator, dtScInit, deltaTau, emissionSourcesList, beamNames);
+            beamNames);
     Track::block->kineticEnergyStopGeV = kineticStop;
     Track::block->initialOrbit         = std::move(initialOrbit);
 

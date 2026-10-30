@@ -40,11 +40,6 @@ class Statement;
 //  [p]
 //  When ``is_readonly'' is true, the attribute cannot be redefined by
 //  the user.
-//  [p]
-//  When ``is_deferred'' is true, the attribute must be re-evaluated
-//  whenever it is used.  This is the case for random error values.
-//  When ``is_deferred'' is false, any expression for the attribute is
-//  cached.  It is re-evaluated only when any other definition has changed.
 
 class AttributeHandler {
 public:
@@ -82,17 +77,6 @@ public:
     //  and it throws [b]OpalException[/b].
     virtual void parseComponent(Attribute& a, Statement& s, bool eval, int i) const;
 
-    /// Return defer flag.
-    //  True, if any expression evaluation is to be deferred.
-    //  See [b]Expressions::ADeferred[/b] and [b]Expressions::SDeferred[/b]
-    //  for details.
-    bool isDeferred() const;
-
-    /// Set or reset defer flag.
-    //  If the flag is set, expressions are evaluated only when the value
-    //  is fetched.
-    void setDeferred(bool);
-
     /// Return read-only flag.
     //  If [b]parse[/b] is called with this flag set,
     //  then [b]OpalException[/b] is thrown.
@@ -121,9 +105,6 @@ protected:
 
     /// Default value.
     std::shared_ptr<AttributeBase> itsDefault;
-
-    /// Defer flag.
-    bool is_deferred;
 
     /// Read-only flag.
     bool is_readonly;

@@ -24,7 +24,6 @@ set (_SRCS
     OpalSolenoid.cpp
     OpalBeamline.cpp
     PlacementResolver.cpp
-    OpalVerticalFFAMagnet.cpp
     OpalProbe.cpp
     OpalPolynomialTimeDependence.cpp
     OpalSplineTimeDependence.cpp
@@ -59,7 +58,6 @@ set (HDRS
     OpalSolenoid.h
     OpalTravelingWave.h
     OpalLaser.h
-    OpalVerticalFFAMagnet.h
     OpalProbe.h
     OpalPolynomialTimeDependence.h
     OpalSplineTimeDependence.h

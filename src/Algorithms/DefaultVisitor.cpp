@@ -41,7 +41,6 @@
 #include "AbsBeamline/Solenoid.h"
 #include "AbsBeamline/TravelingWave.h"
 #include "AbsBeamline/VariableRFCavity.h"
-#include "AbsBeamline/VerticalFFAMagnet.h"
 
 #include "Beamlines/Beamline.h"
 #include "Beamlines/FlaggedElmPtr.h"
@@ -93,8 +92,6 @@ void DefaultVisitor::visitSolenoid(const Solenoid& so) { applyDefault(so); }
 void DefaultVisitor::visitTravelingWave(const TravelingWave& trw) { applyDefault(trw); }
 
 void DefaultVisitor::visitScalingFFAMagnet(const ScalingFFAMagnet& spiral) { applyDefault(spiral); }
-
-void DefaultVisitor::visitVerticalFFAMagnet(const VerticalFFAMagnet& mag) { applyDefault(mag); }
 
 void DefaultVisitor::visitVariableRFCavity(const VariableRFCavity& cavity) { applyDefault(cavity); }
 

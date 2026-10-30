@@ -21,12 +21,10 @@ set (HDRS
     SConstant.h
     SDeferred.h
     SHash.h
-    SNull.h
     SRefExpr.h
     SUnary.h
     SValue.h
     TFind.h
-    TFunction0.h
     TFunction1.h
     TFunction2.h
     )

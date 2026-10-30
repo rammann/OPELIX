@@ -176,7 +176,6 @@ namespace TRACKRUN {
         TURNS,             // The number of turns to be tracked, we keep that for the moment
         FIELDSOLVER,       // The field solver attached
         BOUNDARYGEOMETRY,  // The boundary geometry
-        TRACKBACK,         // In case we run the beam backwards
         SPECTRALTUNES,     // Independent serial two-ray diagnostic.
         TUNESAMPLE,        // Fixed sampling stride.
         TUNEINTEGRATOR,    // Integrator shared with map rays, without map building.
@@ -236,9 +235,6 @@ TrackRun::TrackRun()
 
     itsAttr[TRACKRUN::BOUNDARYGEOMETRY] = Attributes::makeString(
             "BOUNDARYGEOMETRY", "Boundary geometry to be used NONE (default).", "NONE");
-
-    itsAttr[TRACKRUN::TRACKBACK] =
-            Attributes::makeBool("TRACKBACK", "Track in reverse direction, default: false.", false);
 
     registerOwnership(AttributeHandler::SUB_COMMAND);
     opal_m = OpalData::getInstance();

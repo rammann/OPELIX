@@ -59,7 +59,6 @@ class TravelingWave;
 class SBend;
 class Solenoid;
 class ScalingFFAMagnet;
-class VerticalFFAMagnet;
 class Probe;
 
 class BeamlineVisitor {
@@ -132,9 +131,6 @@ public:
 
     /// Apply the algorithm to a traveling wave.
     virtual void visitTravelingWave(const TravelingWave&) = 0;
-
-    /// Apply the algorithm to a vertical FFA magnet.
-    virtual void visitVerticalFFAMagnet(const VerticalFFAMagnet&) = 0;
 
     /// Apply the algorithm to a Probe.
     virtual void visitProbe(const Probe&) = 0;

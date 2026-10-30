@@ -212,11 +212,6 @@ std::pair<ApertureType, std::vector<double>> OpalElement::getApert() const {
 
 double OpalElement::getLength() const { return Attributes::getReal(itsAttr[LENGTH]); }
 
-const std::string OpalElement::getTypeName() const {
-    const Attribute* attr = findAttribute("TYPE");
-    return attr ? Attributes::getString(*attr) : std::string();
-}
-
 /**
    Functions to get the wake field parametes
 */
@@ -235,16 +230,12 @@ void OpalElement::parse(Statement& stat) {
 
             if (stat.delimiter('=')) {
                 attr->parseComponent(stat, true, index);
-            } else if (stat.delimiter(":=")) {
-                attr->parseComponent(stat, false, index);
             } else {
-                throw ParseError("OpalElement::parse()", "Delimiter \"=\" or \":=\" expected.");
+                throw ParseError("OpalElement::parse()", "Delimiter \"=\" expected.");
             }
         } else {
             if (stat.delimiter('=')) {
                 attr->parse(stat, true);
-            } else if (stat.delimiter(":=")) {
-                attr->parse(stat, false);
             } else {
                 attr->setDefault();
             }

@@ -4,7 +4,6 @@ set (_SRCS
     Echo.cpp
     Help.cpp
     Option.cpp
-    Select.cpp
     Stop.cpp
     Quit.cpp
     PSystem.cpp
@@ -21,7 +20,6 @@ set (HDRS
     Option.h
     PSystem.h
     Quit.h
-    Select.h
     Stop.h
     System.h
     Title.h

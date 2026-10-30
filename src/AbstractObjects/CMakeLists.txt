@@ -12,8 +12,6 @@ set (_SRCS
   OpalParticle.cpp
   Object.cpp
   ObjectFunction.cpp
-  PlaceRep.cpp
-  RangeRep.cpp
   ValueDefinition.cpp
   )
 
@@ -32,8 +30,6 @@ set (HDRS
     Object.h
     OpalData.h
     OpalParticle.h
-    PlaceRep.h
-    RangeRep.h
     ValueDefinition.h
 )
 

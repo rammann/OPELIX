@@ -110,8 +110,10 @@ Token AbsFileStream::readToken() {
             curr_char += 2;
             return Token(stream_name, curr_line, Token::IS_DELIMITER, "&&");
         } else if (ch == ':' && line[curr_char + 1] == '=') {
-            curr_char += 2;
-            return Token(stream_name, curr_line, Token::IS_DELIMITER, ":=");
+            throw FormatError(
+                    "AbsFileStream::readToken()",
+                    "\":=\" in line " + std::to_string(curr_line) + " of file \"" + stream_name
+                            + "\": deferred expressions are not supported, use \"=\".");
         } else if (ch == '-' && line[curr_char + 1] == '>') {
             curr_char += 2;
             return Token(stream_name, curr_line, Token::IS_DELIMITER, "->");

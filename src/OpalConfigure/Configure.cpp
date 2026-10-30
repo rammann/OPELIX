@@ -35,7 +35,6 @@
 #include "BasicActions/Option.h"
 #include "BasicActions/PSystem.h"
 #include "BasicActions/Quit.h"
-#include "BasicActions/Select.h"
 #include "BasicActions/Stop.h"
 #include "BasicActions/System.h"
 #include "BasicActions/Title.h"
@@ -86,7 +85,6 @@
 #include "Elements/OpalSplineTimeDependence.h"
 #include "Elements/OpalTravelingWave.h"
 #include "Elements/OpalVariableRFCavity.h"
-#include "Elements/OpalVerticalFFAMagnet.h"
 #include "Lines/Ring.h"
 
 // EndFieldModels
@@ -112,7 +110,6 @@ namespace {
         opal->create(new Echo());
         opal->create(new Help());
         opal->create(new Option());
-        opal->create(new Select());
         opal->create(new Stop());
         opal->create(new Quit());
         opal->create(new PSystem());
@@ -166,7 +163,6 @@ namespace {
         opal->create(new OpalSolenoid());
         opal->create(new Line());
         opal->create(new Ring());
-        opal->create(new OpalVerticalFFAMagnet());
         opal->create(new OpalPolynomialTimeDependence());
         opal->create(new OpalSinusoidalTimeDependence());
         opal->create(new OpalSplineTimeDependence());

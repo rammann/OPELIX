@@ -66,7 +66,6 @@
 #include "Utilities/Util.h"
 
 #include "AbsBeamline/PluginElement.h"
-#include "AbsBeamline/VerticalFFAMagnet.h"
 
 extern Inform* gmsg;
 

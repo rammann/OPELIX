@@ -26,17 +26,13 @@
 // ------------------------------------------------------------------------
 /// A section of a beam line.
 //  A FlaggedBeamline is built as a list of FlaggedElmPtr objects.
-//  A FlaggedElmPtr contains two flags:
-//  [dl]
-//  [dt]reflected [dd]If true, this section of the line is reversed.
-//  [dt]selected  [dd]Can be set to indicate a selected status for algorithms.
-//  [/dl]
+//  A FlaggedElmPtr carries a reflection flag: if true, this section of the line is reversed.
 
 class FlaggedElmPtr : public ElmPtr {
 public:
     /// Constructor.
     //  Assign an element to this beamline position.
-    explicit FlaggedElmPtr(const ElmPtr&, bool reflected = false, bool selected = false);
+    explicit FlaggedElmPtr(const ElmPtr&, bool reflected = false);
 
     /// Copy constructor.
     FlaggedElmPtr(const FlaggedElmPtr&);
@@ -56,9 +52,6 @@ public:
     /// Get reflection flag.
     inline bool getReflectionFlag() const;
 
-    /// Get selection flag.
-    inline bool getSelectionFlag() const;
-
     /// Set clone counter.
     //  The value set is the entire responsibility of any algorithm using it.
     //  See [b]FlaggedElmPtr::itsCounter[/b] for details.
@@ -66,9 +59,6 @@ public:
 
     /// Set reflection flag.
     inline void setReflectionFlag(bool flag) const;
-
-    /// Get selection flag.
-    inline void setSelectionFlag(bool flag) const;
 
 protected:
     /// Clone counter.
@@ -80,23 +70,14 @@ protected:
     //  If true, the portion of the line pointed at by [b]itsElement[/b]
     //  is reflected, i.e. its elements occur in reverse order.
     mutable bool isReflected;
-
-    /// The selection flag.
-    //  This flag can be set to indicate a ``selected'' status for certain
-    //  algorithms.
-    mutable bool isSelected;
 };
 
 inline int FlaggedElmPtr::getCounter() const { return itsCounter; }
 
 inline bool FlaggedElmPtr::getReflectionFlag() const { return isReflected; }
 
-inline bool FlaggedElmPtr::getSelectionFlag() const { return isSelected; }
-
 inline void FlaggedElmPtr::setCounter(int count) const { itsCounter = count; }
 
 inline void FlaggedElmPtr::setReflectionFlag(bool flag) const { isReflected = flag; }
-
-inline void FlaggedElmPtr::setSelectionFlag(bool flag) const { isSelected = flag; }
 
 #endif  // OPALX_FlaggedElmPtr_HH

@@ -25,16 +25,13 @@
 // Class FlaggedElmPtr
 // ------------------------------------------------------------------------
 
-FlaggedElmPtr::FlaggedElmPtr(const ElmPtr& elem, bool reflected, bool selected)
-    : ElmPtr(elem), itsCounter(0), isReflected(reflected), isSelected(selected) {}
+FlaggedElmPtr::FlaggedElmPtr(const ElmPtr& elem, bool reflected)
+    : ElmPtr(elem), itsCounter(0), isReflected(reflected) {}
 
-FlaggedElmPtr::FlaggedElmPtr() : ElmPtr(), itsCounter(0), isReflected(false), isSelected(false) {}
+FlaggedElmPtr::FlaggedElmPtr() : ElmPtr(), itsCounter(0), isReflected(false) {}
 
 FlaggedElmPtr::FlaggedElmPtr(const FlaggedElmPtr& rhs)
-    : ElmPtr(rhs),
-      itsCounter(rhs.itsCounter),
-      isReflected(rhs.isReflected),
-      isSelected(rhs.isSelected) {}
+    : ElmPtr(rhs), itsCounter(rhs.itsCounter), isReflected(rhs.isReflected) {}
 
 FlaggedElmPtr::~FlaggedElmPtr() {}
 

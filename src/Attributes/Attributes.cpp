@@ -21,7 +21,6 @@
 #include "Attributes/Bool.h"
 #include "Attributes/OpalString.h"
 #include "Attributes/PredefinedString.h"
-#include "Attributes/Range.h"
 #include "Attributes/Real.h"
 #include "Attributes/RealArray.h"
 #include "Attributes/StringArray.h"
@@ -112,37 +111,6 @@ namespace Attributes {
             throw OpalException(
                     "Attributes::setBool()",
                     "Attribute \"" + attr.getName() + "\" is not logical.");
-        }
-    }
-
-    // ----------------------------------------------------------------------
-    // Range value.
-
-    Attribute makeRange(const std::string& name, const std::string& help) {
-        return Attribute(new Range(name, help), new SValue<RangeRep>(RangeRep()));
-    }
-
-    RangeRep getRange(const Attribute& attr) {
-        if (attr.isBaseAllocated()) {
-            if (SValue<RangeRep>* range = dynamic_cast<SValue<RangeRep>*>(&attr.getBase())) {
-                return range->evaluate();
-            } else {
-                throw OpalException(
-                        "Attributes::getRange()",
-                        "Attribute \"" + attr.getName() + "\" is not a range reference.");
-            }
-        } else {
-            return RangeRep();
-        }
-    }
-
-    void setRange(Attribute& attr, const RangeRep& rep) {
-        if (dynamic_cast<const Range*>(&attr.getHandler())) {
-            attr.set(new SValue<RangeRep>(rep));
-        } else {
-            throw OpalException(
-                    "Attributes::setRange()",
-                    "Attribute \"" + attr.getName() + "\" is not a range reference.");
         }
     }
 

@@ -19,7 +19,6 @@
 
 #include "Track/Track.h"
 
-#include "Lines/EmissionSourceList.h"
 #include "PartBunch/PartBunch.h"
 #include "Utilities/Options.h"
 
@@ -28,21 +27,15 @@ Track* Track::block = 0;
 Track::Track(
         BeamSequence* u, const PartData& ref, const std::vector<double>& dt,
         const std::vector<unsigned long long>& maxtsteps, int stepsperturn, double zStart,
-        const std::vector<double>& zStop, Steppers::TimeIntegrator timeintegrator, double dtScInit,
-        double deltaTau, EmissionSourceList* emissionSourcesList,
-        const std::vector<std::string>& beamNames)
+        const std::vector<double>& zStop, const std::vector<std::string>& beamNames)
     : reference(ref),
       use(u),
-      emissionSources(emissionSourcesList),
       parser(),
       dT(dt),
-      dtScInit(dtScInit),
-      deltaTau(deltaTau),
       localTimeSteps(maxtsteps),
       stepsPerTurn(stepsperturn),
       zstart(zStart),
       zstop(zStop),
-      timeIntegrator(timeintegrator),
       beamNames_m(beamNames) {}
 
 Track::~Track() {}

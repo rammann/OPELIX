@@ -51,8 +51,6 @@
 #include <vector>
 #include "OpalParser/Token.h"
 
-class PlaceRep;
-class RangeRep;
 class Statement;
 
 // ========================================================================
@@ -237,12 +235,6 @@ namespace Expressions {
 
     /// Test for two-character delimiter.
     extern void parseDelimiter(Statement& stat, const char delim[2]);
-
-    /// Parse place specification.
-    extern PlaceRep parsePlace(Statement&);
-
-    /// Parse range specification.
-    extern RangeRep parseRange(Statement&);
 
     // Implementation of class Expression::Scalar<T>.
     // ----------------------------------------------------------------------

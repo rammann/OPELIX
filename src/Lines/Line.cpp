@@ -178,8 +178,6 @@ void Line::parseDefinition(Statement& stat, bool allowModifiers) {
         if (attr != 0) {
             if (stat.delimiter('=')) {
                 attr->parse(stat, true);
-            } else if (stat.delimiter(":=")) {
-                attr->parse(stat, false);
             } else {
                 attr->setDefault();
             }

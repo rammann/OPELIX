@@ -50,8 +50,6 @@ namespace Attributes {
             // Use ADeferred here, since a component may be overridden later
             // by an expression.
             attr.set(new ADeferred<double>(expr->evaluate()));
-        } else if (is_deferred) {
-            attr.set(new ADeferred<double>(expr));
         } else {
             attr.set(new AAutomatic<double>(expr));
         }

@@ -25,8 +25,6 @@
 #include "AbstractObjects/Attribute.h"
 #include "OpalParser/Token.h"
 
-class RangeRep;
-
 // Namespace Attributes.
 // ------------------------------------------------------------------------
 /// A collection of routines to construct object Attributes and retrieve
@@ -54,16 +52,6 @@ namespace Attributes {
 
     /// Set logical value.
     extern void setBool(Attribute&, bool);
-
-    /// Create a range attribute.
-    //  Initial value is "FULL".
-    extern Attribute makeRange(const std::string& name, const std::string& help);
-
-    /// Get range value.
-    extern RangeRep getRange(const Attribute&);
-
-    /// Set range value.
-    extern void setRange(Attribute&, const RangeRep&);
 
     /// Make real attribute.
     //  Initial value is undefined.

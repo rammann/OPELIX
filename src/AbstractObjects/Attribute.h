@@ -97,21 +97,6 @@ public:
     //  This string ("real", "logical", etc.) is stored in the parser object.
     const std::string& getType() const;
 
-    /// Return [b]deferred[/b] flag.
-    //  If this flag is set, any expression is re-evaluated each time the
-    //  value is fetched.  Normally attribute evaluation is not deferred,
-    //  i. e. any expression is evaluated only the first time the value is
-    //  fetched after a new definition has been read.
-    //  See [b]Expressions::ADeferred[/b] and [b]Expressions::SDeferred[/b]
-    //  for information.
-    bool isDeferred() const;
-
-    /// Set read-only flag.
-    //  If this flag is set, the attribute cannot be redefined by the user.
-    //  See [b]Expressions::ADeferred[/b] and [b]Expressions::SDeferred[/b]
-    //  for information.
-    void setDeferred(bool);
-
     /// Test for expression.
     //  Return true, if the attribute is defined as an expression.
     bool isExpression() const;

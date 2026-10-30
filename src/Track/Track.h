@@ -23,7 +23,6 @@
 #include "Algorithms/ClosedOrbitInitialState.h"
 #include "Algorithms/PartData.h"
 #include "PartBunch/PartBunch.h"
-#include "Steppers/Steppers.h"
 #include "Track/TrackCmd.h"
 #include "Track/TrackParser.h"
 
@@ -31,15 +30,12 @@
 #include <vector>
 
 class BeamSequence;
-class EmissionSourceList;
 
 class Track {
 public:
     Track(BeamSequence*, const PartData&, const std::vector<double>& dt,
           const std::vector<unsigned long long>& maxtsteps, int stepsperturn, double zStart,
-          const std::vector<double>& zStop, Steppers::TimeIntegrator timeintegrator,
-          double dtScInit, double deltaTau, EmissionSourceList* emissionSourcesList = nullptr,
-          const std::vector<std::string>& beamNames = {});
+          const std::vector<double>& zStop, const std::vector<std::string>& beamNames = {});
     ~Track();
 
     /// The reference data.
@@ -47,9 +43,6 @@ public:
 
     /// The lattice to be tracked through.
     BeamSequence* use;
-
-    /// The emission sources list for particle injection (SOURCES= on TRACK).
-    EmissionSourceList* emissionSources;
 
     /// The parser used during tracking.
     TrackParser parser;
@@ -59,9 +52,6 @@ public:
 
     /// The initial timestep
     std::vector<double> dT;
-
-    // For AMTS integrator in OPAL-T
-    double dtScInit, deltaTau;
 
     /** Optional kinetic-energy stop [GeV]; zero disables it (SINGLEGAP RING only).
      * Explicit input must be positive and finite. RUN transfers it to the tracker
@@ -85,9 +75,6 @@ public:
 
     /// The location at which the simulation stops
     std::vector<double> zstop;
-
-    /// The ID of time integrator
-    Steppers::TimeIntegrator timeIntegrator;
 
     /// The names of beams selected on the enclosing TRACK command.
     /// (If RUN::BEAM is omitted, TrackRun resolves from this list.)

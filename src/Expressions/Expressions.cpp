@@ -27,8 +27,6 @@
 #include "AbstractObjects/Attribute.h"
 #include "AbstractObjects/Object.h"
 #include "AbstractObjects/OpalData.h"
-#include "AbstractObjects/PlaceRep.h"
-#include "AbstractObjects/RangeRep.h"
 #include "Expressions/ABinary.h"
 #include "Expressions/AList.h"
 #include "Expressions/ARefExpr.h"
@@ -39,15 +37,12 @@
 #include "Expressions/SBinary.h"
 #include "Expressions/SConstant.h"
 #include "Expressions/SHash.h"
-#include "Expressions/SNull.h"
 #include "Expressions/SRefExpr.h"
 #include "Expressions/SUnary.h"
 #include "Expressions/TFind.h"
-#include "Expressions/TFunction0.h"
 #include "Expressions/TFunction1.h"
 #include "Expressions/TFunction2.h"
 #include "OpalParser/Statement.h"
-#include "PartBunch/PartBunch.h"
 #include "Utilities/OpalException.h"
 #include "Utilities/Options.h"
 #include "Utilities/ParseError.h"
@@ -95,14 +90,6 @@ namespace Expressions {
 
     double Sign(double a) { return (a > 0.) ? 1. : (a < 0.) ? -1. : 0.; }
 
-    double Tgauss(double a) {
-        double x, y;
-        do {
-            Options::rangen.gauss(x, y);
-        } while (std::abs(x) > a);
-        return x;
-    }
-
     double Add(double a, double b) { return a + b; }
 
     static const TFunction2<double, double> plus = {"+", 4, Add};
@@ -126,44 +113,27 @@ namespace Expressions {
 
     static TFunction2<double, double> divide = {"/", 5, Div};
 
-    // Real functions without arguments.
-    // ----------------------------------------------------------------------
-
-    double getEkin() {
-        PartBunch_t* p = OpalData::getInstance()->getPartBunch();
-
-        if (p)
-            std::cout << "PartBuch valid" << std::endl;
-        else
-            std::cout << "PartBuch not valid" << std::endl;
-
-        if (p) return 0.0;
-        // return p->get_meanKineticEnergy();
-        else
-            return -1.0;
-    }
-
-    double ranf() { return Options::rangen.uniform(); }
-
-    double gauss() {
-        double x, y;
-        Options::rangen.gauss(x, y);
-        return x;
-    }
-
-    static TFunction0<double> table0[] = {
-            {"GETEKIN", -2, getEkin}, {"RANF", -2, ranf}, {"GAUSS", -2, gauss}, {0, -1, 0}};
-
-    // Real functions with two arguments.
+    // Real functions with one argument.
     // ----------------------------------------------------------------------
 
     static const TFunction1<double, double> table1[] = {
-            {"TRUNC", -1, std::trunc}, {"ROUND", -1, std::round}, {"FLOOR", -1, std::floor},
-            {"CEIL", -1, std::ceil},   {"SIGN", -1, Sign},        {"SQRT", -1, std::sqrt},
-            {"LOG", -1, std::log},     {"EXP", -1, std::exp},     {"SIN", -1, std::sin},
-            {"COS", -1, std::cos},     {"ABS", -1, std::abs},     {"TAN", -1, std::tan},
-            {"ASIN", -1, std::asin},   {"ACOS", -1, std::acos},   {"ATAN", -1, std::atan},
-            {"TGAUSS", -2, Tgauss},    {"ERF", -1, std::erf},     {0, -1, 0}};
+            {"TRUNC", -1, std::trunc},
+            {"ROUND", -1, std::round},
+            {"FLOOR", -1, std::floor},
+            {"CEIL", -1, std::ceil},
+            {"SIGN", -1, Sign},
+            {"SQRT", -1, std::sqrt},
+            {"LOG", -1, std::log},
+            {"EXP", -1, std::exp},
+            {"SIN", -1, std::sin},
+            {"COS", -1, std::cos},
+            {"ABS", -1, std::abs},
+            {"TAN", -1, std::tan},
+            {"ASIN", -1, std::asin},
+            {"ACOS", -1, std::acos},
+            {"ATAN", -1, std::atan},
+            {"ERF", -1, std::erf},
+            {0, -1, 0}};
 
     // Real functions with two arguments.
     // ----------------------------------------------------------------------
@@ -485,55 +455,6 @@ namespace Expressions {
         }
     }
 
-    PlaceRep parsePlace(Statement& stat) {
-        if (stat.keyword("SELECTED")) {
-            return PlaceRep("SELECTED");
-        } else {
-            PlaceRep pos;
-
-            do {
-                if (stat.delimiter('#')) {
-                    static char msg[] = "Expected 'S' or 'E' after '#'.";
-                    if (stat.keyword("S")) {
-                        pos.append("#S", 0);
-                    } else if (stat.keyword("E")) {
-                        pos.append("#E", 0);
-                    } else {
-                        throw ParseError("Expression::parsePlace()", msg);
-                    }
-                    break;
-                } else {
-                    std::string name = parseString(stat, "Expected <name> or '#'.");
-                    int occurrence   = 1;
-                    if (stat.delimiter('[')) {
-                        occurrence = int(std::round(parseRealConst(stat)));
-                        parseDelimiter(stat, ']');
-
-                        if (occurrence <= 0) {
-                            throw ParseError(
-                                    "Expressions::parsePlace()",
-                                    "Occurrence counter must be positive.");
-                        }
-                    }
-                    pos.append(name, occurrence);
-                }
-            } while (stat.delimiter("::"));
-
-            return pos;
-        }
-    }
-
-    RangeRep parseRange(Statement& stat) {
-        if (stat.keyword("FULL")) {
-            return RangeRep();
-        } else {
-            PlaceRep first = parsePlace(stat);
-            PlaceRep last  = first;
-            if (stat.delimiter('/')) last = parsePlace(stat);
-            return RangeRep(first, last);
-        }
-    }
-
     // LOCAL FUNCTIONS.
     PtrToScalar<bool> parseAnd(Statement& stat) {
         PtrToScalar<bool> result = parseRelation(stat);
@@ -595,10 +516,6 @@ namespace Expressions {
                     result = new AUnary<double, double>(*fun, arg1);
                 } else if (frstName == "EVAL") {
                     result = parseRealConstArray(stat);
-                } else if (const TFunction0<double>* fun = find(table0, frstName)) {
-                    ArrayOfPtrs<double> array;
-                    array.push_back(SNull<double>::make(*fun));
-                    result = new AList<double>(array);
                 } else if (const ArrayFun* fun = find(tablea, frstName)) {
                     arg1 = parseRealArray(stat);
                     ArrayOfPtrs<double> array;
@@ -684,8 +601,6 @@ namespace Expressions {
                     result = SUnary<double, double>::make(*fun, arg1);
                 } else if (frstName == "EVAL") {
                     result = new SConstant<double>(parseRealConst(stat));
-                } else if (const TFunction0<double>* fun = find(table0, frstName)) {
-                    result = SNull<double>::make(*fun);
                 } else if (const ArrayFun* fun = find(tablea, frstName)) {
                     PtrToArray<double> arg1 = parseRealArray(stat);
                     result                  = new ASUnary<double>(*fun, arg1);

@@ -32,7 +32,6 @@ AttributeHandler::AttributeHandler(
     : itsName(name),
       itsHelp(help),
       itsDefault(std::shared_ptr<AttributeBase>(def)),
-      is_deferred(false),
       is_readonly(false) {}
 
 AttributeHandler::~AttributeHandler() {}
@@ -57,10 +56,6 @@ void AttributeHandler::parseComponent(Attribute&, Statement&, bool, int) const {
             "AttributeHandler::parseComponent()",
             "You cannot assign to a component of \"" + itsName + "\" which is not a vector value.");
 }
-
-bool AttributeHandler::isDeferred() const { return is_deferred; }
-
-void AttributeHandler::setDeferred(bool flag) { is_deferred = flag; }
 
 bool AttributeHandler::isReadOnly() const { return is_readonly; }
 

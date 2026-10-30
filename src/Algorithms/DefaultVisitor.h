@@ -97,9 +97,6 @@ public:
     /// Apply the algorithm to a scaling FFA magnet.
     void visitScalingFFAMagnet(const ScalingFFAMagnet& spiral) override;
 
-    /// Apply the algorithm to a vertical FFA magnet.
-    void visitVerticalFFAMagnet(const VerticalFFAMagnet&) override;
-
     /// Apply the algorithm to a variable RF cavity.
     void visitVariableRFCavity(const VariableRFCavity&) override;
 

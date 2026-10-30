@@ -63,10 +63,6 @@ const std::string& Attribute::getName() const { return handler->getName(); }
 
 const std::string& Attribute::getType() const { return handler->getType(); }
 
-bool Attribute::isDeferred() const { return handler->isDeferred(); }
-
-void Attribute::setDeferred(bool flag) { handler->setDeferred(flag); }
-
 bool Attribute::isExpression() const { return base->isExpression(); }
 
 bool Attribute::isReadOnly() const { return handler->isReadOnly(); }

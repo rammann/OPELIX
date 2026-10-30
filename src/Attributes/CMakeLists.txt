@@ -2,7 +2,6 @@ set (_SRCS
     Attributes.cpp
     Bool.cpp
     PredefinedString.cpp
-    Range.cpp
     Real.cpp
     RealArray.cpp
     OpalString.cpp
@@ -15,7 +14,6 @@ set (HDRS
     Attributes.h
     Bool.h
     PredefinedString.h
-    Range.h
     RealArray.h
     Real.h
     OpalString.h

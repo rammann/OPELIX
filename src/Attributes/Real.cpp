@@ -49,8 +49,6 @@ namespace Attributes {
 
         if (eval || expr->isConstant()) {
             attr.set(new SValue<double>(expr->evaluate()));
-        } else if (isDeferred()) {
-            attr.set(new SDeferred<double>(expr));
         } else {
             attr.set(new SAutomatic<double>(expr));
         }

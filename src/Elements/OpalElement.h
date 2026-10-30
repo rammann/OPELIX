@@ -60,9 +60,6 @@ public:
     /// Return element length.
     virtual double getLength() const;
 
-    /// Return the element's type name.
-    const std::string getTypeName() const;
-
     // return the element aperture vector
     std::pair<ApertureType, std::vector<double>> getApert() const;
 
