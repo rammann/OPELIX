@@ -2,19 +2,19 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
+#include "AbsBeamline/ConstantFocusing.h"
 #include "AbsBeamline/CyclotronSector.h"
+#include "AbsBeamline/Drift.h"
+#include "AbsBeamline/Marker.h"
+#include "AbsBeamline/Multipole.h"
+#include "AbsBeamline/RBend.h"
+#include "AbsBeamline/SBend.h"
 #include "AbsBeamline/VariableRFCavity.h"
 #include "Algorithms/DefaultVisitor.h"
 #include "Algorithms/DeviceExternalField.h"
 #include "Algorithms/ExternalFieldRayTracker.h"
 #include "Algorithms/PartData.h"
-#include "BeamlineCore/ConstantFocusingRep.h"
-#include "BeamlineCore/DriftRep.h"
-#include "BeamlineCore/MarkerRep.h"
-#include "BeamlineCore/MultipoleRep.h"
-#include "BeamlineCore/RBendRep.h"
-#include "BeamlineCore/SBendRep.h"
-#include "Beamlines/FlaggedBeamline.h"
+#include "Beamlines/Beamline.h"
 #include "Elements/OpalBeamline.h"
 #include "PartBunch/PartBunch.h"
 #include "Structure/Beam.h"
@@ -64,11 +64,11 @@ TEST_F(DeviceExternalFieldTest, OrderedCandidatesPreserveOccurrencesAndRejectUnk
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     for (const auto* name : {"shared", "other", "shared"}) {
-        DriftRep drift(name);
+        Drift drift(name);
         drift.getGeometry().setElementLength(1.);
         drift.setCSTrafoGlobal2Local(CoordinateSystemTrafo());
         drift.fixPosition();
@@ -93,7 +93,7 @@ TEST_F(DeviceExternalFieldTest, OrderedCandidatesPreserveOccurrencesAndRejectUnk
     lattice.prepareSections();
     EXPECT_EQ(device_external::orderedCandidates(lattice, selected), expected);
     EXPECT_EQ(device_external::orderedCandidates(lattice, lattice.getElements()).size(), 3u);
-    selected.insert(std::make_shared<DriftRep>("shared"));
+    selected.insert(std::make_shared<Drift>("shared"));
     EXPECT_THROW(device_external::orderedCandidates(lattice, selected), OpalException);
     EXPECT_THROW(device_external::orderedCandidates(lattice, {nullptr}), OpalException);
 }
@@ -104,14 +104,14 @@ TEST_F(DeviceExternalFieldTest, PreparedOrderMakesDeviceFrameAndFieldWorkIndepen
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     const auto particles = bunch.getParticleContainer();
     particles->createParticles(3);
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     std::array<std::array<double, 36>, 2> snapshots{};
     const std::array<std::string, 3> names{"first", "second", "third"};
     for (unsigned arrangement = 0; arrangement < 2; ++arrangement) {
         OpalBeamline lattice;
         for (unsigned i = 0; i < 3; ++i) {
-            MultipoleRep magnet("unassigned");
+            Multipole magnet("unassigned");
             magnet.getGeometry().setElementLength(3.);
             lattice.visit(magnet, visitor, bunch);
         }
@@ -190,10 +190,10 @@ TEST_F(DeviceExternalFieldTest, ThinMagnetDeviceImpulseEnergyAndSpectators) {
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
-    MultipoleRep magnet("thin");
+    Multipole magnet("thin");
     magnet.getGeometry().setElementLength(0.003);
     magnet.setNormalComponent(0, 0.8);
     ASSERT_DOUBLE_EQ(magnet.getNormalComponent(0), 0.8);
@@ -238,12 +238,12 @@ TEST_F(DeviceExternalFieldTest, DeviceFieldsMatchPlacedHostBendsWithFringesAndMu
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     for (int kind = 0; kind < 3; ++kind) {
-        FlaggedBeamline line;
-        DefaultVisitor visitor(line, false, false);
+        Beamline line;
+        DefaultVisitor visitor(line);
         OpalBeamline lattice;
-        SBendRep sector("sector");
-        RBendRep rectangular("rectangular");
-        MultipoleRep quad("quad");
+        SBend sector("sector");
+        RBend rectangular("rectangular");
+        Multipole quad("quad");
         sector.getGeometry() = Geometry::makeSBend(1., 0.5);
         rectangular.getGeometry().setElementLength(1.);
         quad.getGeometry().setElementLength(1.);
@@ -317,8 +317,8 @@ TEST_F(DeviceExternalFieldTest, UniformRFCavityGeometryUsesItsWidthAndRejectsMag
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     VariableRFCavity cavity("buncher");
     cavity.setLength(0.1);
@@ -364,10 +364,10 @@ TEST_F(DeviceExternalFieldTest, RejectsUnimplementedDeviceFieldInsteadOfHostFall
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
-    MultipoleRep sextupole("sextupole");
+    Multipole sextupole("sextupole");
     sextupole.getGeometry().setElementLength(1);
     sextupole.setNormalComponent(2, 0.5);
     sextupole.setCSTrafoGlobal2Local(CoordinateSystemTrafo());
@@ -400,27 +400,28 @@ TEST_F(DeviceExternalFieldTest,
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
-    DriftRep drift("drift");
+    Drift drift("drift");
     drift.getGeometry().setElementLength(1.);
     drift.setCSTrafoGlobal2Local(CoordinateSystemTrafo());
     drift.fixPosition();
-    MarkerRep marker("marker");
+    Marker marker("marker");
     marker.setCSTrafoGlobal2Local(CoordinateSystemTrafo());
     marker.fixPosition();
     lattice.visit(drift, visitor, bunch);
     lattice.visit(marker, visitor, bunch);
     lattice.prepareSections();
     const auto before = lattice.getElements();
-    ASSERT_EQ(before.size(), 2u);
+    // OpalBeamline::visit<Marker> adds nothing, as for markers in a tracked line.
+    ASSERT_EQ(before.size(), 1u);
     EXPECT_TRUE(device_external::Builder::supports(lattice));
     EXPECT_TRUE(device_external::Builder::supports(lattice));
     EXPECT_EQ(lattice.getElements(), before);
     EXPECT_NO_THROW(device_external::Builder::build(lattice));
 
-    ConstantFocusingRep other("other-field-model");
+    ConstantFocusing other("other-field-model");
     other.getGeometry().setElementLength(1.);
     other.setCSTrafoGlobal2Local(CoordinateSystemTrafo());
     other.fixPosition();
@@ -457,8 +458,8 @@ TEST_F(DeviceExternalFieldTest, CyclotronSectorRetainsItsMappedTrackingPath) {
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     CyclotronSector sector("mapped-cyclotron-sector");
     sector.configure(map, 8, -0.05, 0.05, 1., {});
@@ -482,11 +483,11 @@ TEST_F(DeviceExternalFieldTest, EligibilityRejectsHigherBendComponentsButAllowsZ
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
     for (unsigned kind = 0; kind < 2; ++kind) {
-        FlaggedBeamline line;
-        DefaultVisitor visitor(line, false, false);
+        Beamline line;
+        DefaultVisitor visitor(line);
         OpalBeamline lattice;
-        SBendRep sector("sector");
-        RBendRep rectangular("rectangular");
+        SBend sector("sector");
+        RBend rectangular("rectangular");
         sector.getGeometry() = Geometry::makeSBend(1., 0.2);
         rectangular.getGeometry().setElementLength(1.);
         sector.setFieldComponents({1., 0.2, 0.}, {0.3, 0.4, 0.});

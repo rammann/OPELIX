@@ -1,6 +1,5 @@
 set (_SRCS
     AbstractTimeDependence.cpp
-    AbstractTracker.cpp
     CavityAutophaser.cpp
     DefaultVisitor.cpp
     DistributionMoments.cpp
@@ -28,7 +27,6 @@ set (_SRCS
 
 set (HDRS
     AbstractTimeDependence.h
-    AbstractTracker.h
     CavityAutophaser.h
     CompensatedSum.h
     RungeKuttaTableau.h

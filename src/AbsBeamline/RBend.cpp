@@ -28,7 +28,8 @@ RBend::RBend(const RBend& right)
       fieldScale_m(right.fieldScale_m),
       profile_m(right.profile_m),
       profileFilename_m(right.profileFilename_m),
-      placementLength_m(right.placementLength_m) {}
+      placementLength_m(right.placementLength_m),
+      geometry_m(right.geometry_m) {}
 
 RBend::RBend(const std::string& name)
     : ElementBase(name),
@@ -477,3 +478,9 @@ double RBend::getPlacementPathLength() const {
                 "Initialize the field-profile reference path before resolving ELEMEDGE placement.");
     return placementLength_m;
 }
+
+ElementBase* RBend::clone() const { return new RBend(*this); }
+
+Geometry& RBend::getGeometry() { return geometry_m; }
+
+const Geometry& RBend::getGeometry() const { return geometry_m; }

@@ -62,61 +62,36 @@
 #ifndef OPALX_Tracker_HH
 #define OPALX_Tracker_HH
 
-#include "Algorithms/AbstractTracker.h"
+#include "Algorithms/DefaultVisitor.h"
 #include "PartBunch/PartBunch.h"
 
-#include <memory>
-
 #include "AbsBeamline/ElementBase.h"
-#include "Utilities/ElementList.h"
 
-class OpalParticle;
-
-class Tracker : public AbstractTracker {
+class Tracker : public DefaultVisitor {
 public:
     /// Constructor.
     //  The beam line to be tracked is [b]bl[/b].
     //  The particle bunch is initially empty.
-    //  If [b]backBeam[/b] is true, the beam runs from s = C to s = 0.
-    //  If [b]backTrack[/b] is true, we track against the beam.
-    Tracker(const Beamline&, bool backBeam, bool backTrack);
+    explicit Tracker(const Beamline&);
 
     /**
      * @brief Construct a tracker that borrows an existing particle bunch.
      * @param bunch Particle bunch to track. Ownership remains with the caller.
      */
-    Tracker(const Beamline&, PartBunch_t& bunch, bool backBeam, bool backTrack);
+    Tracker(const Beamline&, PartBunch_t& bunch);
 
     virtual ~Tracker();
 
     /// Return the currently attached borrowed bunch.
     PartBunch_t& getBunch() const;
 
-    /// Add particle to bunch.
-    void addToBunch(const OpalParticle&);
-
-    /// Store the bunch.
-    //~ void setBunch(const PartBunch &);
-
     /// Apply the algorithm to an arbitrary element.
     //  This override calls the element to track the bunch.
     virtual void visitElementBase(const ElementBase&);
 
-    /// set total number of tracked bunches
-    virtual void setNumBunch(short) {};
-
-    /// get total number of tracked bunches
-    virtual short getNumBunch() { return 0; }
-
-    // standing wave structures
-    ElementList cavities_m;
-
-    const Beamline& itsBeamline_m;
-
 protected:
     /// The bunch of particles to be tracked. Borrowed; lifetime is managed by TrackRun.
     PartBunch_t* itsBunch_m;
-    //  typedef PartBunch::iterator iterator;
 
 private:
     // Not implemented.

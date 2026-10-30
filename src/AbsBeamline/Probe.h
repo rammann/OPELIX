@@ -35,6 +35,10 @@ public:
     void operator=(const Probe&) = delete;
     virtual ~Probe();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// Apply visitor to Probe.
     virtual void accept(BeamlineVisitor&) const override;
 
@@ -58,6 +62,9 @@ private:
 
     double step_m;  ///< Step size of the probe (bin width in histogram file)
     std::unique_ptr<PeakFinder> peakfinder_m;  ///< Pointer to Peakfinder instance
+
+private:
+    Geometry geometry_m;
 };
 
 #endif  // OPALX_Probe_HH

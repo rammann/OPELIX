@@ -29,7 +29,8 @@ extern Inform* gmsg;
 
 Drift::Drift() : Drift("") {}
 
-Drift::Drift(const Drift& right) : ElementBase(right), nSlices_m(right.nSlices_m) {}
+Drift::Drift(const Drift& right)
+    : ElementBase(right), nSlices_m(right.nSlices_m), geometry_m(right.geometry_m) {}
 
 Drift::Drift(const std::string& name) : ElementBase(name), nSlices_m(1) {}
 
@@ -54,3 +55,9 @@ void Drift::getFieldExtent(double& zBegin, double& zEnd) const {
 }
 
 ElementType Drift::getType() const { return ElementType::DRIFT; }
+
+ElementBase* Drift::clone() const { return new Drift(*this); }
+
+Geometry& Drift::getGeometry() { return geometry_m; }
+
+const Geometry& Drift::getGeometry() const { return geometry_m; }

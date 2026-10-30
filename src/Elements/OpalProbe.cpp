@@ -16,9 +16,9 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Elements/OpalProbe.h"
+#include "AbsBeamline/Probe.h"
 #include "AbstractObjects/Attribute.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/ProbeRep.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 
@@ -32,11 +32,11 @@ OpalProbe::OpalProbe() : OpalElement(SIZE, "PROBE", "The \"PROBE\" element defin
 
     registerOwnership();
 
-    setElement(new ProbeRep("PROBE"));
+    setElement(new Probe("PROBE"));
 }
 
 OpalProbe::OpalProbe(const std::string& name, OpalProbe* parent) : OpalElement(name, parent) {
-    setElement(new ProbeRep(name));
+    setElement(new Probe(name));
 }
 
 OpalProbe::~OpalProbe() {}
@@ -46,7 +46,7 @@ OpalProbe* OpalProbe::clone(const std::string& name) { return new OpalProbe(name
 void OpalProbe::update() {
     OpalElement::update();
 
-    ProbeRep* prob = dynamic_cast<ProbeRep*>(getElement());
+    Probe* prob = dynamic_cast<Probe*>(getElement());
 
     double xstart = Units::mm2m * Attributes::getReal(itsAttr[XSTART]);
     double xend   = Units::mm2m * Attributes::getReal(itsAttr[XEND]);

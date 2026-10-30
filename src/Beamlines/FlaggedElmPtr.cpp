@@ -12,27 +12,33 @@
 // Class category: Beamlines
 // ------------------------------------------------------------------------
 //
-// $Date: 2000/03/27 09:32:35 $
+// $Date: 2000/03/27 09:32:34 $
 // $Author: fci $
 //
 // ------------------------------------------------------------------------
 
 #include "Beamlines/FlaggedElmPtr.h"
-#include <stdexcept>
 #include "AbsBeamline/BeamlineVisitor.h"
-#include "Utilities/LogicalError.h"
 
-// Class FlaggedElmPtr
-// ------------------------------------------------------------------------
+FlaggedElmPtr::FlaggedElmPtr() : itsElement(), itsCounter(0), isReflected(false) {}
 
-FlaggedElmPtr::FlaggedElmPtr(const ElmPtr& elem, bool reflected)
-    : ElmPtr(elem), itsCounter(0), isReflected(reflected) {}
-
-FlaggedElmPtr::FlaggedElmPtr() : ElmPtr(), itsCounter(0), isReflected(false) {}
-
-FlaggedElmPtr::FlaggedElmPtr(const FlaggedElmPtr& rhs)
-    : ElmPtr(rhs), itsCounter(rhs.itsCounter), isReflected(rhs.isReflected) {}
-
-FlaggedElmPtr::~FlaggedElmPtr() {}
+FlaggedElmPtr::FlaggedElmPtr(std::shared_ptr<ElementBase> elem, bool reflected)
+    : itsElement(std::move(elem)), itsCounter(0), isReflected(reflected) {}
 
 void FlaggedElmPtr::accept(BeamlineVisitor& v) const { v.visitFlaggedElmPtr(*this); }
+
+void FlaggedElmPtr::setElement(ElementBase* elem) {
+    if (elem == itsElement.get()) {
+        return;
+    }
+    if (!elem) {
+        itsElement.reset();
+        return;
+    }
+    auto shared = elem->weak_from_this();
+    if (!shared.expired()) {
+        itsElement = shared.lock();
+        return;
+    }
+    itsElement.reset(elem);
+}

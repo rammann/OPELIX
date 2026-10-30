@@ -1,6 +1,6 @@
 //
 // Tests for the analytic SBEND/RBEND fringe field (Enge profile + pole-face edge
-// focusing) evaluated through SBendRep/RBendRep.
+// focusing) evaluated through SBend/RBend.
 //
 // Copyright (c) 2026, Paul Scherrer Institut, Villigen PSI, Switzerland
 // All rights reserved
@@ -16,9 +16,9 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 
-#include "BeamlineCore/MultipoleRep.h"
-#include "BeamlineCore/RBendRep.h"
-#include "BeamlineCore/SBendRep.h"
+#include "AbsBeamline/Multipole.h"
+#include "AbsBeamline/RBend.h"
+#include "AbsBeamline/SBend.h"
 #include "BeamlineGeometry/Geometry.h"
 #include "PartBunch/BunchStateHandler.h"
 #include "PartBunch/ParticleContainer.hpp"
@@ -63,7 +63,7 @@ TEST_F(BendRepTest, SBendFringeSupportProducesExpectedOpalEngeProfile) {
     constexpr double halfGap    = 0.02;
     const double curvature      = angle / bodyLength;
 
-    SBendRep bend("SBEND");
+    SBend bend("SBEND");
     bend.getGeometry() = Geometry::makeSBend(bodyLength, curvature);
     bend.getGeometry().setElementLength(bodyLength);
     bend.getGeometry().setBendAngle(angle);
@@ -137,7 +137,7 @@ TEST_F(BendRepTest, SBendWithoutGapIsHardEdge) {
     constexpr double bodyLength = 1.0;
     constexpr double curvature  = 0.2;
 
-    SBendRep bend("SBEND");
+    SBend bend("SBEND");
     bend.getGeometry() = Geometry::makeSBend(bodyLength, curvature);
     bend.getGeometry().setElementLength(bodyLength);
     bend.getGeometry().setBendAngle(curvature * bodyLength);
@@ -177,7 +177,7 @@ TEST_F(BendRepTest, RBendFringeSupportProjectsExitByFaceAngle) {
     constexpr double angle      = 0.2;
     constexpr double halfGap    = 0.02;
 
-    RBendRep bend("RBEND");
+    RBend bend("RBEND");
     bend.getGeometry() = Geometry::makeRBend(bodyLength, angle);
     bend.getGeometry().setElementLength(bodyLength);
     bend.getGeometry().setBendAngle(angle);
@@ -213,7 +213,7 @@ TEST_F(BendRepTest, SBendEntryFringeAddsHorizontalEdgeField) {
     constexpr double entryAngle = 0.15;
     constexpr double yOffset    = 1.0e-3;
 
-    SBendRep bend("SBEND");
+    SBend bend("SBEND");
     bend.getGeometry() = Geometry::makeSBend(bodyLength, angle / bodyLength);
     bend.getGeometry().setElementLength(bodyLength);
     bend.getGeometry().setBendAngle(angle);
@@ -230,7 +230,7 @@ TEST_F(BendRepTest, SBendEntryFringeAddsHorizontalEdgeField) {
     EXPECT_GT(std::abs(B(0)), 0.0);  // edge focusing present
 
     // With FINT = 0 and a perpendicular entrance face the edge angle is zero, so no Bx.
-    SBendRep straight("SBEND");
+    SBend straight("SBEND");
     straight.getGeometry() = Geometry::makeSBend(bodyLength, angle / bodyLength);
     straight.getGeometry().setElementLength(bodyLength);
     straight.getGeometry().setBendAngle(angle);
@@ -267,9 +267,9 @@ TEST_F(BendRepTest, DeviceAndHostHardEdgeFieldsUseIdenticalSpatialSupport) {
     const bool inside[count]    = {false, true, true, true, true, false, false, false, false};
     const Vector3 initialE(0.1, 0.2, 0.3), initialB(0.4, 0.5, 0.6);
     for (unsigned kind = 0; kind < 3; ++kind) {
-        SBendRep sector("sector");
-        RBendRep rectangular("rectangular");
-        MultipoleRep multipole("multipole");
+        SBend sector("sector");
+        RBend rectangular("rectangular");
+        Multipole multipole("multipole");
         constexpr double curvature = 0.2;
         sector.getGeometry()       = Geometry::makeSBend(1., curvature);
         sector.getGeometry().setElementLength(1.);
@@ -346,7 +346,7 @@ TEST_F(BendRepTest, MultipoleParticleAndReferenceFieldsAgreeUpToDecapole) {
     const Vector3 point(0.03, -0.02, 0.4);
     for (int order = 0; order < 5; ++order) {
         SCOPED_TRACE(order);
-        MultipoleRep multipole("multipole");
+        Multipole multipole("multipole");
         multipole.getGeometry().setElementLength(1.);
         multipole.setAperture(ApertureType::RECTANGULAR, {1., 1.});
         multipole.setNormalComponent(order, 0.7 + order);
@@ -371,7 +371,7 @@ TEST_F(BendRepTest, MultipoleParticleAndReferenceFieldsAgreeUpToDecapole) {
     }
 
     // Pure normal sextupole KN[2] = k2: By = k2 (x^2 - y^2) / 2, Bx = k2 x y.
-    MultipoleRep sextupole("sextupole");
+    Multipole sextupole("sextupole");
     sextupole.getGeometry().setElementLength(1.);
     sextupole.setAperture(ApertureType::RECTANGULAR, {1., 1.});
     const double k2 = 4.0;

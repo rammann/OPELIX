@@ -22,7 +22,8 @@
 
 Collimator::Collimator() : Collimator("") {}
 
-Collimator::Collimator(const Collimator& right) : ElementBase(right) {}
+Collimator::Collimator(const Collimator& right)
+    : ElementBase(right), geometry_m(right.geometry_m) {}
 
 Collimator::Collimator(const std::string& name) : ElementBase(name) {}
 
@@ -41,3 +42,9 @@ void Collimator::getFieldExtent(double& zBegin, double& zEnd) const {
 }
 
 ElementType Collimator::getType() const { return ElementType::COLLIMATOR; }
+
+ElementBase* Collimator::clone() const { return new Collimator(*this); }
+
+Geometry& Collimator::getGeometry() { return geometry_m; }
+
+const Geometry& Collimator::getGeometry() const { return geometry_m; }

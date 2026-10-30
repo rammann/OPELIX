@@ -1,7 +1,7 @@
 #include "Elements/OpalLaser.h"
 
+#include "AbsBeamline/Laser.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/LaserRep.h"
 #include "Utilities/OpalException.h"
 
 #include <cmath>
@@ -57,11 +57,11 @@ OpalLaser::OpalLaser()
 
     registerOwnership();
 
-    setElement(new LaserRep("LASER"));
+    setElement(new Laser("LASER"));
 }
 
 OpalLaser::OpalLaser(const std::string& name, OpalLaser* parent) : OpalElement(name, parent) {
-    setElement(new LaserRep(name));
+    setElement(new Laser(name));
 }
 
 OpalLaser::~OpalLaser() {}
@@ -73,7 +73,7 @@ void OpalLaser::update() {
 
     OpalElement::update();
 
-    auto* laser = dynamic_cast<LaserRep*>(getElement());
+    auto* laser = dynamic_cast<Laser*>(getElement());
     if (!laser) {
         return;
     }
@@ -90,9 +90,9 @@ void OpalLaser::update() {
     //      the prototype. OpalSolenoid and OpalCavity are good examples.
     //   2. In update(), read all attributes unconditionally with
     //      Attributes::getReal() / Attributes::getRealArray() and forward them
-    //      to LaserRep without throwing. No prototype guard is needed because
+    //      to Laser without throwing. No prototype guard is needed because
     //      zero/sentinel values are harmless.
-    //   3. Move the "must be positive / must be set" validation into LaserRep,
+    //   3. Move the "must be positive / must be set" validation into Laser,
     //      e.g. in initialise() which is called only when the element is
     //      actually inserted into a tracked beamline.  That is the right layer
     //      to enforce physical constraints, and it keeps OpalLaser::update()

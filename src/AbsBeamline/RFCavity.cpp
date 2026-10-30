@@ -72,7 +72,8 @@ RFCavity::RFCavity(const RFCavity& right)
       RNormal_m(nullptr),
       VrNormal_m(nullptr),
       DvDr_m(nullptr),
-      num_points_m(right.num_points_m) {
+      num_points_m(right.num_points_m),
+      geometry_m(right.geometry_m) {
     cyclotronProfile_m = right.cyclotronProfile_m;
     cyclotronKick_m    = right.cyclotronKick_m;
     gapMin_m           = right.gapMin_m;
@@ -789,3 +790,9 @@ bool RFCavity::isInside(const Vector_t<double, 3>& r) const {
 
     return false;
 }
+
+ElementBase* RFCavity::clone() const { return new RFCavity(*this); }
+
+Geometry& RFCavity::getGeometry() { return geometry_m; }
+
+const Geometry& RFCavity::getGeometry() const { return geometry_m; }

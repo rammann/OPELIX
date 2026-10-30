@@ -37,6 +37,10 @@ public:
     Marker(const Marker&);
     virtual ~Marker();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// Apply visitor to Marker.
     virtual void accept(BeamlineVisitor&) const override;
 
@@ -53,6 +57,9 @@ public:
 private:
     // Not implemented.
     void operator=(const Marker&);
+
+private:
+    Geometry geometry_m{Geometry::makeNull()};
 };
 
 inline int Marker::getRequiredNumberOfTimeSteps() const { return 1; }

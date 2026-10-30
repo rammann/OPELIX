@@ -21,12 +21,12 @@
 #include "Algorithms/CompensatedSum.h"
 #include "Algorithms/OrbitThreaderDiagnostics.h"
 
+#include "AbsBeamline/Marker.h"
 #include "AbsBeamline/RFCavity.h"
 #include "AbsBeamline/TravelingWave.h"
 #include "AbstractObjects/OpalData.h"
 #include "Algorithms/CavityAutophaser.h"
 #include "BasicActions/Option.h"
-#include "BeamlineCore/MarkerRep.h"
 #include "Physics/Units.h"
 #include "Utilities/OpalException.h"
 #include "Utilities/Options.h"

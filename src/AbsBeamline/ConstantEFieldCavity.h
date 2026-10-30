@@ -17,6 +17,10 @@ public:
     ConstantEFieldCavity(const ConstantEFieldCavity& right);
     virtual ~ConstantEFieldCavity();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     virtual void accept(BeamlineVisitor& visitor) const override;
 
     virtual void initialise(PartBunch_t* bunch) override;
@@ -48,6 +52,9 @@ protected:
 
 private:
     void operator=(const ConstantEFieldCavity&);
+
+private:
+    Geometry geometry_m;
 };
 
 #endif  // OPALX_ConstantEFieldCavity_HH

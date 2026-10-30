@@ -42,7 +42,8 @@ Solenoid::Solenoid(const Solenoid& right)
       startField_m(right.startField_m),
       endField_m(right.endField_m),
       fast_m(right.fast_m),
-      isZReversed_m(right.isZReversed_m) {}
+      isZReversed_m(right.isZReversed_m),
+      geometry_m(right.geometry_m) {}
 
 Solenoid::Solenoid(const std::string& name)
     : ElementBase(name),
@@ -236,3 +237,9 @@ bool Solenoid::getSupportEnvelope(double& horizontalRadius, double& verticalRadi
         return false;
     }
 }
+
+ElementBase* Solenoid::clone() const { return new Solenoid(*this); }
+
+Geometry& Solenoid::getGeometry() { return geometry_m; }
+
+const Geometry& Solenoid::getGeometry() const { return geometry_m; }

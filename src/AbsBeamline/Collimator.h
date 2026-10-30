@@ -44,6 +44,10 @@ public:
     Collimator(const Collimator& right);
     virtual ~Collimator();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// Apply visitor to Collimator.
     virtual void accept(BeamlineVisitor&) const override;
 
@@ -60,6 +64,9 @@ public:
 private:
     // Not implemented.
     void operator=(const Collimator&);
+
+private:
+    Geometry geometry_m;
 };
 
 inline int Collimator::getRequiredNumberOfTimeSteps() const { return 1; }

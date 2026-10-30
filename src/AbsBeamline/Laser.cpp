@@ -23,7 +23,8 @@ Laser::Laser(const Laser& right)
       waistX_m(right.waistX_m),
       waistY_m(right.waistY_m),
       direction_m(right.direction_m),
-      stokes_m(right.stokes_m) {}
+      stokes_m(right.stokes_m),
+      geometry_m(right.geometry_m) {}
 
 Laser::~Laser() {}
 
@@ -84,3 +85,9 @@ double Laser::getLinearComptonForwardPhotonEnergyGeV(
 }
 
 const Vector_t<double, 3>& Laser::getStokes() const { return stokes_m; }
+
+ElementBase* Laser::clone() const { return new Laser(*this); }
+
+Geometry& Laser::getGeometry() { return geometry_m; }
+
+const Geometry& Laser::getGeometry() const { return geometry_m; }

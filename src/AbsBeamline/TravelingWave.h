@@ -34,17 +34,10 @@ public:
     TravelingWave(const TravelingWave&);
     virtual ~TravelingWave();
 
+    ElementBase* clone() const override;
+
     /// Apply visitor to TravelingWave.
     virtual void accept(BeamlineVisitor&) const override;
-
-    /// Get RF amplitude.
-    virtual double getAmplitude() const override = 0;
-
-    /// Get RF frequency.
-    virtual double getFrequency() const override = 0;
-
-    /// Get RF phase.
-    virtual double getPhase() const override = 0;
 
     virtual void setPhasem(double phase) override;
 

@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <filesystem>
 #include <fstream>
-#include "BeamlineCore/RFCavityRep.h"
+#include "AbsBeamline/RFCavity.h"
 #include "Fields/CyclotronRFProfile.h"
 #include "Ippl.h"
 
@@ -131,10 +131,10 @@ TEST_F(CyclotronRFTest, ZeroVoltageAndRejectedKickDoNotMutateMomentum) {
 }
 
 TEST_F(CyclotronRFTest, GapCloneAndNoContinuousFieldContribution) {
-    RFCavityRep cavity("gap");
+    RFCavity cavity("gap");
     cavity.configureCyclotronGap(
             filename, 1, 2, CyclotronRFKick{847000, Physics::two_pi * 50.65e6, 0, .3, 1});
-    std::unique_ptr<RFCavityRep> clone(static_cast<RFCavityRep*>(cavity.clone()));
+    std::unique_ptr<RFCavity> clone(static_cast<RFCavity*>(cavity.clone()));
     ASSERT_TRUE(clone->isCyclotronGap());
     EXPECT_TRUE(clone->gapSupports(1));
     EXPECT_TRUE(clone->gapSupports(2));

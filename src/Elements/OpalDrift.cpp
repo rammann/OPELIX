@@ -16,8 +16,8 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Elements/OpalDrift.h"
+#include "AbsBeamline/Drift.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/DriftRep.h"
 
 OpalDrift::OpalDrift()
     : OpalElement(SIZE, "DRIFT", "The \"DRIFT\" element defines a drift space.") {
@@ -28,11 +28,11 @@ OpalDrift::OpalDrift()
 
     registerOwnership();
 
-    setElement(new DriftRep("DRIFT"));
+    setElement(new Drift("DRIFT"));
 }
 
 OpalDrift::OpalDrift(const std::string& name, OpalDrift* parent) : OpalElement(name, parent) {
-    setElement(new DriftRep(name));
+    setElement(new Drift(name));
 }
 
 OpalDrift::~OpalDrift() {}
@@ -44,7 +44,7 @@ bool OpalDrift::isDrift() const { return true; }
 void OpalDrift::update() {
     OpalElement::update();
 
-    //    DriftRep* drf = static_cast<DriftRep*>(getElement());
+    //    Drift* drf = static_cast<Drift*>(getElement());
 
     // drf->getGeometry().setElementLength(Attributes::getReal(itsAttr[LENGTH]));
 

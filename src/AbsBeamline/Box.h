@@ -45,6 +45,10 @@ public:
     Box(const Box& right);
     virtual ~Box();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// Apply visitor to Box.
     virtual void accept(BeamlineVisitor&) const override;
 
@@ -90,6 +94,9 @@ private:
 
     /// Half of the block height along local y [m].
     double halfHeight_m;
+
+private:
+    Geometry geometry_m;
 };
 
 inline int Box::getRequiredNumberOfTimeSteps() const { return 1; }

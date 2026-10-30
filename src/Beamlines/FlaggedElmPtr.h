@@ -15,55 +15,62 @@
 // Class category: Beamlines
 // ------------------------------------------------------------------------
 //
-// $Date: 2000/03/27 09:32:35 $
+// $Date: 2000/03/27 09:32:34 $
 // $Author: fci $
 //
 // ------------------------------------------------------------------------
 
-#include "Beamlines/ElmPtr.h"
+#include <memory>
+#include <utility>
+#include "AbsBeamline/ElementBase.h"
+
+class BeamlineVisitor;
 
 // Class FlaggedElmPtr
 // ------------------------------------------------------------------------
 /// A section of a beam line.
-//  A FlaggedBeamline is built as a list of FlaggedElmPtr objects.
-//  A FlaggedElmPtr carries a reflection flag: if true, this section of the line is reversed.
+//  A Beamline is built as a list of FlaggedElmPtr objects. Each holds a shared pointer to
+//  its element and a reflection flag: if true, this section of the line is reversed.
 
-class FlaggedElmPtr : public ElmPtr {
+class FlaggedElmPtr {
 public:
-    /// Constructor.
-    //  Assign an element to this beamline position.
-    explicit FlaggedElmPtr(const ElmPtr&, bool reflected = false);
-
-    /// Copy constructor.
-    FlaggedElmPtr(const FlaggedElmPtr&);
-
     FlaggedElmPtr();
-    virtual ~FlaggedElmPtr();
+
+    /// Assign an element to this beamline position.
+    explicit FlaggedElmPtr(std::shared_ptr<ElementBase> elem, bool reflected = false);
 
     /// Apply visitor.
     //  If any error occurs, this method throws an exception.
-    virtual void accept(BeamlineVisitor&) const;
+    void accept(BeamlineVisitor&) const;
+
+    /// Get the element pointer.
+    ElementBase* getElement() const { return itsElement.get(); }
+
+    /// Set the element pointer; reuses the owning shared pointer if the element has one.
+    void setElement(ElementBase* elem);
+
+    void setElement(std::shared_ptr<ElementBase> elem) { itsElement = std::move(elem); }
 
     /// Get clone counter.
     //  Return the value set by the last call to [tt]setCounter()[/tt].
-    //  See [b]FlaggedElmPtr::itsCounter[/b] for details.
-    inline int getCounter() const;
-
-    /// Get reflection flag.
-    inline bool getReflectionFlag() const;
+    int getCounter() const { return itsCounter; }
 
     /// Set clone counter.
     //  The value set is the entire responsibility of any algorithm using it.
-    //  See [b]FlaggedElmPtr::itsCounter[/b] for details.
-    inline void setCounter(int) const;
+    void setCounter(int count) const { itsCounter = count; }
+
+    /// Get reflection flag.
+    bool getReflectionFlag() const { return isReflected; }
 
     /// Set reflection flag.
-    inline void setReflectionFlag(bool flag) const;
+    void setReflectionFlag(bool flag) const { isReflected = flag; }
 
-protected:
+private:
+    /// The element at this position.
+    std::shared_ptr<ElementBase> itsElement;
+
     /// Clone counter.
     //  This value can be set and interrogated by an algorithm.
-    //  It is not used by the OPALX library.
     mutable int itsCounter;
 
     /// The reflection flag.
@@ -71,13 +78,5 @@ protected:
     //  is reflected, i.e. its elements occur in reverse order.
     mutable bool isReflected;
 };
-
-inline int FlaggedElmPtr::getCounter() const { return itsCounter; }
-
-inline bool FlaggedElmPtr::getReflectionFlag() const { return isReflected; }
-
-inline void FlaggedElmPtr::setCounter(int count) const { itsCounter = count; }
-
-inline void FlaggedElmPtr::setReflectionFlag(bool flag) const { isReflected = flag; }
 
 #endif  // OPALX_FlaggedElmPtr_HH

@@ -50,11 +50,15 @@ public:
     Monitor(const Monitor&);
     ~Monitor() override;
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// Apply visitor to Monitor.
     void accept(BeamlineVisitor&) const override;
 
     /// Get plane on which monitor observes.
-    virtual Plane getPlane() const = 0;
+    virtual Plane getPlane() const { return XY; }
 
     virtual void apply(const std::shared_ptr<ParticleContainer_t>& pc) override;
 
@@ -100,6 +104,9 @@ private:
 
     static std::map<double, SetStatistics> statFileEntries_sm;
     static const double halfLength_s;
+
+private:
+    Geometry geometry_m;
 };
 
 inline void Monitor::setCollectionType(CollectionType type) { type_m = type; }

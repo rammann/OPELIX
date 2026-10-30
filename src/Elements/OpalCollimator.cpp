@@ -16,9 +16,9 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Elements/OpalCollimator.h"
+#include "AbsBeamline/Collimator.h"
 #include "AbstractObjects/Attribute.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/CollimatorRep.h"
 #include "Utilities/OpalException.h"
 
 OpalCollimator::OpalCollimator()
@@ -27,12 +27,12 @@ OpalCollimator::OpalCollimator()
               "The \"COLLIMATOR\" element deletes particles that leave its transverse aperture.") {
     registerOwnership();
 
-    setElement(new CollimatorRep("COLLIMATOR"));
+    setElement(new Collimator("COLLIMATOR"));
 }
 
 OpalCollimator::OpalCollimator(const std::string& name, OpalCollimator* parent)
     : OpalElement(name, parent) {
-    setElement(new CollimatorRep(name));
+    setElement(new Collimator(name));
 }
 
 OpalCollimator::~OpalCollimator() {}
@@ -69,6 +69,6 @@ void OpalCollimator::update() {
 
     const double length = Attributes::getReal(itsAttr[LENGTH]);
 
-    CollimatorRep* coll = dynamic_cast<CollimatorRep*>(getElement());
+    Collimator* coll = dynamic_cast<Collimator*>(getElement());
     coll->getGeometry().setElementLength(length);
 }

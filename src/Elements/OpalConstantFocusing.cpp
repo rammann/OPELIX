@@ -1,7 +1,7 @@
 #include "Elements/OpalConstantFocusing.h"
 
+#include "AbsBeamline/ConstantFocusing.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/ConstantFocusingRep.h"
 #include "Utilities/OpalException.h"
 
 OpalConstantFocusing::OpalConstantFocusing()
@@ -14,12 +14,12 @@ OpalConstantFocusing::OpalConstantFocusing()
     itsAttr[RADIUS] = Attributes::makeReal("RADIUS", "Initial beam radius in m.", 0.0);
 
     registerOwnership();
-    setElement(new ConstantFocusingRep("CONSTANTFOCUSING"));
+    setElement(new ConstantFocusing("CONSTANTFOCUSING"));
 }
 
 OpalConstantFocusing::OpalConstantFocusing(const std::string& name, OpalConstantFocusing* parent)
     : OpalElement(name, parent) {
-    setElement(new ConstantFocusingRep(name));
+    setElement(new ConstantFocusing(name));
 }
 
 OpalConstantFocusing::~OpalConstantFocusing() {}
@@ -37,7 +37,7 @@ void OpalConstantFocusing::update() {
                 "OpalConstantFocusing::update", "CONSTANTFOCUSING requires RADIUS > 0.");
     }
 
-    auto* rep = dynamic_cast<ConstantFocusingRep*>(getElement());
+    auto* rep = dynamic_cast<ConstantFocusing*>(getElement());
     if (rep != nullptr) {
         rep->getGeometry().setElementLength(getLength());
         rep->setStrength(Attributes::getReal(itsAttr[STRENGTH]));

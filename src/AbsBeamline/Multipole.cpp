@@ -61,7 +61,8 @@ Multipole::Multipole(const Multipole& right)
       max_SkewComponent_m(right.max_SkewComponent_m),
       max_NormalComponent_m(right.max_NormalComponent_m),
 
-      nSlices_m(right.nSlices_m) {
+      nSlices_m(right.nSlices_m),
+      geometry_m(right.geometry_m) {
     Kokkos::deep_copy(NormalComponents, right.NormalComponents);
     Kokkos::deep_copy(NormalComponentErrors, right.NormalComponentErrors);
     Kokkos::deep_copy(SkewComponents, right.SkewComponents);
@@ -411,3 +412,9 @@ void Multipole::setNSlices(const std::size_t& nSlices) { nSlices_m = nSlices; }
 // get the number of slices for map tracking
 std::size_t Multipole::getNSlices() const { return nSlices_m; }
 /* ========================================================================== */
+
+ElementBase* Multipole::clone() const { return new Multipole(*this); }
+
+Geometry& Multipole::getGeometry() { return geometry_m; }
+
+const Geometry& Multipole::getGeometry() const { return geometry_m; }

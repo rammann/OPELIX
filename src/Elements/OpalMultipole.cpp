@@ -20,11 +20,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "AbsBeamline/Multipole.h"
 #include "AbstractObjects/AttributeHandler.h"
 #include "AbstractObjects/Expressions.h"
 #include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/MultipoleRep.h"
 #include "Expressions/SRefExpr.h"
 #include "Expressions/SValue.h"
 #include "Physics/Physics.h"
@@ -54,12 +54,12 @@ OpalMultipole::OpalMultipole()
 
     registerOwnership();
 
-    setElement(new MultipoleRep("MULTIPOLE"));
+    setElement(new Multipole("MULTIPOLE"));
 }
 
 OpalMultipole::OpalMultipole(const std::string& name, OpalMultipole* parent)
     : OpalElement(name, parent) {
-    setElement(new MultipoleRep(name));
+    setElement(new Multipole(name));
 }
 
 OpalMultipole::~OpalMultipole() {}
@@ -71,9 +71,9 @@ OpalMultipole* OpalMultipole::clone(const std::string& name) {
 void OpalMultipole::update() {
     OpalElement::update();
 
-    // Get pointer to MultipoleRep object to set length
-    MultipoleRep* mult = dynamic_cast<MultipoleRep*>(getElement());
-    double length      = getLength();
+    // Get pointer to Multipole object to set length
+    Multipole* mult = dynamic_cast<Multipole*>(getElement());
+    double length   = getLength();
     mult->getGeometry().setElementLength(length);
 
     // Get the vector with the multipole expansion components

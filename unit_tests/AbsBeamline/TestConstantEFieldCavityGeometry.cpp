@@ -1,13 +1,13 @@
 /**
- * \file TestConstantEFieldCavityRep.cpp
- * \brief Unit tests for ConstantEFieldCavityRep (BeamlineCore layer).
+ * \file TestConstantEFieldCavityGeometry.cpp
+ * \brief Unit tests for ConstantEFieldCavity geometry, field and clone.
  *
  * Tests: geometry, field, setElementLength/setEz, clone.
  */
 
 #include <gtest/gtest.h>
 
-#include "BeamlineCore/ConstantEFieldCavityRep.h"
+#include "AbsBeamline/ConstantEFieldCavity.h"
 
 #include <cmath>
 #include <memory>
@@ -17,12 +17,12 @@ namespace {
     class ConstantEFieldCavityRepTest : public ::testing::Test {
     protected:
         void SetUp() override {
-            rep_ = std::make_unique<ConstantEFieldCavityRep>("TestRep");
+            rep_ = std::make_unique<ConstantEFieldCavity>("TestRep");
             rep_->getGeometry().setElementLength(2.0);
             rep_->setEz(5.0);
         }
 
-        std::unique_ptr<ConstantEFieldCavityRep> rep_;
+        std::unique_ptr<ConstantEFieldCavity> rep_;
     };
 
     // ---------------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace {
     TEST_F(ConstantEFieldCavityRepTest, Clone) {
         std::unique_ptr<ElementBase> copy(rep_->clone());
         ASSERT_NE(copy.get(), nullptr);
-        ConstantEFieldCavityRep* repCopy = dynamic_cast<ConstantEFieldCavityRep*>(copy.get());
+        ConstantEFieldCavity* repCopy = dynamic_cast<ConstantEFieldCavity*>(copy.get());
         ASSERT_NE(repCopy, nullptr);
         EXPECT_DOUBLE_EQ(repCopy->getGeometry().getElementLength(), 2.0);
         EXPECT_DOUBLE_EQ(repCopy->getEz(), 5.0);

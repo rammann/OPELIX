@@ -22,11 +22,11 @@
 #ifndef OPAL_OpalData_HH
 #define OPAL_OpalData_HH
 
+#include <functional>
 #include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
-#include "AbstractObjects/ObjectFunction.h"
 #include "OPALTypes.h"
 
 class AttributeBase;
@@ -80,7 +80,7 @@ public:
     /// Apply a function to all objects.
     //  Loop over the directory and apply the given functor object to each
     //  object in turn.
-    void apply(const ObjectFunction&);
+    void apply(const std::function<void(Object*)>&);
 
     /// Create new object.
     //  No replacement is allowed; if an object with the same name exists,
@@ -122,12 +122,6 @@ public:
     /// Update all objects.
     //  Loop over the directory and notify all objects to update themselves.
     void update();
-
-    /// Clear Reference.
-    //  This functor is used to clear the reference count stored in an object.
-    struct ClearReference : public ObjectFunction {
-        virtual void operator()(Object*) const;
-    };
 
     bool isInOPALCyclMode();
     bool isInOPALTMode();

@@ -12,12 +12,12 @@
 #include <algorithm>
 
 namespace {
-    double designLength(const FlaggedBeamline& line) {
+    double designLength(const Beamline& line) {
         double length = 0.0;
         for (const auto& member : line) {
             const auto* element = member.getElement();
             if (!element || element->getType() == ElementType::MARKER) continue;
-            if (const auto* nested = dynamic_cast<const FlaggedBeamline*>(element)) {
+            if (const auto* nested = dynamic_cast<const Beamline*>(element)) {
                 length += designLength(*nested);
             } else {
                 length += element->getGeometry().getArcLength();
@@ -26,7 +26,7 @@ namespace {
         return length;
     }
 
-    void cloneAndAssignMembership(FlaggedBeamline& line, const std::string& ringName) {
+    void cloneAndAssignMembership(Beamline& line, const std::string& ringName) {
         // A member list may share prototypes, even after copying the outer sequence.
         // Isolate every occurrence before tagging it; nested LINEs retain the outer
         // ringName so that membership describes the tracked RING, not a parent chain.
@@ -40,7 +40,7 @@ namespace {
             element = member.getElement();
             element->setBeamlineMembership(BeamlineTopology::RING, ringName);
 
-            if (auto* nestedLine = dynamic_cast<FlaggedBeamline*>(element)) {
+            if (auto* nestedLine = dynamic_cast<Beamline*>(element)) {
                 cloneAndAssignMembership(*nestedLine, ringName);
             }
         }
@@ -67,7 +67,7 @@ double Ring::getLength() const { return designLength(*fetchLine()); }
 const char* Ring::getSequenceKeyword() const { return "RING"; }
 
 void Ring::prepareForTracking() {
-    FlaggedBeamline* line = fetchLine();
+    Beamline* line = fetchLine();
     line->setBeamlineMembership(BeamlineTopology::RING, getOpalName());
     cloneAndAssignMembership(*line, getOpalName());
 }

@@ -32,7 +32,7 @@ class Fieldmap;
 
 enum class CavityType : unsigned short { SW, SGSW, IDEAL };
 
-/** @brief RF physics shared by RFCavityRep: continuous fields or discrete gaps.
+/** @brief RF cavity: continuous fields or discrete gaps.
  * IDEAL uses Ez [MV/m]=VOLT*cos(omega*t+LAG) on [0,L), with VOLT in MV/m,
  * L in m and LAG in radians. It has no magnetic or fringe field.
  * STANDING uses the existing field-map apply() path. SINGLEGAP is configured by
@@ -41,9 +41,6 @@ enum class CavityType : unsigned short { SW, SGSW, IDEAL };
  * fields and isInside() returns false: ParallelTracker must detect and integrate
  * the oriented gap event. Calling only the ordinary field API does not accelerate
  * a particle through a SINGLEGAP cavity.
- *
- * The concrete RFCavityRep still supplies geometry/cloning as for existing RF
- * elements. The cyclotron extension does not add another Rep subclass.
  */
 class RFCavity : public ElementBase {
 public:
@@ -84,18 +81,22 @@ public:
     RFCavity(const RFCavity&);
     virtual ~RFCavity();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// Apply visitor to RFCavity.
     virtual void accept(BeamlineVisitor&) const override;
 
     /// Get RF amplitude.
-    virtual double getAmplitude() const = 0;
+    virtual double getAmplitude() const { return getAmplitudem(); }
 
     /// Get RF frequency.
-    virtual double getFrequency() const = 0;
+    virtual double getFrequency() const { return getFrequencym(); }
     void setFrequency(double freq);
 
     /// Get RF phase.
-    virtual double getPhase() const = 0;
+    virtual double getPhase() const { return getPhasem(); }
 
     void dropFieldmaps();
 
@@ -292,6 +293,9 @@ private:
 
     // Not implemented.
     void operator=(const RFCavity&);
+
+private:
+    Geometry geometry_m;
 };
 
 inline double RFCavity::getdE(

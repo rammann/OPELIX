@@ -1,9 +1,9 @@
 #include "gtest/gtest.h"
 
+#include "AbsBeamline/Drift.h"
+#include "AbsBeamline/RFCavity.h"
 #include "AbstractObjects/OpalData.h"
 #include "Algorithms/IndexMap.h"
-#include "BeamlineCore/DriftRep.h"
-#include "BeamlineCore/RFCavityRep.h"
 #include "Ippl.h"
 
 #include <filesystem>
@@ -28,8 +28,8 @@ namespace {
 
 // query(s, ds) returns the union of all elements whose range overlaps [s - ds, s + ds].
 TEST(IndexMapTest, QueryReturnsElementsOverlappingTheInterval) {
-    auto drift1 = std::make_shared<DriftRep>("D1");
-    auto drift2 = std::make_shared<DriftRep>("D2");
+    auto drift1 = std::make_shared<Drift>("D1");
+    auto drift2 = std::make_shared<Drift>("D2");
 
     IndexMap map;
     map.add(0.0, 1.0, IndexMap::value_t{drift1});
@@ -42,8 +42,8 @@ TEST(IndexMapTest, QueryReturnsElementsOverlappingTheInterval) {
 // getRange(element) returns the element's single (merged) range. Consecutive contiguous adds
 // for the same element are merged into one interval.
 TEST(IndexMapTest, GetRangeReturnsElementSingleRange) {
-    auto drift1 = std::make_shared<DriftRep>("D1");
-    auto drift2 = std::make_shared<DriftRep>("D2");
+    auto drift1 = std::make_shared<Drift>("D1");
+    auto drift2 = std::make_shared<Drift>("D2");
 
     IndexMap map;
     map.add(0.0, 1.0, IndexMap::value_t{drift1});
@@ -63,7 +63,7 @@ TEST(IndexMapTest, GetRangeReturnsElementSingleRange) {
 // Crossing an element a second time (ring) keeps the first crossing in getRange, while query
 // still finds the element at every crossing.
 TEST(IndexMapTest, ReentryKeepsFirstRangeAndQueryFindsBothCrossings) {
-    auto drift1 = std::make_shared<DriftRep>("D1");
+    auto drift1 = std::make_shared<Drift>("D1");
 
     IndexMap map;
     map.add(0.0, 1.0, IndexMap::value_t{drift1});
@@ -81,8 +81,8 @@ TEST(IndexMapTest, ReentryKeepsFirstRangeAndQueryFindsBothCrossings) {
 }
 
 TEST(IndexMapTest, PeriodicQueryReusesOneTurnMap) {
-    auto start = std::make_shared<DriftRep>("START");
-    auto end   = std::make_shared<DriftRep>("END");
+    auto start = std::make_shared<Drift>("START");
+    auto end   = std::make_shared<Drift>("END");
 
     IndexMap map;
     map.setPeriod(10.0, 4.0);
@@ -96,8 +96,8 @@ TEST(IndexMapTest, PeriodicQueryReusesOneTurnMap) {
 }
 
 TEST(IndexMapTest, PeriodicQueryUnionsBothSidesOfTurnSeam) {
-    auto start = std::make_shared<DriftRep>("START");
-    auto end   = std::make_shared<DriftRep>("END");
+    auto start = std::make_shared<Drift>("START");
+    auto end   = std::make_shared<Drift>("END");
 
     IndexMap map;
     map.setPeriod(0.0, 4.0);
@@ -156,8 +156,8 @@ protected:
 // stores one interval per element, so rows past the first re-entry would be drawn with
 // wrong intervals.
 TEST_F(IndexMapSDDSTest, SaveSDDSWritesOnlyFirstCrossingOfEachElement) {
-    auto drift  = std::make_shared<DriftRep>("D1");
-    auto cavity = std::make_shared<RFCavityRep>("RF1");
+    auto drift  = std::make_shared<Drift>("D1");
+    auto cavity = std::make_shared<RFCavity>("RF1");
 
     IndexMap map;
     // Turn 1: drift over [0,1], cavity over [1,2].

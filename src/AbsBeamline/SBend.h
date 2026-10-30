@@ -38,6 +38,10 @@ public:
     /// @brief Destructor.
     ~SBend() override;
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// @brief Apply a visitor.
     /// @param visitor The visitor to apply.
     void accept(BeamlineVisitor& visitor) const override;
@@ -174,6 +178,9 @@ private:
 
     /// Whether the design energy may still be changed.
     bool designEnergyChangeable_m;
+
+private:
+    Geometry geometry_m{Geometry::makeSBend(0.0, 0.0)};
 };
 
 inline void SBend::setFullGap(double gap) { gap_m = std::abs(gap); }

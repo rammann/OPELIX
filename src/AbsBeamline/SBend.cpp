@@ -25,7 +25,8 @@ SBend::SBend(const SBend& right)
       gap_m(right.gap_m),
       fringeIntegral_m(right.fringeIntegral_m),
       designEnergy_m(right.designEnergy_m),
-      designEnergyChangeable_m(true) {}
+      designEnergyChangeable_m(true),
+      geometry_m(right.geometry_m) {}
 
 SBend::SBend(const std::string& name)
     : ElementBase(name),
@@ -295,3 +296,9 @@ void SBend::setB(double B) {
 void SBend::accept(BeamlineVisitor& visitor) const { visitor.visitSBend(*this); }
 
 ElementType SBend::getType() const { return ElementType::SBEND; }
+
+ElementBase* SBend::clone() const { return new SBend(*this); }
+
+Geometry& SBend::getGeometry() { return geometry_m; }
+
+const Geometry& SBend::getGeometry() const { return geometry_m; }

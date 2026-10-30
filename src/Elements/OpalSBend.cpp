@@ -18,9 +18,9 @@
 #include "Elements/OpalSBend.h"
 #include <cmath>
 #include <string>
+#include "AbsBeamline/SBend.h"
 #include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/SBendRep.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 #include "Utilities/OpalException.h"
@@ -29,11 +29,11 @@ OpalSBend::OpalSBend()
     : OpalBend("SBEND", "The \"SBEND\" element defines a sector bending magnet.") {
     registerOwnership();
 
-    setElement((new SBendRep("SBEND")));
+    setElement((new SBend("SBEND")));
 }
 
 OpalSBend::OpalSBend(const std::string& name, OpalSBend* parent) : OpalBend(name, parent) {
-    setElement((new SBendRep(name)));
+    setElement((new SBend(name)));
 }
 
 OpalSBend::~OpalSBend() {}
@@ -54,7 +54,7 @@ void OpalSBend::update() {
     }
 
     // Define geometry.
-    SBendRep* bend     = dynamic_cast<SBendRep*>(getElement());
+    SBend* bend        = dynamic_cast<SBend*>(getElement());
     double length      = Attributes::getReal(itsAttr[LENGTH]);
     double angle       = Attributes::getReal(itsAttr[ANGLE]);
     Geometry& geometry = static_cast<Geometry&>(bend->getGeometry());

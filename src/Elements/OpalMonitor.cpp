@@ -16,20 +16,20 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Elements/OpalMonitor.h"
+#include "AbsBeamline/Monitor.h"
 #include "AbstractObjects/Attribute.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/MonitorRep.h"
 #include "Utilities/Util.h"
 
 OpalMonitor::OpalMonitor()
     : OpalElement(COMMON, "MONITOR", "The \"MONITOR\" element defines a monitor for both planes.") {
     registerOwnership();
 
-    setElement(new MonitorRep("MONITOR"));
+    setElement(new Monitor("MONITOR"));
 }
 
 OpalMonitor::OpalMonitor(const std::string& name, OpalMonitor* parent) : OpalElement(name, parent) {
-    setElement(new MonitorRep(name));
+    setElement(new Monitor(name));
 }
 
 OpalMonitor::~OpalMonitor() {}
@@ -39,7 +39,7 @@ OpalMonitor* OpalMonitor::clone(const std::string& name) { return new OpalMonito
 void OpalMonitor::update() {
     OpalElement::update();
 
-    MonitorRep* mon = dynamic_cast<MonitorRep*>(getElement());
+    Monitor* mon = dynamic_cast<Monitor*>(getElement());
 
     double length = std::max(0.01, Attributes::getReal(itsAttr[LENGTH]));
     mon->getGeometry().setElementLength(length);

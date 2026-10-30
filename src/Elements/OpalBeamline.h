@@ -107,8 +107,8 @@ public:
             const Vector_t<double, 3>&, const Vector_t<double, 3>&, const double&,
             Vector_t<double, 3>&, Vector_t<double, 3>&);
 
-    template <class T>
-    void visit(const T&, BeamlineVisitor&, PartBunch_t&);
+    /// Add a clone of an element to the lattice and initialise it; markers are not added.
+    void visit(const ElementBase&, BeamlineVisitor&, PartBunch_t&);
 
     void prepareSections();
     void compute3DLattice();
@@ -157,22 +157,6 @@ private:
 
     CoordinateSystemTrafo coordTransformationTo_m;
 };
-
-template <class T>
-inline void OpalBeamline::visit(const T& element, BeamlineVisitor&, PartBunch_t& bunch) {
-    std::shared_ptr<T> elptr(dynamic_cast<T*>(element.clone()));
-
-    // Placement (both 6D-pose and ELEMEDGE) is resolved later, in one pass, by
-    // placeElementsAlongReferencePath() during prepareSections().
-    elptr->initialise(&bunch);
-    elements_m.push_back(elptr);
-    prepared_m                       = false;
-    referencePathPlacementCompiled_m = false;
-}
-
-template <>
-inline void OpalBeamline::visit<Marker>(const Marker& /*element*/, BeamlineVisitor&, PartBunch_t&) {
-}
 
 inline Vector_t<double, 3> OpalBeamline::transformTo(const Vector_t<double, 3>& r) const {
     return coordTransformationTo_m.transformTo(r);

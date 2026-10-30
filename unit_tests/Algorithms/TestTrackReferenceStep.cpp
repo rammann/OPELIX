@@ -1,9 +1,9 @@
+#include "AbsBeamline/Monitor.h"
 #include "Algorithms/DefaultVisitor.h"
 #include "Algorithms/DirectedTurnCounter.h"
 #include "Algorithms/PartData.h"
 #include "Algorithms/TrackReferenceStep.h"
-#include "BeamlineCore/MonitorRep.h"
-#include "Beamlines/FlaggedBeamline.h"
+#include "Beamlines/Beamline.h"
 #include "Elements/OpalBeamline.h"
 #include "PartBunch/PartBunch.h"
 #include "Structure/Beam.h"
@@ -14,9 +14,9 @@ using track_reference::State;
 using Vector = Vector_t<double, 3>;
 
 namespace {
-    class CountingMonitor : public MonitorRep {
+    class CountingMonitor : public Monitor {
     public:
-        CountingMonitor() : MonitorRep("M") { getGeometry().setElementLength(1); }
+        CountingMonitor() : Monitor("M") { getGeometry().setElementLength(1); }
         ElementBase* clone() const override { return new CountingMonitor(*this); }
         void initialise(PartBunch_t*) override {}
         void finalise() override {}
@@ -30,9 +30,9 @@ namespace {
 
     // A thin, finite-width magnet whose entire support fits between the nominal
     // step's start and midpoint. No lattice index or OPALX execution is involved.
-    class ThinMagnet : public MonitorRep {
+    class ThinMagnet : public Monitor {
     public:
-        ThinMagnet() : MonitorRep("thin") { getGeometry().setElementLength(0.003); }
+        ThinMagnet() : Monitor("thin") { getGeometry().setElementLength(0.003); }
         ElementBase* clone() const override { return new ThinMagnet(*this); }
         ElementType getType() const override { return ElementType::MULTIPOLE; }
         void initialise(PartBunch_t*) override {}
@@ -116,8 +116,8 @@ TEST_F(TrackReferenceStepTest, BeamlineTrialsDoNotWriteMonitors) {
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     CountingMonitor monitor;
     monitor.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector(0), Quaternion()));
@@ -144,8 +144,8 @@ TEST_F(TrackReferenceStepTest, ResolvedTransportFindsThinSpatialSupportAndConser
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     ThinMagnet magnet;
     magnet.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector(0, 0, 0.01), Quaternion()));
@@ -183,8 +183,8 @@ TEST_F(TrackReferenceStepTest, ResolvedTrialsDoNotRecordMonitors) {
     Beam beam;
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    FlaggedBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    Beamline line;
+    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     CountingMonitor monitor;
     monitor.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector(0), Quaternion()));

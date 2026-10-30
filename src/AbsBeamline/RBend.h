@@ -35,6 +35,10 @@ public:
     /// @brief Destructor.
     ~RBend() override;
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// @brief Apply a visitor.
     /// @param visitor The visitor to apply.
     void accept(BeamlineVisitor& visitor) const override;
@@ -195,6 +199,9 @@ private:
     RBendProfile::Inputs profile_m;
     std::string profileFilename_m;
     double placementLength_m = -1.0;
+
+private:
+    Geometry geometry_m{Geometry::makeRBend(0.0, 0.0)};
 };
 
 inline void RBend::setFullGap(double gap) { gap_m = std::abs(gap); }

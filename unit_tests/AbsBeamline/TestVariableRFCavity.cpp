@@ -23,7 +23,7 @@
 #include "Algorithms/AbstractTimeDependence.h"
 #include "Algorithms/ParallelTracker.h"
 #include "Algorithms/PolynomialTimeDependence.h"
-#include "Beamlines/FlaggedBeamline.h"
+#include "Beamlines/Beamline.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 #include "Structure/Beam.h"
@@ -600,8 +600,7 @@ TEST_F(TestVariableRFCavity, ParallelTrackerVisitorRegistersLiveCavity) {
         Observation& state;
     } cavity(observed);
     struct BorrowedBunchTracker final : ParallelTracker {
-        BorrowedBunchTracker(const Beamline& line, PartBunch_t& bunch)
-            : ParallelTracker(line, false) {
+        BorrowedBunchTracker(const Beamline& line, PartBunch_t& bunch) : ParallelTracker(line) {
             itsBunch_m = &bunch;
         }
     };
@@ -620,7 +619,7 @@ TEST_F(TestVariableRFCavity, ParallelTrackerVisitorRegistersLiveCavity) {
     cavity.setHeight(0.2);
     const auto bunch = makeBunch(1);
     const auto pc    = bunch->getParticleContainer();
-    FlaggedBeamline line;
+    Beamline line;
     BorrowedBunchTracker tracker(line, *bunch);
     cavity.accept(tracker);
     ASSERT_EQ(observed.clones, 1u);

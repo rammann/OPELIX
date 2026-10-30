@@ -16,9 +16,9 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Elements/OpalTravelingWave.h"
+#include "AbsBeamline/TravelingWave.h"
 #include "AbstractObjects/Attribute.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/TravelingWaveRep.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 
@@ -43,12 +43,12 @@ OpalTravelingWave::OpalTravelingWave()
 
     registerOwnership();
 
-    setElement(new TravelingWaveRep("TRAVELINGWAVE"));
+    setElement(new TravelingWave("TRAVELINGWAVE"));
 }
 
 OpalTravelingWave::OpalTravelingWave(const std::string& name, OpalTravelingWave* parent)
     : OpalElement(name, parent) {
-    setElement(new TravelingWaveRep(name));
+    setElement(new TravelingWave(name));
 }
 
 OpalTravelingWave::~OpalTravelingWave() {}
@@ -60,7 +60,7 @@ OpalTravelingWave* OpalTravelingWave::clone(const std::string& name) {
 void OpalTravelingWave::update() {
     OpalElement::update();
 
-    TravelingWaveRep* rfc = dynamic_cast<TravelingWaveRep*>(getElement());
+    TravelingWave* rfc = dynamic_cast<TravelingWave*>(getElement());
 
     double length      = Attributes::getReal(itsAttr[LENGTH]);
     double vPeak       = Attributes::getReal(itsAttr[VOLT]);

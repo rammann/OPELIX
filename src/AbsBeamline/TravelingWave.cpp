@@ -442,3 +442,5 @@ bool TravelingWave::isInside(const Vector_t<double, 3>& r) const {
     return (ApertureHelper::isInsideAperture(r, aperture_m) && r(2) >= -0.5 * periodLength_m
             && r(2) < startExitField_m);
 }
+
+ElementBase* TravelingWave::clone() const { return new TravelingWave(*this); }

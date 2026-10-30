@@ -26,7 +26,7 @@
 
 Marker::Marker() : ElementBase() {}
 
-Marker::Marker(const Marker& right) : ElementBase(right) {}
+Marker::Marker(const Marker& right) : ElementBase(right), geometry_m(right.geometry_m) {}
 
 Marker::Marker(const std::string& name) : ElementBase(name) {}
 
@@ -41,3 +41,9 @@ void Marker::finalise() {}
 void Marker::getFieldExtent(double& /*zBegin*/, double& /*zEnd*/) const {}
 
 ElementType Marker::getType() const { return ElementType::MARKER; }
+
+ElementBase* Marker::clone() const { return new Marker(*this); }
+
+Geometry& Marker::getGeometry() { return geometry_m; }
+
+const Geometry& Marker::getGeometry() const { return geometry_m; }

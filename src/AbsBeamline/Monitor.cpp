@@ -42,7 +42,8 @@ Monitor::Monitor(const Monitor& right)
       filename_m(right.filename_m),
       plane_m(right.plane_m),
       type_m(right.type_m),
-      numPassages_m(0) {}
+      numPassages_m(0),
+      geometry_m(right.geometry_m) {}
 
 Monitor::Monitor(const std::string& name)
     : ElementBase(name),
@@ -386,3 +387,9 @@ void Monitor::writeStatistics() {
 
     statFileEntries_sm.clear();
 }
+
+ElementBase* Monitor::clone() const { return new Monitor(*this); }
+
+Geometry& Monitor::getGeometry() { return geometry_m; }
+
+const Geometry& Monitor::getGeometry() const { return geometry_m; }

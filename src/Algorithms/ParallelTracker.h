@@ -129,9 +129,7 @@ public:
     void setSpaceChargeFieldUpdate(SpaceChargeFieldUpdate update) {
         spaceChargeFieldUpdate_m = update;
     }
-    void visitCyclotronSector(const CyclotronSector& sector) override {
-        itsOpalBeamline_m.visit(sector, *this, *itsBunch_m);
-    }
+    void visitCyclotronSector(const CyclotronSector& sector) override { applyDefault(sector); }
 
 private:
     friend class TrackRun;
@@ -210,10 +208,8 @@ public:
     /**
      * @brief Construct tracker with beamline only (no bunch attached here).
      * @param bl       Beamline definition.
-     * @param revBeam  If true, reversed beam direction (s = C to 0); OPAL-T parallel
-     *                 tracking is forward-only; revTrack is not used.
      */
-    explicit ParallelTracker(const Beamline& bl, bool revBeam);
+    explicit ParallelTracker(const Beamline& bl);
 
     /**
      * @brief Construct tracker with bunch, output sink, and step-size schedule.
@@ -222,7 +218,6 @@ public:
      * @param spaceChargeSolver   Borrowed solver owned by TrackRun.
      * @param dirichletPlane      Dirichlet plane used by tracker-side loss handling.
      * @param ds                Borrowed data sink for statistics and dumps.
-     * @param revBeam           Reversed beam flag (see single-argument constructor).
      * @param maxSTEPS          Max integration steps per s-segment (parallel to sStop/dt).
      * @param sStart            Starting path length (m).
      * @param sStop             Stop path length per segment (m).
@@ -237,7 +232,7 @@ public:
     explicit ParallelTracker(
             const Beamline& bl, PartBunch_t& bunch,
             opalx::spacecharge::SpaceChargeSolver& spaceChargeSolver,
-            opalx::spacecharge::DirichletPlaneConfig dirichletPlane, DataSink* ds, bool revBeam,
+            opalx::spacecharge::DirichletPlaneConfig dirichletPlane, DataSink* ds,
             const std::vector<unsigned long long>& maxSTEPS, double sStart,
             const std::vector<double>& sStop, const std::vector<double>& dt,
             const std::vector<std::vector<std::shared_ptr<SamplingBase>>>& emittingSamplers = {},
@@ -255,58 +250,16 @@ public:
     /// @brief Visit a generic element using the base tracker behavior.
     void visitElementBase(const ElementBase&) override;
 
-    /// @brief Apply the algorithm to a constant E-field cavity.
-    void visitConstantEFieldCavity(const ConstantEFieldCavity&) override;
-
-    /// @brief Apply the algorithm to a constant linear focusing element.
-    void visitConstantFocusing(const ConstantFocusing&) override;
-    /// @brief Apply the algorithm to a box absorber.
-    void visitBox(const Box&) override;
-
-    /// @brief Apply the algorithm to a collimator.
-    void visitCollimator(const Collimator&) override;
-
-    /// @brief Apply the algorithm to a drift.
-    void visitDrift(const Drift&) override;
-
-    /// @brief Apply the algorithm to a field-map-driven element.
-    void visitFieldmapElement(const FieldmapElement&) override;
+    /// @brief Constant focusing has no DefaultVisitor hook; track it like any other element.
+    void visitConstantFocusing(const ConstantFocusing& focusing) override {
+        applyDefault(focusing);
+    }
 
     /// @brief Reject laser tracking until dedicated laser tracking is implemented.
     void visitLaser(const Laser&) override;
 
-    /// @brief Apply the algorithm to a monitor.
-    void visitMonitor(const Monitor&) override;
-
-    /// @brief Apply the algorithm to a marker.
-    void visitMarker(const Marker&) override;
-
-    /// @brief Apply the algorithm to a multipole.
-    void visitMultipole(const Multipole&) override;
-
-    /// @brief Apply the algorithm to a multipole (templated type).
-    void visitMultipoleT(const MultipoleT&) override;
-
-    /// @brief Apply the algorithm to a rectangular bend.
-    void visitRBend(const RBend&) override;
-
-    /// @brief Apply the algorithm to an RF cavity.
-    void visitRFCavity(const RFCavity&) override;
-
-    /// @brief Register and initialise an analytic time-dependent RF cavity.
-    void visitVariableRFCavity(const VariableRFCavity&) override;
-
-    /// @brief Apply the algorithm to a sector bend.
-    void visitSBend(const SBend&) override;
-
-    /// @brief Null op, as everywhere. Why does this exist?
-    void visitScalingFFAMagnet(const ScalingFFAMagnet&) override;
-
-    /// @brief Apply the algorithm to a traveling wave cavity.
-    void visitTravelingWave(const TravelingWave&) override;
-
-    /// @brief Apply the algorithm to a solenoid.
-    void visitSolenoid(const Solenoid&) override;
+    /// @brief Probes are not tracked.
+    void visitProbe(const Probe&) override {}
 
     /// @brief Run the main tracking loop until all step-size segments complete.
     void execute() override;
@@ -509,74 +462,13 @@ private:
 
     /// @brief Restore cavity phases from a prior track or restart.
     void restoreCavityPhases();
+
+    /// @brief Every element visit of DefaultVisitor ends here: add the element to the lattice.
+    void applyDefault(const ElementBase& element) override;
 };
 
-inline void ParallelTracker::visitConstantEFieldCavity(const ConstantEFieldCavity& cav) {
-    itsOpalBeamline_m.visit(cav, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitConstantFocusing(const ConstantFocusing& focusing) {
-    itsOpalBeamline_m.visit(focusing, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitBox(const Box& box) {
-    itsOpalBeamline_m.visit(box, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitCollimator(const Collimator& coll) {
-    itsOpalBeamline_m.visit(coll, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitDrift(const Drift& drift) {
-    itsOpalBeamline_m.visit(drift, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitFieldmapElement(const FieldmapElement& fm) {
-    itsOpalBeamline_m.visit(fm, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitMonitor(const Monitor& monitor) {
-    itsOpalBeamline_m.visit(monitor, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitMarker(const Marker& marker) {
-    itsOpalBeamline_m.visit(marker, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitMultipole(const Multipole& mult) {
-    itsOpalBeamline_m.visit(mult, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitMultipoleT(const MultipoleT& mult) {
-    itsOpalBeamline_m.visit(mult, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitRBend(const RBend& bend) {
-    itsOpalBeamline_m.visit(bend, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitRFCavity(const RFCavity& as) {
-    itsOpalBeamline_m.visit(as, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitVariableRFCavity(const VariableRFCavity& cavity) {
-    itsOpalBeamline_m.visit(cavity, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitSBend(const SBend& bend) {
-    itsOpalBeamline_m.visit(bend, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitScalingFFAMagnet(const ScalingFFAMagnet& ffa) {
-    itsOpalBeamline_m.visit(ffa, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitTravelingWave(const TravelingWave& tw) {
-    itsOpalBeamline_m.visit(tw, *this, *itsBunch_m);
-}
-
-inline void ParallelTracker::visitSolenoid(const Solenoid& so) {
-    itsOpalBeamline_m.visit(so, *this, *itsBunch_m);
+inline void ParallelTracker::applyDefault(const ElementBase& element) {
+    itsOpalBeamline_m.visit(element, *this, *itsBunch_m);
 }
 
 #endif  // OPALX_ParallelTracker_HH

@@ -1,6 +1,6 @@
 /**
  * \file TestBox.cpp
- * \brief Unit tests for the BOX element (BoxRep).
+ * \brief Unit tests for the BOX element (Box).
  *
  * ---------------------------------------------------------------------------
  * Coverage
@@ -32,7 +32,7 @@
 
 #include "Ippl.h"
 
-#include "BeamlineCore/BoxRep.h"
+#include "AbsBeamline/Box.h"
 #include "PartBunch/ParticleContainer.hpp"
 
 namespace {
@@ -50,8 +50,8 @@ namespace {
         static void TearDownTestSuite() { ippl::finalize(); }
 
         /// Block of length L with the given half sizes.
-        static BoxRep makeBox(double length, double halfWidth, double halfHeight) {
-            BoxRep box("test_box");
+        static Box makeBox(double length, double halfWidth, double halfHeight) {
+            Box box("test_box");
             box.getGeometry().setElementLength(length);
             box.setHalfSize(halfWidth, halfHeight);
             return box;
@@ -114,18 +114,18 @@ namespace {
     // ================================================================
 
     TEST_F(BoxTest, GetType) {
-        BoxRep box = makeBox(0.1, 0.01, 0.005);
+        Box box = makeBox(0.1, 0.01, 0.005);
         EXPECT_EQ(box.getType(), ElementType::BOX);
         EXPECT_EQ(box.getTypeString(), "Box");
     }
 
     TEST_F(BoxTest, RequiredNumberOfTimeStepsIsOne) {
-        BoxRep box = makeBox(0.1, 0.01, 0.005);
+        Box box = makeBox(0.1, 0.01, 0.005);
         EXPECT_EQ(box.getRequiredNumberOfTimeSteps(), 1);
     }
 
     TEST_F(BoxTest, FieldExtentIsTheBodySpan) {
-        BoxRep box = makeBox(0.1, 0.01, 0.005);
+        Box box = makeBox(0.1, 0.01, 0.005);
 
         double zBegin = -1.0, zEnd = -1.0;
         box.getFieldExtent(zBegin, zEnd);
@@ -134,7 +134,7 @@ namespace {
     }
 
     TEST_F(BoxTest, CloneCopiesGeometryAndSize) {
-        BoxRep box = makeBox(0.1, 0.01, 0.02);
+        Box box = makeBox(0.1, 0.01, 0.02);
 
         std::unique_ptr<ElementBase> copy(box.clone());
         ASSERT_NE(copy, nullptr);
@@ -152,7 +152,7 @@ namespace {
         // A block beside the reference path must still be registered by
         // ElementBase::isInside, which tests the reference particle against
         // the aperture.
-        BoxRep box = makeBox(0.1, 0.01, 0.005);
+        Box box = makeBox(0.1, 0.01, 0.005);
         EXPECT_TRUE(box.isInside(Vector_t<double, 3>({-0.5, 0.3, 0.05})));
     }
 
@@ -161,8 +161,8 @@ namespace {
     // ================================================================
 
     TEST_F(BoxTest, MarksParticlesInsideTheBlock) {
-        BoxRep box = makeBox(0.1, 0.01, 0.005);
-        auto pc    = makeContainer();
+        Box box = makeBox(0.1, 0.01, 0.005);
+        auto pc = makeContainer();
 
         createParticlesAt(
                 pc, {
@@ -183,7 +183,7 @@ namespace {
     }
 
     TEST_F(BoxTest, RespectsDeleteOnTransverseExitFlag) {
-        BoxRep box = makeBox(0.1, 0.01, 0.005);
+        Box box = makeBox(0.1, 0.01, 0.005);
         box.setFlagDeleteOnTransverseExit(false);
         auto pc = makeContainer();
 
@@ -194,8 +194,8 @@ namespace {
     }
 
     TEST_F(BoxTest, AbsorbedParticlesAreDeleted) {
-        BoxRep box = makeBox(0.1, 0.01, 0.005);
-        auto pc    = makeContainer();
+        Box box = makeBox(0.1, 0.01, 0.005);
+        auto pc = makeContainer();
 
         createParticlesAt(
                 pc, {

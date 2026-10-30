@@ -68,7 +68,7 @@
 #include "Structure/DataSink.h"
 
 #include "AbsBeamline/ElementBase.h"
-#include "BeamlineCore/RFCavityRep.h"
+#include "AbsBeamline/RFCavity.h"
 #include "Fields/Fieldmap.h"
 
 #include <cmath>
@@ -518,7 +518,7 @@ protected:
         bunch->getParticleContainer()->createParticles(count);
         return bunch;
     }
-    RFCavityRep cavity{"ideal"};
+    RFCavity cavity{"ideal"};
     std::shared_ptr<Beam> beam;
 };
 
@@ -589,7 +589,7 @@ TEST_F(IdealRFCavityTest, ReferenceExcludesErrorsAndClonePreservesMode) {
     cavity.setAmplitudeError(1.0);
     cavity.setPhaseError(Physics::pi);
     std::unique_ptr<ElementBase> copy(cavity.clone());
-    auto* cloned = dynamic_cast<RFCavityRep*>(copy.get());
+    auto* cloned = dynamic_cast<RFCavity*>(copy.get());
     ASSERT_NE(cloned, nullptr);
     EXPECT_TRUE(cloned->isIdeal());
     Vector_t<double, 3> e(0), refE(0), b(0);
@@ -601,7 +601,7 @@ TEST_F(IdealRFCavityTest, ReferenceExcludesErrorsAndClonePreservesMode) {
 
 TEST_F(IdealRFCavityTest, InputValidationAndDefaultMode) {
     OpalCavity input;
-    auto* rep = dynamic_cast<RFCavityRep*>(input.getElement());
+    auto* rep = dynamic_cast<RFCavity*>(input.getElement());
     ASSERT_NE(rep, nullptr);
     EXPECT_NO_THROW(input.update());
     EXPECT_FALSE(rep->isIdeal());
@@ -672,7 +672,7 @@ TEST_F(IdealRFCavityTest, EllipticalApertureAndFiniteParameters) {
 
 TEST_F(IdealRFCavityTest, FullAutophaserRespectsVetoAndFindsCrest) {
     const auto bunch = makeBunch(1);
-    auto rf          = std::make_shared<RFCavityRep>(cavity);
+    auto rf          = std::make_shared<RFCavity>(cavity);
     rf->getGeometry().setElementLength(0.002);
     rf->setAmplitudem(50.0);
     rf->initialise(bunch.get());
@@ -706,7 +706,7 @@ TEST_F(IdealRFCavityTest, FullAutophaserRespectsVetoAndFindsCrest) {
 
 TEST_F(IdealRFCavityTest, FullAutophaserAdjustsGradientToDesignEnergy) {
     const auto bunch = makeBunch(1);
-    auto rf          = std::make_shared<RFCavityRep>(cavity);
+    auto rf          = std::make_shared<RFCavity>(cavity);
     rf->getGeometry().setElementLength(0.002);
     rf->setAmplitudem(0.);
     rf->setDesignEnergy(10.2);

@@ -131,10 +131,7 @@ namespace {
         LatticeVisitor(
                 const Beamline& line, OpalBeamline& runtime, PartBunch_t& reference,
                 std::string name)
-            : DefaultVisitor(line, false, false),
-              lattice(runtime),
-              bunch(reference),
-              owner(std::move(name)) {}
+            : DefaultVisitor(line), lattice(runtime), bunch(reference), owner(std::move(name)) {}
         void visitFlaggedElmPtr(const FlaggedElmPtr& pointer) override {
             require(!pointer.getReflectionFlag(), "Reflected COF members are unsupported.");
             DefaultVisitor::visitFlaggedElmPtr(pointer);

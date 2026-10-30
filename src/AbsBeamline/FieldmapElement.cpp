@@ -65,7 +65,8 @@ FieldmapElement::FieldmapElement(const FieldmapElement& right)
       endField_m(right.endField_m),
       hasTransverseExtent_m(right.hasTransverseExtent_m),
       halfWidthX_m(right.halfWidthX_m),
-      halfWidthY_m(right.halfWidthY_m) {}
+      halfWidthY_m(right.halfWidthY_m),
+      geometry_m(right.geometry_m) {}
 
 FieldmapElement::FieldmapElement(const std::string& name)
     : ElementBase(name),
@@ -293,3 +294,9 @@ void FieldmapElement::setIsZReversed(bool zReverse) { isZReversed_m = zReverse; 
 bool FieldmapElement::getIsZReversed() const { return isZReversed_m; }
 
 bool FieldmapElement::hasTransverseExtent() const { return hasTransverseExtent_m; }
+
+ElementBase* FieldmapElement::clone() const { return new FieldmapElement(*this); }
+
+Geometry& FieldmapElement::getGeometry() { return geometry_m; }
+
+const Geometry& FieldmapElement::getGeometry() const { return geometry_m; }

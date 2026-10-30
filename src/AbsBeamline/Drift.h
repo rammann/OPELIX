@@ -37,6 +37,10 @@ public:
     Drift(const Drift& right);
     virtual ~Drift();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /// Apply visitor to Drift.
     virtual void accept(BeamlineVisitor&) const override;
 
@@ -61,6 +65,9 @@ private:
 
     // Not implemented.
     void operator=(const Drift&);
+
+private:
+    Geometry geometry_m;
 };
 
 inline int Drift::getRequiredNumberOfTimeSteps() const { return 1; }

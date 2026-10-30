@@ -17,8 +17,8 @@
 //
 #include "Elements/OpalFieldmapElement.h"
 
+#include "AbsBeamline/FieldmapElement.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/FieldmapElementRep.h"
 #include "Utilities/OpalException.h"
 
 OpalFieldmapElement::OpalFieldmapElement()
@@ -51,12 +51,12 @@ OpalFieldmapElement::OpalFieldmapElement()
 
     registerOwnership();
 
-    setElement(new FieldmapElementRep("FIELDMAP"));
+    setElement(new FieldmapElement("FIELDMAP"));
 }
 
 OpalFieldmapElement::OpalFieldmapElement(const std::string& name, OpalFieldmapElement* parent)
     : OpalElement(name, parent) {
-    setElement(new FieldmapElementRep(name));
+    setElement(new FieldmapElement(name));
 }
 
 OpalFieldmapElement::~OpalFieldmapElement() {}
@@ -104,7 +104,7 @@ void OpalFieldmapElement::update() {
 
     OpalElement::update();
 
-    FieldmapElementRep* fm = dynamic_cast<FieldmapElementRep*>(getElement());
+    FieldmapElement* fm = dynamic_cast<FieldmapElement*>(getElement());
 
     // The geometry length is deliberately NOT set here: it comes from the map, which is only
     // loaded in FieldmapElement::initialise(). That runs on the tracked clone before the

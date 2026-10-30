@@ -30,13 +30,8 @@ class ElementBase;
 class DefaultVisitor : public BeamlineVisitor {
 public:
     /// Constructor.
-    //  Arguments:
-    //  [ol]
-    //  [li]The beamline to be used.
-    //  [li]If true, the beam runs backwards through the line.
-    //  [li]If true, we track against the beam.
-    //  [/ol]
-    DefaultVisitor(const Beamline& beamline, bool backBeam, bool backTrack);
+    //  The beamline to be used.
+    explicit DefaultVisitor(const Beamline& beamline);
 
     ~DefaultVisitor() override = default;
 
@@ -106,16 +101,6 @@ public:
 protected:
     // The top level beamline.
     const Beamline& itsLine;
-
-    // The direction flags and corresponding factors.
-    bool back_beam;   // true, if beam runs from right (s=C) to left (s=0).
-    bool back_track;  // true, if tracking opposite to the beam direction.
-    bool back_path;   // true, if tracking from right (s=C) to left (s=0).
-    // back_path = back_beam && ! back_track || back_track && ! back_beam.
-
-    double flip_B;  // set to -1.0 to flip B fields, when back_beam is true.
-    double flip_s;  // set to -1.0 to flip direction of s,
-    // when back_path is true.
 
 private:
     // Not implemented.

@@ -29,7 +29,8 @@ Probe::Probe() : Probe("") {}
 
 Probe::Probe(const std::string& name) : PluginElement(name), step_m(0.0) {}
 
-Probe::Probe(const Probe& right) : PluginElement(right), step_m(right.step_m) {}
+Probe::Probe(const Probe& right)
+    : PluginElement(right), step_m(right.step_m), geometry_m(right.geometry_m) {}
 
 Probe::~Probe() {}
 
@@ -112,3 +113,9 @@ bool Probe::doCheck(
 }
 
 ElementType Probe::getType() const { return ElementType::PROBE; }
+
+ElementBase* Probe::clone() const { return new Probe(*this); }
+
+Geometry& Probe::getGeometry() { return geometry_m; }
+
+const Geometry& Probe::getGeometry() const { return geometry_m; }

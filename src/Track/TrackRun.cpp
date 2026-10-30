@@ -26,7 +26,7 @@
 
 #include "Attributes/Attributes.h"
 
-#include "Beamlines/TBeamline.h"
+#include "Beamlines/Beamline.h"
 
 #include "BasicActions/Option.h"
 
@@ -77,7 +77,6 @@
 #include "Utility/Inform.h"
 #include "changes.h"
 
-#include "Utilities/BiMap.h"
 #include "Utilities/Util.h"
 
 #include <algorithm>
@@ -185,12 +184,6 @@ namespace TRACKRUN {
     };
 }  // namespace TRACKRUN
 
-const BiMap<TrackRun::RunMethod, std::string> TrackRun::stringMethod_s = []() {
-    BiMap<TrackRun::RunMethod, std::string> bimap;
-    bimap.insert(TrackRun::RunMethod::PARALLEL, "PARALLEL");
-    return bimap;
-}();
-
 TrackRun::TrackRun()
     : Action(TRACKRUN::SIZE, "RUN",
              "The \"RUN\" sub-command tracks the defined particles through "
@@ -201,8 +194,7 @@ TrackRun::TrackRun()
       fs_m(nullptr),
       ds_m(nullptr),
       phaseSpaceSinks_m(),
-      isFollowupTrack_m(false),
-      method_m(RunMethod::NONE) {
+      isFollowupTrack_m(false) {
     itsAttr[TRACKRUN::METHOD] = Attributes::makePredefinedString(
             "METHOD", "Name of tracking algorithm to use.", {"PARALLEL"});
 
@@ -248,8 +240,7 @@ TrackRun::TrackRun(const std::string& name, TrackRun* parent)
       fs_m(nullptr),
       ds_m(nullptr),
       phaseSpaceSinks_m(),
-      isFollowupTrack_m(false),
-      method_m(RunMethod::NONE) {
+      isFollowupTrack_m(false) {
     opal_m = OpalData::getInstance();
 }
 
@@ -537,16 +528,10 @@ void TrackRun::execute() {
 
     setupBoundaryGeometry();
 
-    // Get algorithm to use.
-    setRunMethod();
-
-    switch (method_m) {
-        case RunMethod::PARALLEL: {
-            break;
-        }
-        default: {
-            throw OpalException("TrackRun::execute", "Unknown \"METHOD\" for the \"RUN\" command");
-        }
+    // METHOD can only be PARALLEL, but it has to be given.
+    if (!itsAttr[TRACKRUN::METHOD]) {
+        throw OpalException(
+                "TrackRun::execute", "The attribute \"METHOD\" isn't set for the \"RUN\" command");
     }
 
     if (ippl::Comm->rank() == 0) {
@@ -616,7 +601,7 @@ void TrackRun::execute() {
                     throw OpalException(
                             "TrackRun::execute", "SINGLEGAP requires TYPE=NONE field solver.");
             }
-        } validator(*Track::block->use->fetchLine(), false, false);
+        } validator(*Track::block->use->fetchLine());
         validator.execute();
     }
 
@@ -693,7 +678,7 @@ void TrackRun::execute() {
 
     itsTracker_m = std::make_unique<ParallelTracker>(
             *Track::block->use->fetchLine(), *bunch_m, *spaceChargeSolver_m, dirichletPlane, ds_m,
-            false, maxSteps, Track::block->zstart, sStop, Track::block->dT, emittingSamplersList,
+            maxSteps, Track::block->zstart, sStop, Track::block->dT, emittingSamplersList,
             isRestart, static_cast<unsigned long long>(restartMetadata.globalTrackStep),
             restartMetadata.dt,
             StepSizeConfig::ResumePosition{
@@ -710,20 +695,17 @@ void TrackRun::execute() {
             for (const auto& sampler : samplers)
                 if (!sampler->isEmissionDone(Track::block->initialOrbit->time))
                     throw OpalException("INITIALORBIT", "Ongoing emission is not supported.");
-        static_cast<ParallelTracker*>(itsTracker_m.get())
-                ->setInitialOrbit(*Track::block->initialOrbit);
+        itsTracker_m->setInitialOrbit(*Track::block->initialOrbit);
     }
     // Other solver configurations retain the ordinary unsplit integration sequence.
-    static_cast<ParallelTracker*>(itsTracker_m.get())->bareTracking_m = fs_m->getType() == "NONE";
-    static_cast<ParallelTracker*>(itsTracker_m.get())->allowBoundaryControl_m =
-            retrySafeBareTracking;
-    static_cast<ParallelTracker*>(itsTracker_m.get())->setRequestedTurns(directedTurns);
-    static_cast<ParallelTracker*>(itsTracker_m.get())->setKineticEnergyStop(kineticStop * 1e9);
-    static_cast<ParallelTracker*>(itsTracker_m.get())
-            ->setSpaceChargeFieldUpdate(
-                    Attributes::getString(itsAttr[TRACKRUN::SCFIELDUPDATE]) == "PRESTEP"
-                            ? ParallelTracker::SpaceChargeFieldUpdate::PRESTEP
-                            : ParallelTracker::SpaceChargeFieldUpdate::MIDPOINT);
+    itsTracker_m->bareTracking_m         = fs_m->getType() == "NONE";
+    itsTracker_m->allowBoundaryControl_m = retrySafeBareTracking;
+    itsTracker_m->setRequestedTurns(directedTurns);
+    itsTracker_m->setKineticEnergyStop(kineticStop * 1e9);
+    itsTracker_m->setSpaceChargeFieldUpdate(
+            Attributes::getString(itsAttr[TRACKRUN::SCFIELDUPDATE]) == "PRESTEP"
+                    ? ParallelTracker::SpaceChargeFieldUpdate::PRESTEP
+                    : ParallelTracker::SpaceChargeFieldUpdate::MIDPOINT);
     if (Attributes::getBool(itsAttr[TRACKRUN::SPECTRALTUNES])) {
         const double turns  = Attributes::getReal(itsAttr[TRACKRUN::TURNS]);
         const double sample = Attributes::getReal(itsAttr[TRACKRUN::TUNESAMPLE]);
@@ -749,25 +731,10 @@ void TrackRun::execute() {
                 Attributes::getString(itsAttr[TRACKRUN::TUNEINTEGRATOR]));
         if (size_t(settings.turns) * settings.stepsPerTurn > Track::block->localTimeSteps.front())
             throw OpalException("TrackRun", "Spectral tune steps exceed TRACK MAXSTEPS.");
-        static_cast<ParallelTracker*>(itsTracker_m.get())->setSpectralTunes(initial, settings);
+        itsTracker_m->setSpectralTunes(initial, settings);
     }
     itsTracker_m->execute();
 }
-
-void TrackRun::setRunMethod() {
-    if (!itsAttr[TRACKRUN::METHOD]) {
-        throw OpalException(
-                "TrackRun::setRunMethod",
-                "The attribute \"METHOD\" isn't set for the \"RUN\" command");
-    } else {
-        auto it = stringMethod_s.right.find(Attributes::getString(itsAttr[TRACKRUN::METHOD]));
-        if (it != stringMethod_s.right.end()) {
-            method_m = it->second;
-        }
-    }
-}
-
-std::string TrackRun::getRunMethodName() const { return stringMethod_s.left.at(method_m); }
 
 void TrackRun::initDataSink(size_t numParticleContainers) {
     phaseSpaceSinks_m.clear();
@@ -1082,12 +1049,14 @@ Inform& TrackRun::print(Inform& os) const {
     os << "* ************* T R A C K  R U N *************************************************** "
        << endl;
     if (!isFollowupTrack_m) {
-        os << "* Selected Tracking Method == " << getRunMethodName() << ", NEW TRACK" << '\n'
+        os << "* Selected Tracking Method == " << Attributes::getString(itsAttr[TRACKRUN::METHOD])
+           << ", NEW TRACK" << '\n'
            << "* "
               "********************************************************************************** "
            << '\n';
     } else {
-        os << "* Selected Tracking Method == " << getRunMethodName() << ", FOLLOWUP TRACK" << '\n'
+        os << "* Selected Tracking Method == " << Attributes::getString(itsAttr[TRACKRUN::METHOD])
+           << ", FOLLOWUP TRACK" << '\n'
            << "* "
               "********************************************************************************** "
            << '\n';

@@ -17,10 +17,10 @@
 //
 #include "Elements/OpalCavity.h"
 
+#include "AbsBeamline/RFCavity.h"
 #include "AbstractObjects/Attribute.h"
 #include "Algorithms/AbstractTimeDependence.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/RFCavityRep.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 #include "Structure/BoundaryGeometry.h"
@@ -63,12 +63,12 @@ OpalCavity::OpalCavity()
 
     registerOwnership();
 
-    setElement(new RFCavityRep("RFCAVITY"));
+    setElement(new RFCavity("RFCAVITY"));
 }
 
 OpalCavity::OpalCavity(const std::string& name, OpalCavity* parent)
     : OpalElement(name, parent), obgeo_m(nullptr) {
-    setElement(new RFCavityRep(name));
+    setElement(new RFCavity(name));
 }
 
 OpalCavity::~OpalCavity() {}
@@ -78,7 +78,7 @@ OpalCavity* OpalCavity::clone(const std::string& name) { return new OpalCavity(n
 void OpalCavity::update() {
     OpalElement::update();
 
-    RFCavityRep* rfc = dynamic_cast<RFCavityRep*>(getElement());
+    RFCavity* rfc = dynamic_cast<RFCavity*>(getElement());
 
     double length      = Attributes::getReal(itsAttr[LENGTH]);
     double peak        = Attributes::getReal(itsAttr[VOLT]);

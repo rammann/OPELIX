@@ -11,7 +11,6 @@ set (_SRCS
   OpalData.cpp
   OpalParticle.cpp
   Object.cpp
-  ObjectFunction.cpp
   ValueDefinition.cpp
   )
 
@@ -26,7 +25,6 @@ set (HDRS
     Element.h
     Expressions.h
     Invalidator.h
-    ObjectFunction.h
     Object.h
     OpalData.h
     OpalParticle.h

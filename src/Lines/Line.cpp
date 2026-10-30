@@ -1,7 +1,7 @@
 //
 // Class Line
 //   The LINE definition.
-//   A Line contains an OPALX TBeamline<FlaggedElmPtr> which represents the
+//   A Line contains an OPALX Beamline which represents the
 //   sequence of elements in the line.  The line is always flat in the sense
 //   that nested anonymous lines are flattened.
 //
@@ -96,7 +96,7 @@ Line::Line(const char* keyword, const char* help) : BeamSequence(SIZE, keyword, 
     itsAttr[PSI] =
             Attributes::makeReal("PSI", "The rotation about the z-axis of the particle source", 0);
 
-    setElement(new FlaggedBeamline(keyword));
+    setElement(new Beamline(keyword));
 
     registerOwnership(AttributeHandler::STATEMENT);
 }
@@ -104,7 +104,7 @@ Line::Line(const char* keyword, const char* help) : BeamSequence(SIZE, keyword, 
 Line::Line(const std::string& name, Line* parent)
     :  // Do not copy list members; they will be filled at parse time.
       BeamSequence(name, parent) {
-    setElement(new FlaggedBeamline(name));
+    setElement(new Beamline(name));
 }
 
 Line::~Line() {}
@@ -136,24 +136,27 @@ void Line::parseDefinition(Statement& stat, bool allowModifiers) {
     parseDelimiter(stat, '(');
 
     // Clear all reference counts.
-    OpalData::getInstance()->apply(OpalData::ClearReference());
+    // Reset the occurrence counters of all objects.
+    OpalData::getInstance()->apply([](Object* object) {
+        object->clear();
+    });
 
     // Parse the line list.
     parseList(stat, allowModifiers);
 
     // Insert the begin and end markers.
-    FlaggedBeamline* line = fetchLine();
-    auto markS            = Element::find("#S")->getElementPtr();
-    FlaggedElmPtr first(ElmPtr(markS), false);
+    Beamline* line = fetchLine();
+    auto markS     = Element::find("#S")->getElementPtr();
+    FlaggedElmPtr first(markS, false);
     line->push_front(first);
 
     auto markE = Element::find("#E")->getElementPtr();
-    FlaggedElmPtr last(ElmPtr(markE), false);
+    FlaggedElmPtr last(markE, false);
     line->push_back(last);
 
     // Construct expression for length, and fill in occurrence counters.
     PtrToScalar<double> expr;
-    for (FlaggedBeamline::iterator i = line->begin(); i != line->end(); ++i) {
+    for (Beamline::iterator i = line->begin(); i != line->end(); ++i) {
         auto actname = i->getElement()->getName();
         // Accumulate length.
         PtrToScalar<double> temp = new SRefExpr<double>(actname, "L");
@@ -217,8 +220,6 @@ void Line::parseDefinition(Statement& stat, bool allowModifiers) {
                                 + std::to_string(direction.size()) + " values provided");
             }
         }
-
-        line->setRelativeFlag(true);
     } else {
         const Vector_t<double, 3> origin(
                 Attributes::getReal(itsAttr[X]), Attributes::getReal(itsAttr[Y]),
@@ -234,20 +235,15 @@ void Line::parseDefinition(Statement& stat, bool allowModifiers) {
 
         line->setOrigin3D(origin);
         line->setInitialDirection(rotPsi * rotPhi * rotTheta);
-
-        line->setRelativeFlag(
-                !itsAttr[X].defaultUsed() || !itsAttr[Y].defaultUsed() || !itsAttr[Z].defaultUsed()
-                || !itsAttr[THETA].defaultUsed() || !itsAttr[PHI].defaultUsed()
-                || !itsAttr[PSI].defaultUsed());
     }
 }
 
 void Line::print(std::ostream& os) const {
     os << getOpalName() << ':' << getSequenceKeyword() << "=(";
-    const FlaggedBeamline* line = fetchLine();
-    bool seen                   = false;
+    const Beamline* line = fetchLine();
+    bool seen            = false;
 
-    for (FlaggedBeamline::const_iterator i = line->begin(); i != line->end(); ++i) {
+    for (Beamline::const_iterator i = line->begin(); i != line->end(); ++i) {
         const std::string name = i->getElement()->getName();
         if (name[0] != '#') {
             if (seen) os << ',';
@@ -262,12 +258,12 @@ void Line::print(std::ostream& os) const {
     os << std::endl;
 }
 
-FlaggedBeamline* Line::fetchLine() const { return dynamic_cast<FlaggedBeamline*>(getElement()); }
+Beamline* Line::fetchLine() const { return dynamic_cast<Beamline*>(getElement()); }
 
 const char* Line::getSequenceKeyword() const { return "LINE"; }
 
 void Line::parseList(Statement& stat, bool allowModifiers) {
-    FlaggedBeamline* line = fetchLine();
+    Beamline* line = fetchLine();
 
     do {
         // Reversed member ?
@@ -290,18 +286,18 @@ void Line::parseList(Statement& stat, bool allowModifiers) {
             // Anonymous sub-line is expanded immediately.
             Line nestedLine;
             nestedLine.parseList(stat, allowModifiers);
-            FlaggedBeamline* subLine = nestedLine.fetchLine();
+            Beamline* subLine = nestedLine.fetchLine();
 
             while (repeat-- > 0) {
                 if (rev) {
-                    for (FlaggedBeamline::reverse_iterator i = subLine->rbegin();
-                         i != subLine->rend(); ++i) {
+                    for (Beamline::reverse_iterator i = subLine->rbegin(); i != subLine->rend();
+                         ++i) {
                         FlaggedElmPtr fep(*i);
                         fep.setReflectionFlag(false);
                         line->push_back(fep);
                     }
                 } else {
-                    for (FlaggedBeamline::iterator i = subLine->begin(); i != subLine->end(); ++i) {
+                    for (Beamline::iterator i = subLine->begin(); i != subLine->end(); ++i) {
                         FlaggedElmPtr fep(*i);
                         line->push_back(fep);
                     }
@@ -330,7 +326,7 @@ void Line::parseList(Statement& stat, bool allowModifiers) {
                         "Line::parseList()", "A RING cannot be nested in a LINE or another RING.");
             } else if (Element* elem = dynamic_cast<Element*>(obj)) {
                 while (repeat-- > 0) {
-                    FlaggedElmPtr member(ElmPtr(elem->getElementPtr()), rev);
+                    FlaggedElmPtr member(elem->getElementPtr(), rev);
                     line->push_back(member);
                 }
 

@@ -26,8 +26,6 @@
 
 #include "Structure/FieldSolverCmd.h"
 
-#include "Utilities/BiMap.h"
-
 #include <memory>
 #include <string>
 #include <vector>
@@ -40,7 +38,7 @@ class EmissionSource;
 class GlobalProcess;
 class H5PartWrapper;
 class Inform;
-class Tracker;
+class ParallelTracker;
 
 namespace opalx::spacecharge {
     class SpaceChargeSolver;
@@ -67,17 +65,12 @@ public:
     Inform& print(Inform& os) const;
 
 private:
-    enum class RunMethod : unsigned short { NONE, PARALLEL };
-
     // Not implemented.
     TrackRun(const TrackRun&);
     void operator=(const TrackRun&);
 
     // Clone constructor.
     TrackRun(const std::string& name, TrackRun* parent);
-
-    void setRunMethod();
-    std::string getRunMethodName() const;
 
     void initDataSink(size_t numParticleContainers);
     std::vector<H5PartWrapper*> borrowedPhaseSpaceSinks() const;
@@ -116,7 +109,7 @@ private:
     // system, then the particle bunch. Algorithm destructors never observe dangling particles.
     std::unique_ptr<bunch_type> bunch_m;
     std::unique_ptr<opalx::spacecharge::SpaceChargeSolver> spaceChargeSolver_m;
-    std::unique_ptr<Tracker> itsTracker_m;
+    std::unique_ptr<ParallelTracker> itsTracker_m;
 
     /// Samplers for time-dependent (emitting) sources; tracker calls emitParticles(t, dt) on each.
     // std::vector<std::shared_ptr<SamplingBase>> emittingSamplers_m;
@@ -130,9 +123,6 @@ private:
     OpalData* opal_m;
 
     bool isFollowupTrack_m;
-
-    RunMethod method_m;
-    static const BiMap<RunMethod, std::string> stringMethod_s;
 };
 
 inline Inform& operator<<(Inform& os, const TrackRun& b) { return b.print(os); }

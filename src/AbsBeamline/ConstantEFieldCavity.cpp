@@ -5,7 +5,11 @@
 ConstantEFieldCavity::ConstantEFieldCavity() : ConstantEFieldCavity("") {}
 
 ConstantEFieldCavity::ConstantEFieldCavity(const ConstantEFieldCavity& right)
-    : ElementBase(right), Ex_m(right.Ex_m), Ey_m(right.Ey_m), Ez_m(right.Ez_m) {}
+    : ElementBase(right),
+      Ex_m(right.Ex_m),
+      Ey_m(right.Ey_m),
+      Ez_m(right.Ez_m),
+      geometry_m(right.geometry_m) {}
 
 ConstantEFieldCavity::ConstantEFieldCavity(const std::string& name)
     : ElementBase(name), Ex_m(0.0), Ey_m(0.0), Ez_m(0.0) {}
@@ -86,3 +90,9 @@ bool ConstantEFieldCavity::applyToReferenceParticle(
     E(2) += Ez_m;
     return false;
 }
+
+ElementBase* ConstantEFieldCavity::clone() const { return new ConstantEFieldCavity(*this); }
+
+Geometry& ConstantEFieldCavity::getGeometry() { return geometry_m; }
+
+const Geometry& ConstantEFieldCavity::getGeometry() const { return geometry_m; }

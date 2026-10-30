@@ -89,6 +89,18 @@ std::set<std::shared_ptr<ElementBase>> OpalBeamline::getElements(const Vector_t<
     return elementSet;
 }
 
+void OpalBeamline::visit(const ElementBase& element, BeamlineVisitor&, PartBunch_t& bunch) {
+    if (element.getType() == ElementType::MARKER) return;
+    std::shared_ptr<ElementBase> elptr(element.clone());
+
+    // Placement (both 6D-pose and ELEMEDGE) is resolved later, in one pass, by
+    // placeElementsAlongReferencePath() during prepareSections().
+    elptr->initialise(&bunch);
+    elements_m.push_back(elptr);
+    prepared_m                       = false;
+    referencePathPlacementCompiled_m = false;
+}
+
 std::set<std::shared_ptr<ElementBase>> OpalBeamline::getElements() {
     std::set<std::shared_ptr<ElementBase>> elementSet;
     for (auto& item : elements_m) {

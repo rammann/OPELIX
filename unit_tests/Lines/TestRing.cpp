@@ -4,10 +4,10 @@
 #include <sstream>
 #include <string>
 
-#include "BeamlineCore/DriftRep.h"
-#include "BeamlineCore/MarkerRep.h"
-#include "BeamlineCore/SBendRep.h"
-#include "Beamlines/FlaggedBeamline.h"
+#include "AbsBeamline/Drift.h"
+#include "AbsBeamline/Marker.h"
+#include "AbsBeamline/SBend.h"
+#include "Beamlines/Beamline.h"
 #include "Lines/Ring.h"
 #include "OpalParser/SimpleStatement.h"
 #include "OpalParser/Token.h"
@@ -26,7 +26,7 @@ namespace {
 
     class TestableRing : public Ring {
     public:
-        FlaggedBeamline* line() { return fetchLine(); }
+        Beamline* line() { return fetchLine(); }
     };
 }  // namespace
 
@@ -49,7 +49,7 @@ TEST_F(RingTest, ClonesAndPrintsRingDefinition) {
 }
 
 TEST(RingMembershipTest, DefaultsValidatesAndSurvivesClone) {
-    DriftRep drift("D");
+    Drift drift("D");
     EXPECT_EQ(drift.getBeamlineTopology(), BeamlineTopology::LINE);
     EXPECT_TRUE(drift.getBeamlineOwnerName().empty());
 
@@ -75,16 +75,16 @@ TEST(RingMembershipTest, DefaultsValidatesAndSurvivesClone) {
 }
 
 TEST(RingMembershipTest, ClonesAndTagsOccurrencesRecursively) {
-    auto prototype = std::make_shared<DriftRep>("D");
-    auto marker    = std::make_shared<MarkerRep>("#S");
-    auto nested    = std::make_shared<FlaggedBeamline>("SUBLINE");
-    nested->push_back(FlaggedElmPtr(ElmPtr(prototype)));
+    auto prototype = std::make_shared<Drift>("D");
+    auto marker    = std::make_shared<Marker>("#S");
+    auto nested    = std::make_shared<Beamline>("SUBLINE");
+    nested->push_back(FlaggedElmPtr(prototype));
 
     TestableRing ring;
-    ring.line()->push_back(FlaggedElmPtr(ElmPtr(marker)));
-    ring.line()->push_back(FlaggedElmPtr(ElmPtr(prototype)));
-    ring.line()->push_back(FlaggedElmPtr(ElmPtr(prototype)));
-    ring.line()->push_back(FlaggedElmPtr(ElmPtr(nested)));
+    ring.line()->push_back(FlaggedElmPtr(marker));
+    ring.line()->push_back(FlaggedElmPtr(prototype));
+    ring.line()->push_back(FlaggedElmPtr(prototype));
+    ring.line()->push_back(FlaggedElmPtr(nested));
     ring.prepareForTracking();
 
     auto member = ring.line()->begin();
@@ -100,7 +100,7 @@ TEST(RingMembershipTest, ClonesAndTagsOccurrencesRecursively) {
     EXPECT_EQ(second->getBeamlineOwnerName(), "RING");
     EXPECT_EQ(prototype->getBeamlineTopology(), BeamlineTopology::LINE);
 
-    auto* nestedOccurrence = dynamic_cast<FlaggedBeamline*>((++member)->getElement());
+    auto* nestedOccurrence = dynamic_cast<Beamline*>((++member)->getElement());
     ASSERT_NE(nestedOccurrence, nullptr);
     EXPECT_NE(nestedOccurrence, nested.get());
     EXPECT_EQ(nestedOccurrence->getBeamlineTopology(), BeamlineTopology::RING);
@@ -113,13 +113,13 @@ TEST(RingMembershipTest, ClonesAndTagsOccurrencesRecursively) {
 }
 
 TEST(RingMembershipTest, KeepsSharedPrototypeIndependentAcrossRings) {
-    auto prototype = std::make_shared<DriftRep>("SHARED");
+    auto prototype = std::make_shared<Drift>("SHARED");
     TestableRing first;
     TestableRing second;
     first.setOpalName("R1");
     second.setOpalName("R2");
-    first.line()->push_back(FlaggedElmPtr(ElmPtr(prototype)));
-    second.line()->push_back(FlaggedElmPtr(ElmPtr(prototype)));
+    first.line()->push_back(FlaggedElmPtr(prototype));
+    second.line()->push_back(FlaggedElmPtr(prototype));
 
     first.prepareForTracking();
     second.prepareForTracking();
@@ -136,17 +136,17 @@ TEST(RingMembershipTest, KeepsSharedPrototypeIndependentAcrossRings) {
 }
 
 TEST(RingMembershipTest, CircumferenceCountsNominalArcsAndDriftsNotFringeSupports) {
-    auto bend = std::make_shared<SBendRep>("B");
+    auto bend = std::make_shared<SBend>("B");
     bend->getGeometry().setElementLength(1.0);
     bend->getGeometry().setCurvature(0.5);
-    auto drift = std::make_shared<DriftRep>("D");
+    auto drift = std::make_shared<Drift>("D");
     drift->getGeometry().setElementLength(0.4);
-    auto nested = std::make_shared<FlaggedBeamline>("CELL");
-    nested->push_back(FlaggedElmPtr(ElmPtr(bend)));
-    nested->push_back(FlaggedElmPtr(ElmPtr(drift)));
+    auto nested = std::make_shared<Beamline>("CELL");
+    nested->push_back(FlaggedElmPtr(bend));
+    nested->push_back(FlaggedElmPtr(drift));
     TestableRing ring;
-    ring.line()->push_back(FlaggedElmPtr(ElmPtr(nested)));
-    ring.line()->push_back(FlaggedElmPtr(ElmPtr(nested)));
+    ring.line()->push_back(FlaggedElmPtr(nested));
+    ring.line()->push_back(FlaggedElmPtr(nested));
     for (const double gap : {0.0, 0.1, 0.2}) {
         bend->setFullGap(gap);
         bend->setFringeIntegral(0.1);

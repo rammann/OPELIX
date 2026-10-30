@@ -34,6 +34,10 @@ public:
     Multipole();
     Multipole(const Multipole&);
     virtual ~Multipole();
+
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
     /* ========================================================================== */
     /* =========================== Multipole Expansion ========================== */
 
@@ -173,6 +177,9 @@ private:
     /* =========================== Unused Variables ============================= */
     std::size_t nSlices_m;
     /* ========================================================================== */
+
+private:
+    Geometry geometry_m;
 };
 /* =========================== Inline Functions ============================= */
 // @note Inlined function bodies need to be in the header for libraries

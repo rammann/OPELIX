@@ -37,6 +37,10 @@ public:
     Solenoid();
     Solenoid(const Solenoid&);
     virtual ~Solenoid();
+
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
     /* ========================================================================== */
     /* ============================== Apply Functions =========================== */
     /**
@@ -87,9 +91,6 @@ public:
     /* ============================== Functions ================================= */
     /// @brief Apply visitor to Solenoid
     virtual void accept(BeamlineVisitor&) const override;
-
-    /// @brief Get solenoid field Bz
-    virtual double getBz() const = 0;
 
     /// @brief Set the strength scaling factor ks
     void setKS(double ks);
@@ -203,6 +204,9 @@ private:
 
     /// @note not implemente
     void operator=(const Solenoid&);
+
+private:
+    Geometry geometry_m;
 };
 
 /**

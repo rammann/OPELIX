@@ -19,6 +19,10 @@ public:
     ConstantFocusing(const ConstantFocusing& right);
     ~ConstantFocusing() override;
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     void accept(BeamlineVisitor& visitor) const override;
 
     void initialise(PartBunch_t* bunch) override;
@@ -49,6 +53,9 @@ protected:
 
 private:
     void operator=(const ConstantFocusing&);
+
+private:
+    Geometry geometry_m;
 };
 
 #endif  // OPALX_ConstantFocusing_HH

@@ -17,8 +17,8 @@
 // ------------------------------------------------------------------------
 
 #include "Elements/OpalMarker.h"
+#include "AbsBeamline/Marker.h"
 #include "AbstractObjects/OpalData.h"
-#include "BeamlineCore/MarkerRep.h"
 #include "Utilities/Options.h"
 
 #include <iostream>
@@ -28,7 +28,7 @@
 
 OpalMarker::OpalMarker()
     : OpalElement(COMMON, "MARKER", "The \"MARKER\" element defines a marker.") {
-    setElement(new MarkerRep("MARKER"));
+    setElement(new Marker("MARKER"));
 
     // Construct the begin marker for beam lines.
     OpalMarker* S = new OpalMarker("#S", this);
@@ -44,7 +44,7 @@ OpalMarker::OpalMarker()
 }
 
 OpalMarker::OpalMarker(const std::string& name, OpalMarker* parent) : OpalElement(name, parent) {
-    setElement(new MarkerRep(name));
+    setElement(new Marker(name));
 }
 
 OpalMarker::~OpalMarker() {}

@@ -18,9 +18,9 @@
 #include "Elements/OpalRBend.h"
 #include <cmath>
 #include <string>
+#include "AbsBeamline/RBend.h"
 #include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/RBendRep.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
 #include "Utilities/OpalException.h"
@@ -29,11 +29,11 @@ OpalRBend::OpalRBend()
     : OpalBend("RBEND", "The \"RBEND\" element defines a rectangular bending magnet.") {
     registerOwnership();
 
-    setElement(new RBendRep("RBEND"));
+    setElement(new RBend("RBEND"));
 }
 
 OpalRBend::OpalRBend(const std::string& name, OpalRBend* parent) : OpalBend(name, parent) {
-    setElement(new RBendRep(name));
+    setElement(new RBend(name));
 }
 
 OpalRBend::~OpalRBend() {}
@@ -47,7 +47,7 @@ void OpalRBend::update() {
     const bool hasProfile = !itsAttr[FMAPFN].defaultUsed();
     const bool hasE1      = !itsAttr[E1].defaultUsed();
     const bool hasE2      = !itsAttr[E2].defaultUsed();
-    RBendRep* bend        = dynamic_cast<RBendRep*>(getElement());
+    RBend* bend           = dynamic_cast<RBend*>(getElement());
     const double length   = Attributes::getReal(itsAttr[LENGTH]);
     double angle          = Attributes::getReal(itsAttr[ANGLE]);
     Geometry& geometry    = static_cast<Geometry&>(bend->getGeometry());

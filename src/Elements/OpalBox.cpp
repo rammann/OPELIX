@@ -16,9 +16,9 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Elements/OpalBox.h"
+#include "AbsBeamline/Box.h"
 #include "AbstractObjects/Attribute.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/BoxRep.h"
 #include "Utilities/OpalException.h"
 
 OpalBox::OpalBox()
@@ -30,11 +30,11 @@ OpalBox::OpalBox()
 
     registerOwnership();
 
-    setElement(new BoxRep("BOX"));
+    setElement(new Box("BOX"));
 }
 
 OpalBox::OpalBox(const std::string& name, OpalBox* parent) : OpalElement(name, parent) {
-    setElement(new BoxRep(name));
+    setElement(new Box(name));
 }
 
 OpalBox::~OpalBox() {}
@@ -68,7 +68,7 @@ void OpalBox::update() {
         }
     }
 
-    BoxRep* box = dynamic_cast<BoxRep*>(getElement());
+    Box* box = dynamic_cast<Box*>(getElement());
     box->getGeometry().setElementLength(length);
     box->setHalfSize(0.5 * width, 0.5 * height);
 }

@@ -36,6 +36,10 @@ public:
     /** @brief Destroy the laser element. */
     ~Laser() override;
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /** @brief Accept a beamline visitor through the laser-specific interface. */
     void accept(BeamlineVisitor&) const override;
 
@@ -150,6 +154,9 @@ private:
     double waistY_m;
     Vector_t<double, 3> direction_m;
     Vector_t<double, 3> stokes_m;
+
+private:
+    Geometry geometry_m;
 };
 
 inline int Laser::getRequiredNumberOfTimeSteps() const { return 1; }

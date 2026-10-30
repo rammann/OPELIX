@@ -1,6 +1,6 @@
 #include "Elements/OpalConstantEFieldCavity.h"
+#include "AbsBeamline/ConstantEFieldCavity.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/ConstantEFieldCavityRep.h"
 #include "Physics/Units.h"
 
 OpalConstantEFieldCavity::OpalConstantEFieldCavity()
@@ -14,13 +14,13 @@ OpalConstantEFieldCavity::OpalConstantEFieldCavity()
 
     registerOwnership();
 
-    setElement(new ConstantEFieldCavityRep("CONSTANTEFIELDCAVITY"));
+    setElement(new ConstantEFieldCavity("CONSTANTEFIELDCAVITY"));
 }
 
 OpalConstantEFieldCavity::OpalConstantEFieldCavity(
         const std::string& name, OpalConstantEFieldCavity* parent)
     : OpalElement(name, parent) {
-    setElement(new ConstantEFieldCavityRep(name));
+    setElement(new ConstantEFieldCavity(name));
 }
 
 OpalConstantEFieldCavity::~OpalConstantEFieldCavity() {}
@@ -32,7 +32,7 @@ OpalConstantEFieldCavity* OpalConstantEFieldCavity::clone(const std::string& nam
 void OpalConstantEFieldCavity::update() {
     OpalElement::update();
 
-    ConstantEFieldCavityRep* rep = dynamic_cast<ConstantEFieldCavityRep*>(getElement());
+    ConstantEFieldCavity* rep = dynamic_cast<ConstantEFieldCavity*>(getElement());
     if (rep) {
         double length = getLength();
         double exMV   = Attributes::getReal(itsAttr[EX]);

@@ -48,7 +48,6 @@
 #include "BasicActions/Option.h"
 
 #include "Beamlines/Beamline.h"
-#include "Beamlines/FlaggedBeamline.h"
 #include "Distribution/Distribution.h"
 #include "Physics/Units.h"
 
@@ -90,8 +89,8 @@ namespace {
 /**
  * @brief Construct tracker from a beamline only (see class constructor overload).
  */
-ParallelTracker::ParallelTracker(const Beamline& beamline, bool revBeam)
-    : Tracker(beamline, revBeam, false),
+ParallelTracker::ParallelTracker(const Beamline& beamline)
+    : Tracker(beamline),
       itsDataSink_m(),
       spaceChargeSolver_m(nullptr),
       dirichletPlane_m(),
@@ -117,13 +116,13 @@ ParallelTracker::ParallelTracker(const Beamline& beamline, bool revBeam)
 ParallelTracker::ParallelTracker(
         const Beamline& beamline, PartBunch_t& bunch,
         opalx::spacecharge::SpaceChargeSolver& spaceChargeSolver,
-        opalx::spacecharge::DirichletPlaneConfig dirichletPlane, DataSink* ds, bool revBeam,
+        opalx::spacecharge::DirichletPlaneConfig dirichletPlane, DataSink* ds,
         const std::vector<unsigned long long>& maxSteps, double sStart,
         const std::vector<double>& sStop, const std::vector<double>& dt,
         const std::vector<std::vector<std::shared_ptr<SamplingBase>>>& emittingSamplers,
         bool restarting, unsigned long long restartGlobalStep, double restartDt,
         StepSizeConfig::ResumePosition restartPosition, double ringPeriod)
-    : Tracker(beamline, bunch, revBeam, false),
+    : Tracker(beamline, bunch),
       itsDataSink_m(ds),
       spaceChargeSolver_m(&spaceChargeSolver),
       dirichletPlane_m(std::move(dirichletPlane)),
@@ -189,25 +188,9 @@ void ParallelTracker::visitLaser(const Laser&) {
 
 /**
  * @brief Iterate beamline elements and dispatch into OpalBeamline.
- * @param bl Flagged beamline whose elements are visited.
+ * @param bl Beamline whose elements are visited.
  */
-void ParallelTracker::visitBeamline(const Beamline& bl) {
-    const FlaggedBeamline* fbl = static_cast<const FlaggedBeamline*>(&bl);
-    /*
-    if (fbl->getRelativeFlag()) {
-        OpalBeamline stash(fbl->getOrigin3D(), fbl->getInitialDirection());
-        stash.swap(itsOpalBeamline_m);
-        fbl->iterate(*this, false);
-        itsOpalBeamline_m.prepareSections();
-        itsOpalBeamline_m.compute3DLattice();
-        stash.merge(itsOpalBeamline_m);
-        stash.swap(itsOpalBeamline_m);
-    } else {
-        fbl->iterate(*this, false);
-    }
-    */
-    fbl->iterate(*this, false);
-}
+void ParallelTracker::visitBeamline(const Beamline& bl) { bl.iterate(*this, false); }
 
 // --- execute() ---
 
@@ -1939,14 +1922,14 @@ void ParallelTracker::evolveSpinHalfStep(PartBunch_t::ParticleContainer_t& pc) {
  * @copybrief ParallelTracker::prepareSections
  */
 void ParallelTracker::prepareSections() {
-    // Calls ParallelTracker::visitBeamline() -> TBeamline::iterate() ->
+    // Calls ParallelTracker::visitBeamline() -> Beamline::iterate() ->
     // For each element:
     // FlaggedElemPtr::accept() -> DefaultVisitor::visitFlaggedElmPtr() ->
     // ElementBase::accept() -> ParallelTracker::visit[ElemName]() ->
     // OpalBeamline::visit([ElemName], bunch):
     // This initialises the ElementList elements_m object of OpalBeamline
     // with clones of all the elements
-    itsBeamline_m.accept(*this);
+    itsLine.accept(*this);
 
     // Sorts the elements in OpalBeamline::elements_m by starting position
     itsOpalBeamline_m.prepareSections();

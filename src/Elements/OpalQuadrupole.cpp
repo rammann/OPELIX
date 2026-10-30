@@ -4,7 +4,7 @@
 //
 //   A convenience wrapper around MULTIPOLE that accepts a single
 //   quadrupole strength K1 instead of the full KN vector.
-//   Internally the element is represented as a MultipoleRep with
+//   Internally the element is represented as a Multipole with
 //   KN = {0, K1}.
 //
 // Copyright (c) 2024 – 2026, Paul Scherrer Institut, Villigen PSI, Switzerland
@@ -21,9 +21,9 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "Elements/OpalQuadrupole.h"
+#include "AbsBeamline/Multipole.h"
 #include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/MultipoleRep.h"
 #include "Physics/Physics.h"
 
 OpalQuadrupole::OpalQuadrupole()
@@ -44,12 +44,12 @@ OpalQuadrupole::OpalQuadrupole()
 
     registerOwnership();
 
-    setElement(new MultipoleRep("QUADRUPOLE"));
+    setElement(new Multipole("QUADRUPOLE"));
 }
 
 OpalQuadrupole::OpalQuadrupole(const std::string& name, OpalQuadrupole* parent)
     : OpalElement(name, parent) {
-    setElement(new MultipoleRep(name));
+    setElement(new Multipole(name));
 }
 
 OpalQuadrupole::~OpalQuadrupole() {}
@@ -61,8 +61,8 @@ OpalQuadrupole* OpalQuadrupole::clone(const std::string& name) {
 void OpalQuadrupole::update() {
     OpalElement::update();
 
-    MultipoleRep* mult = dynamic_cast<MultipoleRep*>(getElement());
-    double length      = getLength();
+    Multipole* mult = dynamic_cast<Multipole*>(getElement());
+    double length   = getLength();
     mult->getGeometry().setElementLength(length);
 
     // The KN vector convention is: index 0 = dipole, index 1 = quadrupole, ...

@@ -23,7 +23,10 @@
 Box::Box() : Box("") {}
 
 Box::Box(const Box& right)
-    : ElementBase(right), halfWidth_m(right.halfWidth_m), halfHeight_m(right.halfHeight_m) {}
+    : ElementBase(right),
+      halfWidth_m(right.halfWidth_m),
+      halfHeight_m(right.halfHeight_m),
+      geometry_m(right.geometry_m) {}
 
 Box::Box(const std::string& name) : ElementBase(name), halfWidth_m(0.0), halfHeight_m(0.0) {}
 
@@ -79,3 +82,9 @@ size_t Box::markOutsideAperture(const std::shared_ptr<ParticleContainer_t>& pc) 
 
     return localMarked;
 }
+
+ElementBase* Box::clone() const { return new Box(*this); }
+
+Geometry& Box::getGeometry() { return geometry_m; }
+
+const Geometry& Box::getGeometry() const { return geometry_m; }

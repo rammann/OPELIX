@@ -58,6 +58,10 @@ public:
     FieldmapElement(const FieldmapElement&);
     virtual ~FieldmapElement();
 
+    ElementBase* clone() const override;
+    Geometry& getGeometry() override;
+    const Geometry& getGeometry() const override;
+
     /* ============================== Apply functions =========================== */
     /**
      * @brief Add the map's field to every particle in the bunch.
@@ -223,6 +227,9 @@ private:
 
     /// Half-width of the map's box in y [m], valid only when hasTransverseExtent_m.
     double halfWidthY_m;
+
+private:
+    Geometry geometry_m;
 };
 
 #endif  // OPALX_FieldmapElement_HH

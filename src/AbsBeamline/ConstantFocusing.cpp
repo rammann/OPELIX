@@ -19,7 +19,8 @@ ConstantFocusing::ConstantFocusing(const ConstantFocusing& right)
       strength_m(right.strength_m),
       radius_m(right.radius_m),
       gradient_m(right.gradient_m),
-      gradientInitialized_m(right.gradientInitialized_m) {}
+      gradientInitialized_m(right.gradientInitialized_m),
+      geometry_m(right.geometry_m) {}
 
 ConstantFocusing::ConstantFocusing(const std::string& name)
     : ElementBase(name),
@@ -129,3 +130,9 @@ bool ConstantFocusing::applyToReferenceParticle(
         Vector_t<double, 3>& /*E*/, Vector_t<double, 3>& /*B*/) {
     return false;
 }
+
+ElementBase* ConstantFocusing::clone() const { return new ConstantFocusing(*this); }
+
+Geometry& ConstantFocusing::getGeometry() { return geometry_m; }
+
+const Geometry& ConstantFocusing::getGeometry() const { return geometry_m; }

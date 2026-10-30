@@ -15,8 +15,8 @@
 
 #include "Elements/OpalMultipoleT.h"
 #include <vector>
+#include "AbsBeamline/MultipoleT.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/MultipoleTRep.h"
 
 OpalMultipoleT::OpalMultipoleT()
     : OpalElement(
@@ -107,7 +107,7 @@ void OpalMultipoleT::update() {
                 "A curved magnet (non-zero ANGLE) needs a non-zero L: the curvature is "
                 "ANGLE / L, with L the arc length");
     }
-    auto* multT = dynamic_cast<MultipoleTRep*>(getElement());
+    auto* multT = dynamic_cast<MultipoleT*>(getElement());
     multT->setElementLength(length);
     multT->setBendAngle(bendAngle, varRadius);
     multT->setAperture(Attributes::getReal(itsAttr[VAPERT]), Attributes::getReal(itsAttr[HAPERT]));

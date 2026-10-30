@@ -4,7 +4,7 @@
 //
 //   A convenience wrapper around MULTIPOLE that accepts a single
 //   quadrupole strength K1 instead of the full KN vector.
-//   Internally the element is represented as a MultipoleRep with
+//   Internally the element is represented as a Multipole with
 //   KN = {0, K1}.
 //
 // Copyright (c) 2024 – 2026, Paul Scherrer Institut, Villigen PSI, Switzerland

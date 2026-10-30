@@ -2,7 +2,7 @@
  * \file TestConstantEFieldCavity.cpp
  * \brief Unit tests for ConstantEFieldCavity component (base layer).
  *
- * Tests the ConstantEFieldCavity API and apply logic via ConstantEFieldCavityRep (concrete type).
+ * Tests the ConstantEFieldCavity API and apply logic via ConstantEFieldCavity (concrete type).
  * Covers: getType, getEx/Ey/Ez and setters, getFieldExtent,
  * apply(R,P,t,E,B) for various z-positions, full-vector application,
  * and applyToReferenceParticle (inside/outside).
@@ -10,8 +10,8 @@
 
 #include <gtest/gtest.h>
 
+#include "AbsBeamline/ConstantEFieldCavity.h"
 #include "AbsBeamline/ElementBase.h"
-#include "BeamlineCore/ConstantEFieldCavityRep.h"
 
 #include <cmath>
 #include <memory>
@@ -21,12 +21,12 @@ namespace {
     class ConstantEFieldCavityTest : public ::testing::Test {
     protected:
         void SetUp() override {
-            rep_ = std::make_unique<ConstantEFieldCavityRep>("TestConstantEFieldCavity");
+            rep_ = std::make_unique<ConstantEFieldCavity>("TestConstantEFieldCavity");
             rep_->getGeometry().setElementLength(1.0);
             rep_->setEz(10.0);
         }
 
-        std::unique_ptr<ConstantEFieldCavityRep> rep_;
+        std::unique_ptr<ConstantEFieldCavity> rep_;
     };
 
     // ---------------------------------------------------------------------------

@@ -1,11 +1,11 @@
+#include "AbsBeamline/Laser.h"
+#include "AbsBeamline/RBend.h"
+#include "AbsBeamline/SBend.h"
 #include "Algorithms/DefaultVisitor.h"
 #include "Algorithms/ParallelTracker.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineCore/LaserRep.h"
-#include "BeamlineCore/RBendRep.h"
-#include "BeamlineCore/SBendRep.h"
+#include "Beamlines/Beamline.h"
 #include "Beamlines/FlaggedElmPtr.h"
-#include "Beamlines/TBeamline.h"
 #include "Elements/OpalLaser.h"
 #include "Physics/Physics.h"
 #include "Utilities/LogicalError.h"
@@ -27,8 +27,7 @@ namespace {
 
     class DispatchRecordingVisitor : public DefaultVisitor {
     public:
-        explicit DispatchRecordingVisitor(const Beamline& beamline)
-            : DefaultVisitor(beamline, false, false) {}
+        explicit DispatchRecordingVisitor(const Beamline& beamline) : DefaultVisitor(beamline) {}
 
         void visitElementBase(const ElementBase&) override { sawElementBase = true; }
         void visitLaser(const Laser&) override { sawLaser = true; }
@@ -50,7 +49,7 @@ TEST(TestLaser, UpdateStoresValidatedParameters) {
 
     EXPECT_NO_THROW(laser.update());
 
-    auto* rep = dynamic_cast<LaserRep*>(laser.getElement());
+    auto* rep = dynamic_cast<Laser*>(laser.getElement());
     ASSERT_NE(rep, nullptr);
     EXPECT_DOUBLE_EQ(rep->getGeometry().getElementLength(), 0.01);
     EXPECT_DOUBLE_EQ(rep->getWavelength(), 1.03e-6);
@@ -70,7 +69,7 @@ TEST(TestLaser, UpdateDefaultsStokesToZero) {
 
     EXPECT_NO_THROW(laser.update());
 
-    auto* rep = dynamic_cast<LaserRep*>(laser.getElement());
+    auto* rep = dynamic_cast<Laser*>(laser.getElement());
     ASSERT_NE(rep, nullptr);
     EXPECT_DOUBLE_EQ(rep->getStokes()(0), 0.0);
     EXPECT_DOUBLE_EQ(rep->getStokes()(1), 0.0);
@@ -171,7 +170,7 @@ TEST(TestLaser, LinearComptonForwardPhotonEnergyMatchesExactNinetyDegreeKinemati
 
     ASSERT_NO_THROW(laser.update());
 
-    auto* rep = dynamic_cast<LaserRep*>(laser.getElement());
+    auto* rep = dynamic_cast<Laser*>(laser.getElement());
     ASSERT_NE(rep, nullptr);
 
     Vector_t<double, 3> beamDirection(0.0);
@@ -198,11 +197,11 @@ TEST(TestLaser, LinearComptonForwardPhotonEnergyMatchesExactNinetyDegreeKinemati
 }
 
 TEST(TestLaser, BeamlineVisitorDispatchesLaserAndBendsToSpecificHooks) {
-    TBeamline<FlaggedElmPtr> beamline("LINE");
+    Beamline beamline("LINE");
 
     {
         DispatchRecordingVisitor visitor(beamline);
-        LaserRep laser("LASER");
+        Laser laser("LASER");
         laser.accept(visitor);
         EXPECT_TRUE(visitor.sawLaser);
         EXPECT_FALSE(visitor.sawSBend);
@@ -212,7 +211,7 @@ TEST(TestLaser, BeamlineVisitorDispatchesLaserAndBendsToSpecificHooks) {
 
     {
         DispatchRecordingVisitor visitor(beamline);
-        SBendRep sbend("SBEND");
+        SBend sbend("SBEND");
         sbend.accept(visitor);
         EXPECT_FALSE(visitor.sawLaser);
         EXPECT_TRUE(visitor.sawSBend);
@@ -222,7 +221,7 @@ TEST(TestLaser, BeamlineVisitorDispatchesLaserAndBendsToSpecificHooks) {
 
     {
         DispatchRecordingVisitor visitor(beamline);
-        RBendRep rbend("RBEND");
+        RBend rbend("RBEND");
         rbend.accept(visitor);
         EXPECT_FALSE(visitor.sawLaser);
         EXPECT_FALSE(visitor.sawSBend);

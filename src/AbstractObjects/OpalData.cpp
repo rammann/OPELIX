@@ -25,7 +25,6 @@
 #include "AbstractObjects/Directory.h"
 #include "AbstractObjects/Expressions.h"
 #include "AbstractObjects/Object.h"
-#include "AbstractObjects/ObjectFunction.h"
 #include "AbstractObjects/ValueDefinition.h"
 #include "Attributes/Attributes.h"
 #include "OpalParser/FileStream.h"
@@ -43,8 +42,6 @@
 #include <iostream>
 #include <list>
 #include <set>
-
-void OpalData::ClearReference::operator()(Object* object) const { object->clear(); }
 
 // Struct OpalDataImpl.
 // ------------------------------------------------------------------------
@@ -283,7 +280,7 @@ void OpalData::setGlobalGeometry(BoundaryGeometry* bg) { p->bg_m = bg; }
 
 bool OpalData::hasGlobalGeometry() { return p->bg_m != nullptr; }
 
-void OpalData::apply(const ObjectFunction& fun) {
+void OpalData::apply(const std::function<void(Object*)>& fun) {
     for (ObjectDir::iterator i = p->mainDirectory.begin(); i != p->mainDirectory.end(); ++i) {
         fun(&*i->second);
     }

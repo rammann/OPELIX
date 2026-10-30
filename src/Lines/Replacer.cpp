@@ -29,7 +29,7 @@ class Element;
 // ------------------------------------------------------------------------
 
 Replacer::Replacer(const Beamline& beamline, const std::string& name, ElementBase* elm)
-    : DefaultVisitor(beamline, false, false), itsName(name), newBase(elm) {}
+    : DefaultVisitor(beamline), itsName(name), newBase(elm) {}
 
 Replacer::~Replacer() {}
 

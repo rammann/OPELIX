@@ -1,6 +1,9 @@
 #include "gtest/gtest.h"
 
 #include "AbsBeamline/CyclotronSector.h"
+#include "AbsBeamline/Drift.h"
+#include "AbsBeamline/Multipole.h"
+#include "AbsBeamline/SBend.h"
 #include "AbstractObjects/OpalData.h"
 #include "Algorithms/ClosedOrbitSolver.h"
 #include "Algorithms/DefaultVisitor.h"
@@ -11,9 +14,6 @@
 #include "Algorithms/PartData.h"
 #include "Algorithms/SpectralTunes.h"
 #include "BasicActions/Option.h"
-#include "BeamlineCore/DriftRep.h"
-#include "BeamlineCore/MultipoleRep.h"
-#include "BeamlineCore/SBendRep.h"
 #include "BeamlineGeometry/Geometry.h"
 #include "Beamlines/Beamline.h"
 #include "Elements/OpalBeamline.h"
@@ -115,9 +115,9 @@ namespace {
     }
 
     // Vary only the numerical cutoff of the native field, never its body, gap or FINT.
-    class CutoffSBend final : public SBendRep {
+    class CutoffSBend final : public SBend {
     public:
-        explicit CutoffSBend(double cutoff) : SBendRep("B_CUTOFF"), cutoff_m(cutoff) {}
+        explicit CutoffSBend(double cutoff) : SBend("B_CUTOFF"), cutoff_m(cutoff) {}
         ElementBase* clone() const override { return new CutoffSBend(*this); }
         void getFieldExtent(double& begin, double& end) const override {
             begin = -cutoff_m;
@@ -144,8 +144,6 @@ namespace {
         Geometry& getGeometry() override { return geometry_; }
         const Geometry& getGeometry() const override { return geometry_; }
         void accept(BeamlineVisitor& visitor) const override { visitor.visitBeamline(*this); }
-        ElementBase* clone() const override { return new DummyBeamline(*this); }
-        void iterate(BeamlineVisitor&, bool) const override {}
 
     private:
         Geometry geometry_{Geometry::makeNull()};
@@ -320,10 +318,10 @@ protected:
         return bunch;
     }
 
-    std::shared_ptr<MultipoleRep> makePlacedQuadrupole(
+    std::shared_ptr<Multipole> makePlacedQuadrupole(
             const std::string& name, const double length, const double entryPosition,
             const double normalComponent) {
-        auto quadrupole = std::make_shared<MultipoleRep>(name);
+        auto quadrupole = std::make_shared<Multipole>(name);
         quadrupole->getGeometry().setElementLength(length);
         quadrupole->setNormalComponent(1, normalComponent);
         quadrupole->setCSTrafoGlobal2Local(
@@ -460,7 +458,7 @@ TEST_F(OrbitThreaderTest, Cyclotron72ClosedOrbitBenchmark) {
     ASSERT_EQ(ranks, 1) << "Machine studies run on one rank.";
     auto bunch = makeBunch(0);
     DummyBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    DefaultVisitor visitor(line);
     OpalBeamline beamline;
     const auto field          = CyclotronSectorFieldMap::read(filename);
     const double designRadius = field->rmin + 0.5 * (field->nr - 1) * field->dr;
@@ -824,7 +822,7 @@ TEST_F(OrbitThreaderTest, RayTrackerMagneticPathUsesSpeedNotChordAndReverses) {
 TEST_F(OrbitThreaderTest, PathStopIsTrackedUnderAccelerationAndReverseTime) {
     auto bunch = makeBunch(0);
     DummyBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    DefaultVisitor visitor(line);
     OpalBeamline beamline;
     FieldSupportOnlyComponent field("PATH_E", -1.0, 1.0, 1.e10);
     field.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector_t<double, 3>(0.0), Quaternion()));
@@ -927,7 +925,7 @@ TEST_F(OrbitThreaderTest, BishopFrameRemainsOrthonormalThroughBendAndReversal) {
 TEST_F(OrbitThreaderTest, RayTrackerResolvesThinSupportForEachMomentumAndReverseTime) {
     auto bunch = makeBunch(0);
     DummyBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    DefaultVisitor visitor(line);
     OpalBeamline beamline;
     // Both the entrance and exit are beyond the nominal drift midpoint. The body
     // has zero length: only field support can prevent this region being skipped.
@@ -1000,7 +998,7 @@ TEST_F(OrbitThreaderTest, MembershipReusePreservesUncachedSubstepsExactly) {
     using namespace orbit_threader_diagnostics;
     auto bunch = makeBunch(0);
     DummyBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    DefaultVisitor visitor(line);
     OpalBeamline beamline;
     FieldSupportOnlyComponent electric("E", 0.003, 0.0034, 1.0e8);
     FieldSupportOnlyComponent magnetic("B", 0.0032, 0.004, 0.0, 0.02);
@@ -1070,7 +1068,7 @@ TEST_F(OrbitThreaderTest, MembershipReusePreservesUncachedSubstepsExactly) {
 TEST_F(OrbitThreaderTest, RayTrackerSumsOverlappingSupportsAcrossBoundaries) {
     auto bunch = makeBunch(0);
     DummyBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    DefaultVisitor visitor(line);
     OpalBeamline beamline;
     FieldSupportOnlyComponent first("E1", 0.001, 0.003, 1.0e8);
     FieldSupportOnlyComponent second("E2", 0.002, 0.0035, -2.0e7);
@@ -1233,7 +1231,7 @@ TEST_F(OrbitThreaderTest, RungeKuttaMapsPreserveDriftAndCompensatedClock) {
 TEST_F(OrbitThreaderTest, MapIntegratorOptionDoesNotAffectDisabledMapsOrSecondaryThreading) {
     auto bunch = makeBunch(0);
     DummyBeamline line;
-    DefaultVisitor visitor(line, false, false);
+    DefaultVisitor visitor(line);
     OpalBeamline beamline;
     FieldSupportOnlyComponent field("ISOLATION_E", 0.0, .1, 1.e8);
     field.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector_t<double, 3>(0.0), Quaternion()));
@@ -1273,7 +1271,7 @@ TEST_F(OrbitThreaderTest, ExecutesOverlapAndRecordsBothElements) {
     auto bunch                                 = makeBunch(0);
 
     DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor, false, false);
+    DefaultVisitor visitor(beamlineForVisitor);
 
     OpalBeamline beamline;
     auto longQuadrupole  = makePlacedQuadrupole("Q_LONG", 0.5, 0.0, 0.5);
@@ -1350,7 +1348,7 @@ TEST_F(OrbitThreaderTest, RingReturnLengthIsMeasuredNotTakenFromDesignCircumfere
     auto bunch                                 = makeBunch(0);
 
     DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor, false, false);
+    DefaultVisitor visitor(beamlineForVisitor);
 
     OpalBeamline beamline;
     PartData reference(1.0, 9.382720813e8, 1.0e6);
@@ -1404,12 +1402,12 @@ TEST_F(OrbitThreaderTest, RingWithoutReturnFailsInsteadOfUsingCircumferenceAsOrb
 TEST_F(OrbitThreaderTest, NominalDriftMapIncludesNeighbourFieldWithoutOwningItsSupport) {
     auto bunch = makeBunch(0);
     DummyBeamline lattice;
-    DefaultVisitor visitor(lattice, false, false);
+    DefaultVisitor visitor(lattice);
     OpalBeamline beamline;
     // A source body ends at 0.1 m; its field extends through the drift to 0.3 m.
     FieldSupportOnlyComponent source("FRINGE", 0.0, 0.3, 1.e7);
     source.getGeometry() = Geometry::makeStraight(0.1);
-    DriftRep drift("D_FRINGE");
+    Drift drift("D_FRINGE");
     drift.getGeometry().setElementLength(0.2);
     drift.setCSTrafoGlobal2Local(
             CoordinateSystemTrafo(Vector_t<double, 3>(0, 0, 0.1), Quaternion()));
@@ -1453,7 +1451,7 @@ TEST_F(OrbitThreaderTest, NominalDriftMapIncludesNeighbourFieldWithoutOwningItsS
 TEST_F(OrbitThreaderTest, NativeFringeCutoffConvergesAtFixedNominalGeometry) {
     auto bunch = makeBunch(0);
     DummyBeamline lattice;
-    DefaultVisitor visitor(lattice, false, false);
+    DefaultVisitor visitor(lattice);
     PartData reference(1.0, 9.382720813e8, 1.0e6);
     Options::enableLinearTransferMaps          = true;
     Options::linearTransferMapIntegrator       = "DOP853";
@@ -1469,7 +1467,7 @@ TEST_F(OrbitThreaderTest, NativeFringeCutoffConvergesAtFixedNominalGeometry) {
         bend.setFieldComponents({reference.getM() / (2.0 * Physics::c)}, {});
         bend.setCSTrafoGlobal2Local(
                 CoordinateSystemTrafo(Vector_t<double, 3>(0, 0, 0.2), Quaternion()));
-        DriftRep before("D_BEFORE"), after("D_AFTER");
+        Drift before("D_BEFORE"), after("D_AFTER");
         before.getGeometry().setElementLength(0.2);
         after.getGeometry().setElementLength(0.2);
         after.setCSTrafoGlobal2Local(
@@ -1523,7 +1521,7 @@ TEST_F(OrbitThreaderTest, UsesFieldSupportExtentForLengthCheck) {
     auto bunch = makeBunch(0);
 
     DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor, false, false);
+    DefaultVisitor visitor(beamlineForVisitor);
 
     OpalBeamline beamline;
     auto component = makePlacedFieldSupportOnlyComponent("TW_LIKE", 0.0, 0.1);
@@ -1546,10 +1544,10 @@ TEST_F(OrbitThreaderTest, CalculatesAndAttachesLinearDriftMap) {
     auto bunch = makeBunch(0);
 
     DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor, false, false);
+    DefaultVisitor visitor(beamlineForVisitor);
 
     OpalBeamline beamline;
-    DriftRep drift("D_MAP");
+    Drift drift("D_MAP");
     constexpr double length = 0.3;
     drift.getGeometry().setElementLength(length);
     drift.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector_t<double, 3>(0.0), Quaternion()));
