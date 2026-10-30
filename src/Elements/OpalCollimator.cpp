@@ -71,7 +71,4 @@ void OpalCollimator::update() {
 
     CollimatorRep* coll = dynamic_cast<CollimatorRep*>(getElement());
     coll->getGeometry().setElementLength(length);
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(coll);
 }

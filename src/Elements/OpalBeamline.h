@@ -103,11 +103,6 @@ public:
 
     void switchElementsOff();
 
-    BoundaryGeometry* getBoundaryGeometry(const unsigned int&);
-
-    unsigned long getFieldAt(
-            const unsigned int&, const Vector_t<double, 3>&, const long&, const double&,
-            Vector_t<double, 3>&, Vector_t<double, 3>&);
     unsigned long getFieldAt(
             const Vector_t<double, 3>&, const Vector_t<double, 3>&, const double&,
             Vector_t<double, 3>&, Vector_t<double, 3>&);
@@ -119,10 +114,6 @@ public:
     void compute3DLattice();
     void save3DLattice();
     void save3DInput();
-    void print(Inform&) const;
-    void apply(
-            const Vector_t<double, 3>& R, const Vector_t<double, 3>& /*P*/, const double& t,
-            Vector_t<double, 3>& E, Vector_t<double, 3>& B);
 
     ElementList getElementByType(ElementType);
 

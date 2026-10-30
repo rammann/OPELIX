@@ -113,7 +113,4 @@ void OpalFieldmapElement::update() {
     fm->setBScale(Attributes::getReal(itsAttr[BSCALE]));
     fm->setEScale(Attributes::getReal(itsAttr[ESCALE]));
     fm->setIsZReversed(Attributes::getBool(itsAttr[ZREVERSE]));
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(fm);
 }

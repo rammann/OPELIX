@@ -88,8 +88,6 @@ bool Token::isDel() const { return (type == IS_DELIMITER); }
 
 bool Token::isEOF() const { return (type == IS_EOF); }
 
-bool Token::isError() const { return (type == IS_ERROR); }
-
 bool Token::isInteger() const { return (type == IS_INTEGER); }
 
 bool Token::isReal() const { return (type == IS_REAL); }

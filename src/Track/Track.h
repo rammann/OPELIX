@@ -27,7 +27,6 @@
 #include "Track/TrackCmd.h"
 #include "Track/TrackParser.h"
 
-#include <stack>
 #include <string>
 #include <vector>
 
@@ -38,13 +37,10 @@ class Track {
 public:
     Track(BeamSequence*, const PartData&, const std::vector<double>& dt,
           const std::vector<unsigned long long>& maxtsteps, int stepsperturn, double zStart,
-          const std::vector<double>& zStop, Steppers::TimeIntegrator timeintegrator, double t0,
+          const std::vector<double>& zStop, Steppers::TimeIntegrator timeintegrator,
           double dtScInit, double deltaTau, EmissionSourceList* emissionSourcesList = nullptr,
           const std::vector<std::string>& beamNames = {});
     ~Track();
-
-    /// The particle bunch to be tracked.
-    PartBunch_t* bunch;
 
     /// The reference data.
     PartData reference;
@@ -67,9 +63,6 @@ public:
     // For AMTS integrator in OPAL-T
     double dtScInit, deltaTau;
 
-    /// The ellapsed time of the beam can be used to propper
-    /// start the beam when created in a cavity i.e. without emission
-    double t0_m;
     /** Optional kinetic-energy stop [GeV]; zero disables it (SINGLEGAP RING only).
      * Explicit input must be positive and finite. RUN transfers it to the tracker
      * in eV; it is incompatible with explicit TURNS, restart or multiple DT segments.
@@ -105,8 +98,6 @@ private:
     Track();
     Track(const Track&);
     void operator=(const Track&);
-
-    static std::stack<Track*> stashedTrack;
 };
 
 #endif  // OPAL_Track_HH

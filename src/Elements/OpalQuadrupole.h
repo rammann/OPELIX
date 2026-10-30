@@ -44,9 +44,6 @@ public:
     /// Make clone.
     virtual OpalQuadrupole* clone(const std::string& name);
 
-    /// Print the object.
-    virtual void print(std::ostream&) const;
-
     /// Update the embedded OPALX multipole.
     virtual void update();
 

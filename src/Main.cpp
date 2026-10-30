@@ -25,6 +25,7 @@ extern "C" {
 #include "H5hut.h"
 }
 
+#include "AbstractObjects/Object.h"
 #include "AbstractObjects/OpalData.h"
 #include "Fields/Fieldmap.h"
 #include "OpalConfigure/Configure.h"
@@ -34,7 +35,6 @@ extern "C" {
 #include "Utilities/Timer.h"
 
 #include "AbsBeamline/EndFieldModel/EndFieldModelManager.h"
-#include "BasicActions/Option.h"
 #include "Utilities/OpalException.h"
 #include "Utilities/Options.h"
 #include "Utilities/Util.h"
@@ -61,7 +61,6 @@ extern "C" {
 #include <omp.h>
 #endif
 
-#include <cstring>
 #include <iomanip>
 #include <iostream>
 #include <set>
@@ -171,7 +170,6 @@ namespace OPALXMAIN {
         *ippl::Info << "   --git-revision           : Print the revision hash of the repository.\n";
         *ippl::Info << "   --input <fname>          : Specifies the input file <fname>.\n";
         *ippl::Info << "   --restart [<fname>]      : Restart from checkpoint file <fname>.\n";
-        //*ippl::printHelp();
         *ippl::Info << "   --help-command <command> : Display the help for the command <command>\n";
         *ippl::Info << "   --help                   : Display this command-line summary.\n";
         *ippl::Info << endl;
@@ -488,7 +486,6 @@ int main(int argc, char* argv[]) {
         } catch (OpalException& ex) {
             Inform errorMsg("Error", std::cerr, INFORM_ALL_NODES);
             errorMsg << "\n*** User error detected by function \"" << ex.where() << "\"\n";
-            // stat->printWhere(errorMsg, true);
             std::string what = ex.what();
             size_t pos       = what.find_first_of('\n');
             do {
@@ -557,22 +554,15 @@ int main(int argc, char* argv[]) {
             MPI_Abort(MPI_COMM_WORLD, -100);
         }
 
-        // print dictionary
-        //        opal->printAllNames(std::cout);
-
         IpplTimings::stopTimer(mainTimer);
 
         IpplTimings::print();
 
-        if (!opal->hasCofRun || opal->hasTrackingRun)
-            IpplTimings::print(
-                    std::string("timing.dat"),
-                    OpalData::getInstance()->getProblemCharacteristicValues());
+        if (!opal->hasCofRun || opal->hasTrackingRun) IpplTimings::print(std::string("timing.dat"));
 
         ippl::Comm->barrier();
         Fieldmap::clearDictionary();
         endfieldmodel::EndFieldModelManager::clearEFMManager();
-        // \todo we should not need this OpalData::deleteInstance();
 
         delete gmsg;
         ippl::finalize();

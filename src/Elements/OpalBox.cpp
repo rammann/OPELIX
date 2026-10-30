@@ -71,7 +71,4 @@ void OpalBox::update() {
     BoxRep* box = dynamic_cast<BoxRep*>(getElement());
     box->getGeometry().setElementLength(length);
     box->setHalfSize(0.5 * width, 0.5 * height);
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(box);
 }

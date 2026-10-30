@@ -75,7 +75,6 @@ void OpalLaser::update() {
 
     auto* laser = dynamic_cast<LaserRep*>(getElement());
     if (!laser) {
-        OpalElement::updateUnknown(getElement());
         return;
     }
 
@@ -101,7 +100,6 @@ void OpalLaser::update() {
     const bool anyConfigured = itsAttr[WAVELENGTH] || itsAttr[PULSEENERGY] || itsAttr[PULSELENGTH]
                                || itsAttr[WAISTX] || itsAttr[WAISTY] || itsAttr[DIR];
     if (!anyConfigured) {
-        OpalElement::updateUnknown(laser);
         return;
     }
 
@@ -140,6 +138,4 @@ void OpalLaser::update() {
     laser->setWaistY(waistY);
     laser->setDirection(direction);
     laser->setStokes(stokes);
-
-    OpalElement::updateUnknown(laser);
 }

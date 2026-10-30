@@ -55,8 +55,6 @@ public:
     /** Update the MultipoleT with new parameters from UI parser */
     void update() override;
 
-    void print(std::ostream& os) const override;
-
     // Not implemented.
     OpalMultipoleT(const OpalMultipoleT&) = delete;
     void operator=(const OpalMultipoleT&) = delete;

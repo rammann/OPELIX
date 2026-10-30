@@ -53,7 +53,6 @@
 #include "Structure/BinningCmd.h"
 #include "Structure/EmissionSource.h"
 #include "Structure/FieldSolverCmd.h"
-// #include "Tables/List.h"
 
 // Value definitions commands.
 #include "ValueDefinitions/BoolConstant.h"

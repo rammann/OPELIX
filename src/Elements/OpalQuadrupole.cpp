@@ -58,8 +58,6 @@ OpalQuadrupole* OpalQuadrupole::clone(const std::string& name) {
     return new OpalQuadrupole(name, this);
 }
 
-void OpalQuadrupole::print(std::ostream& os) const { OpalElement::print(os); }
-
 void OpalQuadrupole::update() {
     OpalElement::update();
 
@@ -86,7 +84,4 @@ void OpalQuadrupole::update() {
     // comp 1 (quadrupole)
     mult->setNormalComponent(1, k1, dk1);
     mult->setSkewComponent(1, k1s, dk1s);
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(mult);
 }

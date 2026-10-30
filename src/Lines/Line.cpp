@@ -111,14 +111,6 @@ Line::~Line() {}
 
 Line* Line::clone(const std::string& name) { return new Line(name, this); }
 
-Line* Line::copy(const std::string& name) {
-    Line* clone              = new Line(name, this);
-    FlaggedBeamline* oldLine = fetchLine();
-    FlaggedBeamline* newLine = clone->fetchLine();
-    std::copy(oldLine->begin(), oldLine->end(), std::back_inserter(*newLine));
-    return &*clone;
-}
-
 double Line::getLength() const { return Attributes::getReal(itsAttr[LENGTH]); }
 
 Object* Line::makeTemplate(const std::string& name, TokenStream& is, Statement& statement) {

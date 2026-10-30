@@ -207,9 +207,6 @@ void TrackCmd::execute() {
     // Current tracker supports only a single beam; use the first one for now.
     Beam* beam = beams.front();
 
-    // std::cout << "TrackCmd::execute" << std::endl;
-    // std::cout << *theLineToTrack << std::endl;
-
     std::vector<double> dt                   = getDT();
     double t0                                = getT0();
     double dtScInit                          = getDTSCINIT();
@@ -252,12 +249,11 @@ void TrackCmd::execute() {
                 theLineToTrack->getOpalName(), beam->getParticleName(), beam->getReference());
         if (!itsAttr[T0].defaultUsed() && t0 != initial.time)
             throw OpalException("INITIALORBIT", "TRACK T0 conflicts with the COF launch time.");
-        t0           = initial.time;
         initialOrbit = initial;
     }
     Track::block = new Track(
             theLineToTrack, beam->getReference(), dt, maxsteps, stepsperturn, zstart, zstop,
-            timeintegrator, t0, dtScInit, deltaTau, emissionSourcesList, beamNames);
+            timeintegrator, dtScInit, deltaTau, emissionSourcesList, beamNames);
     Track::block->kineticEnergyStopGeV = kineticStop;
     Track::block->initialOrbit         = std::move(initialOrbit);
 

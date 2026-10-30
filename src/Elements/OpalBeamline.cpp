@@ -98,14 +98,6 @@ std::set<std::shared_ptr<ElementBase>> OpalBeamline::getElements() {
 }
 
 unsigned long OpalBeamline::getFieldAt(
-        const unsigned int& /*index*/, const Vector_t<double, 3>& /*pos*/, const long& /*sindex*/,
-        const double& /*t*/, Vector_t<double, 3>& /*E*/, Vector_t<double, 3>& /*B*/) {
-    unsigned long rtv = 0x00;
-
-    return rtv;
-}
-
-unsigned long OpalBeamline::getFieldAt(
         const Vector_t<double, 3>& position, const Vector_t<double, 3>& momentum, const double& t,
         Vector_t<double, 3>& Ef, Vector_t<double, 3>& Bf) {
     unsigned long rtv = 0x00;
@@ -153,8 +145,6 @@ void OpalBeamline::prepareSections() {
     placeElementsAlongReferencePath();
     prepared_m = true;
 }
-
-void OpalBeamline::print(Inform& /*msg*/) const {}
 
 std::vector<ElementTransferMapRef> OpalBeamline::getLinearTransferMapsInReferenceOrder() const {
     std::vector<ElementTransferMapRef> result;

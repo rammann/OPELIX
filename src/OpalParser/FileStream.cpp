@@ -40,8 +40,6 @@ FileStream::~FileStream() {}
 
 void FileStream::setEcho(bool flag) { echoFlag = flag; }
 
-bool FileStream::getEcho() { return echoFlag; }
-
 bool FileStream::fillLine() {
     if (is.eof()) {
         // End of file.

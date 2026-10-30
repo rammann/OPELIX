@@ -141,7 +141,4 @@ void OpalCavity::update() {
     rfc->setFrequencyModelName(Attributes::getString(itsAttr[FREQUENCY_MODEL]));
 
     rfc->validateIdeal();
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(rfc);
 }

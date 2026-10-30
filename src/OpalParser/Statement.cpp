@@ -149,11 +149,6 @@ void Statement::restore() { curr = keep; }
 
 void Statement::start() { curr = tokens.begin(); }
 
-void Statement::skip() {
-    while (!atEnd() && !(*curr).isDel(','))
-        curr++;
-}
-
 unsigned int Statement::position() const {
     std::ostringstream os;
     bool white = false;

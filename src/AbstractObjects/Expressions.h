@@ -53,10 +53,7 @@
 
 class PlaceRep;
 class RangeRep;
-class SFunction;
 class Statement;
-class Table;
-class TableRowRep;
 
 // ========================================================================
 /// Representation objects and parsers for attribute expressions.
@@ -224,9 +221,6 @@ namespace Expressions {
 
     // ARRAY EXPRESSION PARSERS.
 
-    /// Parse boolean array expression.
-    extern PtrToArray<bool> parseBoolArray(Statement&);
-
     /// Parse real array expression.
     extern PtrToArray<double> parseRealArray(Statement&);
 
@@ -249,27 +243,6 @@ namespace Expressions {
 
     /// Parse range specification.
     extern RangeRep parseRange(Statement&);
-
-    // Forward declaration.
-    template <class T>
-    class SRefAttr;
-
-    /// Parse variable reference.
-    extern SRefAttr<double>* parseReference(Statement&);
-
-    /// Parse a token list (for macro argument and the like).
-    extern TableRowRep parseTableRow(Statement&);
-
-    /// Parse a token list (for macro argument and the like).
-    extern std::list<Token> parseTokenList(Statement&);
-
-    /// Parse a token list array (for LIST commands).
-    extern std::vector<std::list<Token>> parseTokenListArray(Statement&);
-
-    // SPECIAL PARSER.
-
-    /// Parse table expression (depends on a table's rows).
-    extern PtrToScalar<double> parseTableExpression(Statement&, const Table*);
 
     // Implementation of class Expression::Scalar<T>.
     // ----------------------------------------------------------------------

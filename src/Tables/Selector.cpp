@@ -20,7 +20,6 @@
 #include "AbstractObjects/Attribute.h"
 #include "AbstractObjects/Object.h"
 #include "AbstractObjects/OpalData.h"
-#include "AbstractObjects/Table.h"
 #include "Beamlines/FlaggedElmPtr.h"
 #include "Elements/OpalElement.h"
 #include "Utilities/Options.h"

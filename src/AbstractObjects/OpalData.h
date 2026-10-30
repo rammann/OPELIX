@@ -24,7 +24,6 @@
 
 #include <iosfwd>
 #include <map>
-#include <stack>
 #include <string>
 #include <vector>
 #include "AbstractObjects/ObjectFunction.h"
@@ -32,14 +31,12 @@
 
 class AttributeBase;
 class Object;
-class Table;
 class ValueDefinition;
 class DataSink;
 class BoundaryGeometry;
 
 // store element name, max phase
 typedef std::pair<std::string, double> MaxPhasesT;
-typedef std::map<double, double> energyEvolution_t;
 
 /// The global OPAL structure.
 class OpalData {
@@ -71,10 +68,6 @@ public:
     static OpalData* getInstance();
 
     static void deleteInstance();
-
-    static void stashInstance();
-
-    static OpalData* popInstance();
 
     ~OpalData();
 
@@ -113,23 +106,7 @@ public:
     /// Invalidate expressions.
     //  Force re-evaluation of all expressions before next command is
     //  executed.
-    //  Also set the [b]modified[/b] flag in [b]object[/b], if not nullptr.
-    void makeDirty(Object* object);
-
-    /// Print all objects.
-    //  Loop over the directory and print each object whose name matches
-    //  the regular expression [b]pattern[/b].
-    void printNames(std::ostream& stream, const std::string& pattern);
-    void printAllNames(std::ostream& stream);
-
-    /// Register table.
-    //  Register the table [b]t[/b].
-    //  Registered tables are invalidated to be refilled when an object
-    //  on which they depend is changed or replaced.
-    void registerTable(Table* t);
-
-    /// Unregister table.
-    void unregisterTable(Table* t);
+    void makeDirty();
 
     /// Register expression.
     //  Registered expressions are invalidated to be recomputed when
@@ -142,15 +119,6 @@ public:
     /// Set the global momentum.
     void setP0(ValueDefinition* p0);
 
-    /// Store the page title.
-    void storeTitle(const std::string&);
-
-    /// Print the page title.
-    void printTitle(std::ostream&);
-
-    /// Get the title string
-    std::string getTitle();
-
     /// Update all objects.
     //  Loop over the directory and notify all objects to update themselves.
     void update();
@@ -160,9 +128,6 @@ public:
     struct ClearReference : public ObjectFunction {
         virtual void operator()(Object*) const;
     };
-
-    std::map<std::string, std::string> getVariableData();
-    std::vector<std::string> getVariableNames();
 
     bool isInOPALCyclMode();
     bool isInOPALTMode();
@@ -231,12 +196,6 @@ public:
     void setOpenMode(OpenMode openMode);
     OpenMode getOpenMode() const;
 
-    /// set the last step in a run for possible follow-up run
-    void setLastStep(const int& step);
-
-    /// get the last step from a possible previous run
-    int getLastStep() const;
-
     /// true if we already allocated a ParticleBunch object
     bool hasBunchAllocated();
 
@@ -260,9 +219,6 @@ public:
 
     ///
     void setGlobalGeometry(BoundaryGeometry* bg);
-    ///
-    BoundaryGeometry* getGlobalGeometry();
-
     bool hasGlobalGeometry();
 
     void setMaxPhase(std::string elName, double phi);
@@ -271,17 +227,6 @@ public:
     std::vector<MaxPhasesT>::iterator getLastMaxPhases();
     int getNumberOfMaxPhases();
 
-    void addEnergyData(double spos, double ekin);
-    energyEvolution_t::iterator getFirstEnergyData();
-    energyEvolution_t::iterator getLastEnergyData();
-
-    unsigned long long getMaxTrackSteps();
-    void setMaxTrackSteps(unsigned long long s);
-    void incMaxTrackSteps(unsigned long long s);
-
-    void addProblemCharacteristicValue(const std::string& name, unsigned int value);
-    const std::map<std::string, unsigned int>& getProblemCharacteristicValues() const;
-
     void storeArguments(int argc, char* argv[]);
     std::vector<std::string> getArguments();
 
@@ -289,7 +234,6 @@ private:
     static bool isInstantiated;
     static OpalData* instance;  // \todo should be a smart pointer and we then should get ridd of
                                 // deleteInstance
-    static std::stack<OpalData*> stashedInstances;
 
     OpalData();
 

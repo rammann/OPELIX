@@ -60,14 +60,6 @@ Ring::Ring(const std::string& name, Ring* parent) : Line(name, parent) {
 
 Ring* Ring::clone(const std::string& name) { return new Ring(name, this); }
 
-Ring* Ring::copy(const std::string& name) {
-    Ring* clone              = new Ring(name, this);
-    FlaggedBeamline* oldLine = fetchLine();
-    FlaggedBeamline* newLine = clone->fetchLine();
-    std::copy(oldLine->begin(), oldLine->end(), std::back_inserter(*newLine));
-    return clone;
-}
-
 void Ring::parse(Statement& stat) { parseDefinition(stat, false); }
 
 double Ring::getLength() const { return designLength(*fetchLine()); }

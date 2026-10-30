@@ -68,8 +68,6 @@ OpalMultipole* OpalMultipole::clone(const std::string& name) {
     return new OpalMultipole(name, this);
 }
 
-void OpalMultipole::print(std::ostream& os) const { OpalElement::print(os); }
-
 void OpalMultipole::update() {
     OpalElement::update();
 
@@ -136,7 +134,4 @@ void OpalMultipole::update() {
             mult->setSkewComponent(comp, factor * skew[comp], factor * skewErrors[comp]);
         }
     }
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(mult);
 }

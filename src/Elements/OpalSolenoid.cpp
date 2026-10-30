@@ -62,7 +62,4 @@ void OpalSolenoid::update() {
     sol->setBz(Bz);
     sol->setKS(Attributes::getReal(itsAttr[KS]));
     sol->setDKS(Attributes::getReal(itsAttr[DKS]));
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(sol);
 }

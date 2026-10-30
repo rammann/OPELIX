@@ -35,7 +35,6 @@ RealVariable::RealVariable()
     // Construct the P0 variable.
     RealVariable* p0 = new RealVariable("P0", this, 1.0);
     OpalData::getInstance()->create(p0);
-    p0->setDirty(true);
     OpalData::getInstance()->setP0(p0);
 }
 

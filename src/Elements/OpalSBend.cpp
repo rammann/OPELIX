@@ -182,7 +182,4 @@ void OpalSBend::update() {
                 "OpalSBend::update",
                 "PARTICLEMATTERINTERACTION is not supported yet for the OPALX-native SBEND port.");
     }
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(bend);
 }

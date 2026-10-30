@@ -16,17 +16,6 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "BeamlineCore/ProbeRep.h"
-#include "Channels/IndirectChannel.h"
-
-namespace {
-    struct Entry {
-        const char* name;
-        double (ProbeRep::*get)() const;
-        void (ProbeRep::*set)(double);
-    };
-
-    static const Entry entries[] = {{0, 0, 0}};
-}  // namespace
 
 ProbeRep::ProbeRep() : Probe(), geometry(), active(true) {}
 
@@ -37,16 +26,6 @@ ProbeRep::ProbeRep(const std::string& name) : Probe(name), geometry(), active(tr
 ProbeRep::~ProbeRep() {}
 
 ElementBase* ProbeRep::clone() const { return new ProbeRep(*this); }
-
-Channel* ProbeRep::getChannel(const std::string& aKey, bool create) {
-    for (const Entry* entry = entries; entry->name != 0; ++entry) {
-        if (aKey == entry->name) {
-            return new IndirectChannel<ProbeRep>(*this, entry->get, entry->set);
-        }
-    }
-
-    return ElementBase::getChannel(aKey, create);
-}
 
 Geometry& ProbeRep::getGeometry() { return geometry; }
 

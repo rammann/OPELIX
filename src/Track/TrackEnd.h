@@ -20,8 +20,6 @@
 
 #include "AbstractObjects/Action.h"
 
-class Sequence;
-
 // Class TrackEnd
 // ------------------------------------------------------------------------
 /// The ENDTRACK command.

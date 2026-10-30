@@ -38,14 +38,6 @@
 
 class Element : public Object {
 public:
-    /// Reference for element positioning.
-    //  Used in the SEQUENCE command.
-    enum ReferenceType {
-        IS_ENTRY,   // Reference point is at element entrance.
-        IS_CENTRE,  // Reference point is at element centre
-        IS_EXIT     // Reference point is at element exit.
-    };
-
     virtual ~Element();
 
     /// Test if replacement is allowed.
@@ -74,12 +66,6 @@ public:
 
     /// Return element length.
     virtual double getLength() const = 0;
-
-    /// Return arc length from origin to entrance (negative !).
-    virtual double getEntrance(ReferenceType) const;
-
-    /// Return arc length from origin to exit (positive !).
-    virtual double getExit(ReferenceType) const;
 
     /// Set shared flag.
     //  If true, all references to this name are to the same object.

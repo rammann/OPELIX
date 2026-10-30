@@ -80,24 +80,11 @@ public:
     //  geometry (non-negative).
     virtual double getOrigin() const;
 
-    /// Get entrance position.
-    //  Return the arc length from the origin to the entrance of the
-    //  geometry (non-positive).
-    virtual double getEntrance() const;
-
-    /// Get exit position.
-    //  Return the arc length from the origin to the exit of the
-    //  geometry (non-negative).
-    virtual double getExit() const;
-
     /// Get beamline type
     virtual ElementType getType() const;
 
     /// Append a T object.
     virtual void append(const T&);
-
-    /// Prepend a T object.
-    virtual void prepend(const T&);
 
     void setOrigin3D(const Vector_t<double, 3>& ori);
     Vector_t<double, 3> getOrigin3D() const;
@@ -261,16 +248,6 @@ double TBeamline<T>::getOrigin() const {
 }
 
 template <class T>
-double TBeamline<T>::getEntrance() const {
-    return (-getOrigin());
-}
-
-template <class T>
-double TBeamline<T>::getExit() const {
-    return (getArcLength() / 2.0);
-}
-
-template <class T>
 inline ElementType TBeamline<T>::getType() const {
     return ElementType::BEAMLINE;
 }
@@ -278,11 +255,6 @@ inline ElementType TBeamline<T>::getType() const {
 template <class T>
 inline void TBeamline<T>::append(const T& obj) {
     this->push_back(obj);
-}
-
-template <class T>
-inline void TBeamline<T>::prepend(const T& obj) {
-    this->push_front(obj);
 }
 
 template <class T>

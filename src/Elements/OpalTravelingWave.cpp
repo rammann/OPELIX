@@ -88,7 +88,4 @@ void OpalTravelingWave::update() {
     rfc->setNumCells((int)Attributes::getReal(itsAttr[NUMCELLS]));
     rfc->setMode(Attributes::getReal(itsAttr[MODE]));
     rfc->setDesignEnergy(kineticEnergy);
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(rfc);
 }

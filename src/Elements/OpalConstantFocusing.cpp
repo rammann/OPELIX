@@ -43,6 +43,4 @@ void OpalConstantFocusing::update() {
         rep->setStrength(Attributes::getReal(itsAttr[STRENGTH]));
         rep->setRadius(radius);
     }
-
-    OpalElement::updateUnknown(getElement());
 }

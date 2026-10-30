@@ -254,24 +254,7 @@ TrackRun::TrackRun(const std::string& name, TrackRun* parent)
       phaseSpaceSinks_m(),
       isFollowupTrack_m(false),
       method_m(RunMethod::NONE) {
-    /*
-      the opal dictionary
-    */
-
     opal_m = OpalData::getInstance();
-
-    const Vector_t<int, 3> nr(8);
-
-    ippl::NDIndex<3> domain;
-    for (unsigned i = 0; i < 3; i++) {
-        domain[i] = ippl::Index(nr[i]);
-    }
-
-    std::array<bool, 3> isParallel;
-
-    for (unsigned d = 0; d < 3; ++d) {
-        isParallel[d] = true;
-    }
 }
 
 TrackRun::~TrackRun() {
@@ -570,16 +553,9 @@ void TrackRun::execute() {
         }
     }
 
-    // double deltaP = Attributes::getReal(itsAttr[Distribution::OFFSETP]);
-    // if (inputMoUnits_m == InputMomentumUnits::EVOVERC) {
-    //     deltaP = Util::convertMomentumEVoverCToBetaGamma(deltaP, beam->getM());
-    // }
-
     if (ippl::Comm->rank() == 0) {
         long number_of_processors = sysconf(_SC_NPROCESSORS_ONLN);
         *gmsg << level5 << "sysconf(_SC_NPROCESSORS_ONLN)= " << number_of_processors << endl;
-
-        // *gmsg << "omp_get_max_threads() " << omp_get_max_threads() << endl;
 
         int world_size;
         MPI_Comm_size(MPI_COMM_WORLD, &world_size);
@@ -632,12 +608,6 @@ void TrackRun::execute() {
         Track::block->zstart = 0.0;
     }
 
-    /* \todo this is also not unsed in the master.
-       This needs to come back as soon as we have RF
-
-       findPhasesForMaxEnergy();
-
-    */
     Track::block->use->prepareForTracking();
 
     // Solver configuration now belongs to RUN, not PartBunch. Preserve the
@@ -786,12 +756,6 @@ void TrackRun::execute() {
         static_cast<ParallelTracker*>(itsTracker_m.get())->setSpectralTunes(initial, settings);
     }
     itsTracker_m->execute();
-
-    /*
-    opal_m->setRestartRun(false);
-
-    opal_m->bunchIsAllocated();
-    */
 }
 
 void TrackRun::setRunMethod() {
@@ -994,7 +958,6 @@ void TrackRun::setupDistributionsAndSamplers(
     const double avrgpz   = beam->getMomentum() / beam->getMass();
 
     emittingSamplers.clear();
-    distrs_m.clear();
 
     for (EmissionSource* src : sources) {
         // Distribution objects are registry-owned; samplers only borrow them.
@@ -1032,8 +995,6 @@ void TrackRun::setupDistributionsAndSamplers(
                         "Set either \"GAMMA\", \"ENERGY\" or \"PC\" on the BEAM command.");
             }
         }
-
-        distrs_m.push_back(opalDist);
 
         // Build a sampler instance for this emission source.
         std::shared_ptr<SamplingBase> sampler;

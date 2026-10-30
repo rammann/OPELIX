@@ -32,10 +32,6 @@ class BeamSequence : public Element {
 public:
     virtual ~BeamSequence();
 
-    /// Make complete copy.
-    //  Copy also the line list.
-    virtual BeamSequence* copy(const std::string& name) = 0;
-
     /// Find a BeamSequence by name.
     static BeamSequence* find(const std::string& name);
 

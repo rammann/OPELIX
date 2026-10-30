@@ -39,10 +39,6 @@ public:
     /// Make clone.
     virtual OpalMultipole* clone(const std::string& name);
 
-    /// Print the object.
-    //  Handle printing in OPAL-8 format.
-    virtual void print(std::ostream&) const;
-
     /// Update the embedded OPALX multipole.
     virtual void update();
 

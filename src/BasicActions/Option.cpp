@@ -570,11 +570,6 @@ void Option::execute() {
     else
         rangen.init55(seed);
 
-    /// \todo check if we need to do this anymore
-    /*
-    IpplInfo::Info->on(info);
-    IpplInfo::Warn->on(warn);
-    */
     handlePsDumpFrame(Attributes::getString(itsAttr[PSDUMPFRAME]));
 
     /// note: rangen is used only for the random number generator in the OPAL language

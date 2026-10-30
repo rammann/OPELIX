@@ -60,7 +60,4 @@ void OpalProbe::update() {
     prob->setDimensions(xstart, xend, ystart, yend);
     prob->setStep(step);
     prob->setOutputFN(Attributes::getString(itsAttr[OUTFN]));
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(prob);
 }

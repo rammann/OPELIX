@@ -43,6 +43,4 @@ void OpalConstantEFieldCavity::update() {
         rep->setEy(eyMV * Units::MVpm2Vpm);
         rep->setEz(ezMV * Units::MVpm2Vpm);
     }
-
-    OpalElement::updateUnknown(getElement());
 }

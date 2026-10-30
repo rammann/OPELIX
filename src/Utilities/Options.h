@@ -34,7 +34,6 @@ namespace Options {
     /// Info flag.
     //  If true, print informative messages.
     extern bool info;
-    extern int infoLevel;
 
     /// Trace flag.
     //  If true, print CPU time before and after each command.
@@ -43,7 +42,6 @@ namespace Options {
     /// Warn flag.
     //  If true, print warning messages.
     extern bool warn;
-    extern int warnLevel;
 
     //  The global random generator.
     extern Random rangen;

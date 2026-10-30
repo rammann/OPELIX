@@ -246,24 +246,6 @@ bool Object::isShared() const { return sharedFlag; }
 
 void Object::setShared(bool flag) { sharedFlag = flag; }
 
-void Object::setDirty(bool dirty) {
-    // The object is now different from the data base.
-    modified = dirty;
-}
-
-bool Object::isDirty() const { return modified; }
-
-void Object::setFlag(bool flag) { flagged = flag; }
-
-bool Object::isFlagged() const { return flagged; }
-
-const Object* Object::getBaseObject() const {
-    const Object* base = this;
-    while (base->itsParent != 0)
-        base = base->itsParent;
-    return base;
-}
-
 const std::string& Object::getOpalName() const { return itsName; }
 
 Object* Object::getParent() const { return itsParent; }
@@ -286,8 +268,6 @@ void Object::clear() { occurrence = 0; }
 
 int Object::increment() { return ++occurrence; }
 
-int Object::occurrenceCount() { return occurrence; }
-
 Object::Object(int size, const char* name, const char* help)
     : itsAttr(size), itsParent(0), itsName(name), itsHelp(help), occurrence(0), sharedFlag(false) {
     // NOTE: The derived classes must define the attribute handlers and
@@ -295,7 +275,6 @@ Object::Object(int size, const char* name, const char* help)
 
     // The object is an exemplar and must not be saved in the data base.
     builtin = true;
-    flagged = modified = false;
 }
 
 Object::Object(const std::string& name, Object* parent)
@@ -305,9 +284,7 @@ Object::Object(const std::string& name, Object* parent)
       itsHelp(parent->itsHelp),
       occurrence(0),
       sharedFlag(false) {
-    // The object is now different from the data base.
-    builtin = flagged = false;
-    modified          = true;
+    builtin = false;
 }
 
 std::ostream& operator<<(std::ostream& os, const Object& object) {

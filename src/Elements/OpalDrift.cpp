@@ -54,7 +54,4 @@ void OpalDrift::update() {
         drf->getGeometry().setElementLength(L);
     } else
         std::cout << "error drf->setElementLength " << std::endl;
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(drf);
 }

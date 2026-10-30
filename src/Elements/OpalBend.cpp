@@ -66,5 +66,3 @@ OpalBend::OpalBend(const char* name, const char* help) : OpalElement(SIZE, name,
 OpalBend::OpalBend(const std::string& name, OpalBend* parent) : OpalElement(name, parent) {}
 
 OpalBend::~OpalBend() {}
-
-void OpalBend::print(std::ostream& os) const { OpalElement::print(os); }

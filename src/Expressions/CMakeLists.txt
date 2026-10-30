@@ -1,21 +1,15 @@
 set (_SRCS
-    AColumn.cpp
-    ARow.cpp
     ATable.cpp
     Expressions.cpp
-    SCell.cpp
-    SFunction.cpp
     SHash.cpp
     )
 
 set (HDRS
     AAutomatic.h
     ABinary.h
-    AColumn.h
     ADeferred.h
     AList.h
     ARefExpr.h
-    ARow.h
     ASUnary.h
     ATable.h
     AUnary.h
@@ -24,13 +18,10 @@ set (HDRS
     Indexer.h
     SAutomatic.h
     SBinary.h
-    SCell.h
     SConstant.h
     SDeferred.h
-    SFunction.h
     SHash.h
     SNull.h
-    SRefAttr.h
     SRefExpr.h
     SUnary.h
     SValue.h

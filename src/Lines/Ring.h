@@ -31,9 +31,6 @@ public:
     /// Make an empty clone which is filled by the parser.
     Ring* clone(const std::string& name) override;
 
-    /// Copy the sequence member list; prepareForTracking() isolates member objects later.
-    Ring* copy(const std::string& name) override;
-
     /// Parse a closed-topology sequence definition.
     void parse(Statement& stat) override;
 

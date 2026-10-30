@@ -34,10 +34,6 @@ public:
     /// Make clone.
     virtual OpalMarker* clone(const std::string& name);
 
-    /// Print the element.
-    //  Handle printing in OPAL-8 format.
-    virtual void print(std::ostream&) const;
-
     /// Update the embedded OPALX marker.
     virtual void update();
 

@@ -18,7 +18,6 @@
 #include "BasicActions/Select.h"
 #include "AbstractObjects/BeamSequence.h"
 #include "AbstractObjects/OpalData.h"
-#include "AbstractObjects/Table.h"
 #include "Algorithms/Flagger.h"
 #include "Attributes/Attributes.h"
 #include "Tables/Selector.h"
@@ -75,8 +74,6 @@ void Select::execute() {
     if (Object* obj = OpalData::getInstance()->find(name)) {
         if (BeamSequence* line = dynamic_cast<BeamSequence*>(obj)) {
             select(*line->fetchLine());
-        } else if (Table* table = dynamic_cast<Table*>(obj)) {
-            select(*table->getLine());
         } else {
             throw OpalException(
                     "Select::execute()", "You cannot do a \"SELECT\" on \"" + name

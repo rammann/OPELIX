@@ -77,9 +77,6 @@ public:
     /// Test for end of file.
     bool isEOF() const;
 
-    /// Test for error.
-    bool isError() const;
-
     /// Test for integer.
     bool isInteger() const;
 

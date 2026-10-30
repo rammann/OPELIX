@@ -71,5 +71,4 @@ void OpalCyclotronSector::update() {
                     map, static_cast<int>(sym), Attributes::getReal(itsAttr[VMIN]),
                     Attributes::getReal(itsAttr[VMAX]), Attributes::getReal(itsAttr[BSCALE]),
                     coils);
-    OpalElement::updateUnknown(getElement());
 }

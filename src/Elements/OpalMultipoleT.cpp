@@ -69,8 +69,6 @@ OpalMultipoleT* OpalMultipoleT::clone(const std::string& name) {
     return new OpalMultipoleT(name, this);
 }
 
-void OpalMultipoleT::print(std::ostream& os) const { OpalElement::print(os); }
-
 void OpalMultipoleT::update() {
     // Base class first
     OpalElement::update();
@@ -125,6 +123,4 @@ void OpalMultipoleT::update() {
     multT->setEntranceAngle(Attributes::getReal(itsAttr[EANGLE]));
     multT->setEntryOffset(entryOffset);
     multT->setScalingName(Attributes::getString(itsAttr[SCALING_MODEL]));
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(multT);
 }

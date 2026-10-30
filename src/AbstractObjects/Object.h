@@ -147,26 +147,6 @@ public:
     //  If it is an element or a line, all references are to the same object.
     virtual void setShared(bool);
 
-    /// Set/reset the [b]modified[/b] flag.
-    //  Set the flag when an object is created and modified,
-    //  reset it when the object is saved in the DOOM data base.
-    void setDirty(bool);
-
-    /// True, if the [b]modified[/b] flag is set.
-    bool isDirty() const;
-
-    /// Flag/unflag this object, e. g. to control output of objects for
-    //  flagged objects only.
-    void setFlag(bool);
-
-    /// True, if [b]this[/b] is flagged by setFlag(true).
-    bool isFlagged() const;
-
-    /// Return the object's base type object.
-    //  Return the top-most ancestor of this object, i. e. the built-in
-    //  object from which [b]this[/b] is ultimately derived.
-    const Object* getBaseObject() const;
-
     /// Return object name.
     const std::string& getOpalName() const;
 
@@ -190,9 +170,6 @@ public:
 
     /// Increment and return the occurrence counter.
     int increment();
-
-    /// Return the occurrence counter.
-    int occurrenceCount();
 
     /// Register a reference to this object.
     //  Place [b]a[/b] in the list of references.  Whenever [b]this[/b]
@@ -224,15 +201,6 @@ protected:
     //  True, if the object is built-in to OPAL-9, i. e. if it is an exemplar
     //  or a predefined definition.
     bool builtin;
-
-    /// Dirty flag.
-    //  True when [b]this[/b] is new or modified and should be saved in the
-    //  DOOM data base.
-    bool modified;
-
-    /// Object flag.
-    //  This flag can be freely set and reset during the execution of a command.
-    bool flagged;
 
 private:
     // Not implemented.

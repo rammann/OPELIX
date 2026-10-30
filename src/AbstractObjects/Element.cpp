@@ -51,32 +51,6 @@ bool Element::shouldTrace() const { return false; }
 
 bool Element::shouldUpdate() const { return false; }
 
-double Element::getEntrance(ReferenceType ref) const {
-    switch (ref) {
-        case IS_CENTRE:
-            return (-getLength() / 2.0);
-
-        case IS_EXIT:
-            return (-getLength());
-
-        default:
-            return 0.0;
-    }
-}
-
-double Element::getExit(ReferenceType ref) const {
-    switch (ref) {
-        case IS_ENTRY:
-            return getLength();
-
-        case IS_CENTRE:
-            return (getLength() / 2.0);
-
-        default:
-            return 0.0;
-    }
-}
-
 void Element::setShared(bool flag) {
     Object::setShared(flag);
     if (flag) itsOPALXElement->makeSharable();

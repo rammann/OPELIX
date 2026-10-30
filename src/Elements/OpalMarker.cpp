@@ -51,10 +51,4 @@ OpalMarker::~OpalMarker() {}
 
 OpalMarker* OpalMarker::clone(const std::string& name) { return new OpalMarker(name, this); }
 
-void OpalMarker::print(std::ostream& os) const { OpalElement::print(os); }
-
-void OpalMarker::update() {
-    // Transmit "unknown" attributes.
-    MarkerRep* mark = static_cast<MarkerRep*>(getElement());
-    OpalElement::updateUnknown(mark);
-}
+void OpalMarker::update() {}

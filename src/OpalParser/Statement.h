@@ -147,10 +147,6 @@ public:
     //  Resume parsing at the beginning of the statement.
     void start();
 
-    /// Skip.
-    //  Skip tokens up to next comma or end of statement, whichever comes first.
-    void skip();
-
     /// Return current character number in line
     unsigned int position() const;
 

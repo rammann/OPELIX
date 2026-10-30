@@ -46,9 +46,6 @@ public:
     //  the standard error stream.
     static void setEcho(bool flag);
 
-    /// Return echo flag.
-    static bool getEcho();
-
 private:
     // Not implemented.
     FileStream();

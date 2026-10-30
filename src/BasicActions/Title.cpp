@@ -17,7 +17,6 @@
 //
 #include "BasicActions/Title.h"
 
-#include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
 
 Title::Title()
@@ -35,9 +34,6 @@ Title::~Title() {}
 
 Title* Title::clone(const std::string& name) { return new Title(name, this); }
 
-void Title::execute() {
-    std::string title = Attributes::getString(itsAttr[0]);
-    OpalData::getInstance()->storeTitle(title);
-}
+void Title::execute() {}
 
 void Title::parse(Statement& statement) { parseShortcut(statement); }

@@ -59,15 +59,8 @@ class TravelingWave;
 class SBend;
 class Solenoid;
 class ScalingFFAMagnet;
-class Offset;
 class VerticalFFAMagnet;
 class Probe;
-
-namespace endfieldmodel {
-    class Enge;
-    class Tanh;
-    class AsymmetricEnge;
-}  // namespace endfieldmodel
 
 class BeamlineVisitor {
 public:
@@ -98,15 +91,6 @@ public:
 
     /// Apply the algorithm to a drift space.
     virtual void visitDrift(const Drift&) = 0;
-
-    /// Apply the algorithm to a drift space.
-    virtual void visitEnge(const endfieldmodel::Enge&) = 0;
-
-    /// Apply the algorithm to a drift space.
-    virtual void visitTanh(const endfieldmodel::Tanh&) = 0;
-
-    /// Apply the algorithm to a drift space.
-    virtual void visitAsymmetricEnge(const endfieldmodel::AsymmetricEnge&) = 0;
 
     /// Apply the algorithm to a field-map-driven element.
     virtual void visitFieldmapElement(const FieldmapElement&) = 0;

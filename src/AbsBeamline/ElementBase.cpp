@@ -13,7 +13,6 @@
 //
 #include "AbsBeamline/ElementBase.h"
 
-#include "Channels/Channel.h"
 #include "PartBunch/PartBunch.h"
 #include "Utilities/LogicalError.h"
 #include "Utility/Inform.h"
@@ -74,7 +73,6 @@ ElementBase::ElementBase(const ElementBase& right)
       online_m(right.online_m),
       elementID(right.elementID),
       beamlineMembership_m(right.beamlineMembership_m),
-      userAttribs(right.userAttribs),
       positionIsFixed(right.positionIsFixed),
       elementPosition_m(right.elementPosition_m),
       elemedgeSet_m(right.elemedgeSet_m),
@@ -90,7 +88,6 @@ ElementBase::ElementBase(const std::string& name)
       online_m(false),
       elementID(name),
       beamlineMembership_m(),
-      userAttribs(),
       positionIsFixed(false),
       elementPosition_m(0.0),
       elemedgeSet_m(false),
@@ -158,51 +155,6 @@ std::string ElementBase::getOutputFN() const {
     }
 }
 
-double ElementBase::getAttribute(const std::string& aKey) const {
-    const ConstChannel* aChannel = getConstChannel(aKey);
-
-    if (aChannel != nullptr) {
-        double val = *aChannel;
-        delete aChannel;
-        return val;
-    } else {
-        return 0.0;
-    }
-}
-
-bool ElementBase::hasAttribute(const std::string& aKey) const {
-    const ConstChannel* aChannel = getConstChannel(aKey);
-
-    if (aChannel != nullptr) {
-        delete aChannel;
-        return true;
-    } else {
-        return false;
-    }
-}
-
-void ElementBase::removeAttribute(const std::string& aKey) { userAttribs.removeAttribute(aKey); }
-
-void ElementBase::setAttribute(const std::string& aKey, double val) {
-    Channel* aChannel = getChannel(aKey, true);
-
-    if (aChannel != nullptr && aChannel->isSettable()) {
-        *aChannel = val;
-        delete aChannel;
-    } else
-        std::cout << "Channel nullptr or not Settable" << std::endl;
-}
-
-Channel* ElementBase::getChannel(const std::string& aKey, bool create) {
-    return userAttribs.getChannel(aKey, create);
-}
-
-const ConstChannel* ElementBase::getConstChannel(const std::string& aKey) const {
-    // Use const_cast to allow calling the non-const method GetChannel().
-    // The const return value of this method will nevertheless inhibit set().
-    return const_cast<ElementBase*>(this)->getChannel(aKey);
-}
-
 std::string ElementBase::getTypeString(ElementType type) { return elementTypeToString_s.at(type); }
 
 ElementBase* ElementBase::copyStructure() {
@@ -214,14 +166,6 @@ ElementBase* ElementBase::copyStructure() {
 }
 
 void ElementBase::makeSharable() { shareFlag = true; }
-
-bool ElementBase::update(const AttributeSet& set) {
-    for (AttributeSet::const_iterator i = set.begin(); i != set.end(); ++i) {
-        setAttribute(i->first, i->second);
-    }
-
-    return true;
-}
 
 BoundingBox ElementBase::getBoundingBoxInLabCoords() const {
     CoordinateSystemTrafo toBegin = getGeometry().getEdgeToBegin() * csTrafoGlobal2Local_m;

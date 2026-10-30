@@ -118,9 +118,6 @@ private:
     std::unique_ptr<opalx::spacecharge::SpaceChargeSolver> spaceChargeSolver_m;
     std::unique_ptr<Tracker> itsTracker_m;
 
-    /// Distributions referenced by all emission sources (non-owning raw pointers).
-    std::vector<Distribution*> distrs_m;
-
     /// Samplers for time-dependent (emitting) sources; tracker calls emitParticles(t, dt) on each.
     // std::vector<std::shared_ptr<SamplingBase>> emittingSamplers_m;
 

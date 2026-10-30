@@ -66,19 +66,6 @@ public:
     // return the element aperture vector
     std::pair<ApertureType, std::vector<double>> getApert() const;
 
-    /// Return the element's type name.
-    const std::string getWakeF() const;
-
-    const std::string getParticleMatterInteraction() const;
-
-    const std::string getWMaterial() const;
-
-    const std::string getWakeGeom() const;
-
-    std::vector<double> getWakeParam() const;
-
-    const std::string getWakeConductivity() const;
-
     /// Parse the element.
     //  This special version for elements handles unknown attributes by
     //  appending them to the attribute list.
@@ -98,30 +85,12 @@ public:
     /// @note Final placement is resolved by PlacementResolver, not here.
     virtual void update();
 
-    /// Transmit the ``unknown'' (not known to OPALX) attributes to OPALX.
-    virtual void updateUnknown(ElementBase*);
-
 protected:
     /// Exemplar constructor.
     OpalElement(int size, const char* name, const char* help);
 
     /// Clone constructor.
     OpalElement(const std::string& name, OpalElement* parent);
-
-    /// Print multipole components in OPAL-8 format.
-    //  This function is accessible to all multipole-like elements
-    //  (RBend, SBend, Quadrupole, Sextupole, Octupole, Multipole).
-    static void printMultipoleStrength(
-            std::ostream& os, int order, int& len, const std::string& sName,
-            const std::string& tName, const Attribute& length, const Attribute& vNorm,
-            const Attribute& vSkew);
-
-    /// Print an attribute with a OPAL-8 name (as an expression).
-    static void printAttribute(
-            std::ostream& os, const std::string& name, const std::string& image, int& len);
-
-    /// Print an attribute with a OPAL-8 name (as a constant).
-    static void printAttribute(std::ostream& os, const std::string& name, double value, int& len);
 
     void registerOwnership() const;
 

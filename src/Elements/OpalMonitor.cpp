@@ -50,7 +50,4 @@ void OpalMonitor::update() {
     } else {
         mon->setCollectionType(CollectionType::SPATIAL);
     }
-
-    // Transmit "unknown" attributes.
-    OpalElement::updateUnknown(mon);
 }

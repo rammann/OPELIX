@@ -25,13 +25,11 @@ namespace Options {
     // The global program options.
     bool echo = false;
 
-    bool info     = true;
-    int infoLevel = 1;
+    bool info = true;
 
     bool mtrace = false;
 
-    bool warn     = true;
-    int warnLevel = 1;
+    bool warn = true;
 
     Random rangen;
     int seed = 123456789;

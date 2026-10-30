@@ -15,7 +15,6 @@
 #ifndef OPALX_ElementBase_HH
 #define OPALX_ElementBase_HH
 
-#include "AbsBeamline/AttributeSet.h"
 #include "Algorithms/CoordinateSystemTrafo.h"
 #include "Algorithms/Quaternion.hpp"
 #include "BeamlineGeometry/Geometry.h"
@@ -32,8 +31,6 @@
 #include <vector>
 
 class BeamlineVisitor;
-class Channel;
-class ConstChannel;
 
 enum class ElementType : unsigned short {
     ANY,
@@ -337,9 +334,6 @@ public:
     /// @param cst The misalignment.
     void setMisalignment(const CoordinateSystemTrafo& cst);
 
-    /// Not implemented.
-    void getMisalignment(double& x, double& y, double& s) const;
-
     /// @brief Get the misalignment.
     /// @return The misalignment.
     CoordinateSystemTrafo getMisalignment() const;
@@ -466,39 +460,6 @@ public:
 
     virtual int getRequiredNumberOfTimeSteps() const;
 
-    /* ========================= User-defined attributes ======================= */
-
-    /// Get attribute value.
-    //  If the attribute does not exist, return zero.
-    virtual double getAttribute(const std::string& aKey) const;
-
-    /// Test for existence of an attribute.
-    //  If the attribute exists, return true, otherwise false.
-    virtual bool hasAttribute(const std::string& aKey) const;
-
-    /// Remove an existing attribute.
-    virtual void removeAttribute(const std::string& aKey);
-
-    /// Set value of an attribute.
-    virtual void setAttribute(const std::string& aKey, double val);
-
-    /// Construct a read/write channel.
-    //  This method constructs a Channel permitting read/write access to
-    //  the attribute [b]aKey[/b] and returns it.
-    //  If the attribute does not exist, it returns nullptr.
-    virtual Channel* getChannel(const std::string& aKey, bool create = false);
-
-    /// Construct a read-only channel.
-    //  This method constructs a Channel permitting read-only access to
-    //  the attribute [b]aKey[/b] and returns it.
-    //  If the attribute does not exist, it returns nullptr.
-    virtual const ConstChannel* getConstChannel(const std::string& aKey) const;
-
-    /// Update element.
-    //  This method stores all attributes contained in the AttributeSet to
-    //  "*this".  The return value [b]true[/b] indicates success.
-    bool update(const AttributeSet&);
-
     /* ============================= Miscellaneous ============================= */
 
     /// Set output filename
@@ -546,9 +507,6 @@ private:
     std::vector<LinearTransferMap> linearTransferMaps_m;
     /// Reference-pass support-overlap diagnostic, not static lattice membership.
     bool isOverlapping_m{false};
-
-    // --- User-defined attributes ---
-    AttributeSet userAttribs;
 
     // --- Placement ---
     bool positionIsFixed;

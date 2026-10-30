@@ -62,10 +62,6 @@ public:
 
     virtual ~OpalBend();
 
-    /// Print the bend magnet.
-    //  Handle printing in OPAL-8 format.
-    virtual void print(std::ostream&) const;
-
 protected:
     /// Clone constructor.
     OpalBend(const std::string& name, OpalBend* parent);

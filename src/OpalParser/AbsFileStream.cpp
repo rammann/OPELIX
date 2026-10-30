@@ -115,13 +115,6 @@ Token AbsFileStream::readToken() {
         } else if (ch == '-' && line[curr_char + 1] == '>') {
             curr_char += 2;
             return Token(stream_name, curr_line, Token::IS_DELIMITER, "->");
-        } else if (ch == '/' && line[curr_char + 1] == '*') {
-            curr_char += 2;
-            if (skipComments()) {
-                return readToken();
-            } else {
-                return Token(stream_name, curr_line, Token::IS_ERROR, "Comment not closed.");
-            }
         } else {
             curr_char++;
             return Token(stream_name, curr_line, Token::IS_DELIMITER, ch);

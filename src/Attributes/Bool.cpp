@@ -22,7 +22,6 @@
 #include "Expressions/SDeferred.h"
 #include "Expressions/SValue.h"
 #include "OpalParser/SimpleStatement.h"
-#include "OpalParser/StringStream.h"
 #include "OpalParser/Token.h"
 #include "Utilities/ParseError.h"
 

@@ -306,7 +306,7 @@ void OpalParser::parseAssign(Statement& stat) const {
         }
 
         parseEnd(stat);
-        OpalData::getInstance()->makeDirty(object);
+        OpalData::getInstance()->makeDirty();
     }
 }
 
