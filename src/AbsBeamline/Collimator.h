@@ -48,9 +48,6 @@ public:
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
 
-    /// Apply visitor to Collimator.
-    virtual void accept(BeamlineVisitor&) const override;
-
     virtual void initialise(PartBunch_t* bunch) override;
 
     virtual void finalise() override;

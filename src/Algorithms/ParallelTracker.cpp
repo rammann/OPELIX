@@ -90,7 +90,8 @@ namespace {
  * @brief Construct tracker from a beamline only (see class constructor overload).
  */
 ParallelTracker::ParallelTracker(const Beamline& beamline)
-    : Tracker(beamline),
+    : itsLine(beamline),
+      itsBunch_m(nullptr),
       itsDataSink_m(),
       spaceChargeSolver_m(nullptr),
       dirichletPlane_m(),
@@ -122,7 +123,8 @@ ParallelTracker::ParallelTracker(
         const std::vector<std::vector<std::shared_ptr<SamplingBase>>>& emittingSamplers,
         bool restarting, unsigned long long restartGlobalStep, double restartDt,
         StepSizeConfig::ResumePosition restartPosition, double ringPeriod)
-    : Tracker(beamline, bunch),
+    : itsLine(beamline),
+      itsBunch_m(&bunch),
       itsDataSink_m(ds),
       spaceChargeSolver_m(&spaceChargeSolver),
       dirichletPlane_m(std::move(dirichletPlane)),
@@ -166,31 +168,6 @@ void ParallelTracker::initializeSpaceChargeContainerActivity() {
         }
     }
 }
-// --- Visit functions ---
-
-/**
- * @copybrief ParallelTracker::visitElementBase
- */
-void ParallelTracker::visitElementBase(const ElementBase& comp) {
-    if (comp.getType() == ElementType::LASER) {
-        throw LogicalError(
-                "ParallelTracker::visitElementBase()",
-                "Tracking of the \"LASER\" element is not implemented yet.");
-    }
-    Tracker::visitElementBase(comp);
-}
-
-void ParallelTracker::visitLaser(const Laser&) {
-    throw LogicalError(
-            "ParallelTracker::visitLaser()",
-            "Tracking of the \"LASER\" element is not implemented yet.");
-}
-
-/**
- * @brief Iterate beamline elements and dispatch into OpalBeamline.
- * @param bl Beamline whose elements are visited.
- */
-void ParallelTracker::visitBeamline(const Beamline& bl) { bl.iterate(*this, false); }
 
 // --- execute() ---
 
@@ -1922,14 +1899,20 @@ void ParallelTracker::evolveSpinHalfStep(PartBunch_t::ParticleContainer_t& pc) {
  * @copybrief ParallelTracker::prepareSections
  */
 void ParallelTracker::prepareSections() {
-    // Calls ParallelTracker::visitBeamline() -> Beamline::iterate() ->
-    // For each element:
-    // FlaggedElemPtr::accept() -> DefaultVisitor::visitFlaggedElmPtr() ->
-    // ElementBase::accept() -> ParallelTracker::visit[ElemName]() ->
-    // OpalBeamline::visit([ElemName], bunch):
-    // This initialises the ElementList elements_m object of OpalBeamline
-    // with clones of all the elements
-    itsLine.accept(*this);
+    // Fill OpalBeamline::elements_m with initialised clones of the line's elements.
+    for (const auto& element : itsLine) {
+        switch (element->getType()) {
+            case ElementType::LASER:
+                throw LogicalError(
+                        "ParallelTracker::prepareSections()",
+                        "Tracking of the \"LASER\" element is not implemented yet.");
+            case ElementType::PROBE:
+                // Probes are not tracked.
+                break;
+            default:
+                itsOpalBeamline_m.addElement(*element, *itsBunch_m);
+        }
+    }
 
     // Sorts the elements in OpalBeamline::elements_m by starting position
     itsOpalBeamline_m.prepareSections();
@@ -2550,87 +2533,3 @@ void ParallelTracker::autophaseCavities(const BorisPusher& pusher) {
         }
     }
 }
-
-// --- Commented-out legacy / not-in-use implementations (reference only) ---
-/*
-void ParallelTracker::visitScalingFFAMagnet(const ScalingFFAMagnet& //bend) {
-    *gmsg << level4 << "Adding ScalingFFAMagnet" << endl;
-    *gmsg << level4 << "passed ScalingFFAMagnet argument not used in
-ParallelTracker::visitScalingFFAMagnet" << endl;
-}
-
-void ParallelTracker::visitRing(const Ring& ring) {
-    *gmsg << level4 << "* ----------------------------- Ring -------------------------------------
-*" << endl;
-
-    delete opalRing_m;
-    opalRing_m = dynamic_cast<Ring*>(ring.clone());
-    myElements.push_back(opalRing_m);
-    opalRing_m->initialise(itsBunch_m);
-
-    referenceR     = opalRing_m->getBeamRInit();
-    referencePr    = opalRing_m->getBeamPRInit();
-    referenceTheta = opalRing_m->getBeamPhiInit();
-
-    if (referenceTheta <= -180.0 || referenceTheta > 180.0) {
-        throw OpalException(
-            "Error in ParallelTracker::visitRing", "PHIINIT is out of [-180, 180)!");
-    }
-
-    referenceZ  = 0.0;
-    referencePz = 0.0;
-
-    referencePtot = itsReference.getGamma() * itsReference.getBeta();
-    referencePt   = std::sqrt(referencePtot * referencePtot - referencePr * referencePr);
-
-    if (referencePtot < 0.0)
-        referencePt *= -1.0;
-
-    sinRefTheta_m = std::sin(referenceTheta * Units::deg2rad);
-    cosRefTheta_m = std::cos(referenceTheta * Units::deg2rad);
-
-    double BcParameter[8] = {};
-    buildupFieldList(BcParameter, ElementType::RING, opalRing_m);
-}
-
-void ParallelTracker::visitVerticalFFAMagnet(const VerticalFFAMagnet& mag) {
-    *gmsg << level4 << "Adding Vertical FFA Magnet" << endl;
-    if (opalRing_m != nullptr)
-        opalRing_m->appendElement(mag);
-    else
-        throw OpalException(
-            "ParallelCyclotronTracker::visitVerticalFFAMagnet",
-            "Need to define a RINGDEFINITION to use VerticalFFAMagnet element");
-}
-
-void ParallelTracker::buildupFieldList(
-    double BcParameter[], ElementType elementType, ElementBase* elptr) {
-    beamline_list::iterator sindex;
-    type_pair* localpair = new type_pair();
-    localpair->first     = elementType;
-
-    for (int i = 0; i < 8; i++)
-        *(((localpair->second).first) + i) = *(BcParameter + i);
-
-    (localpair->second).second = elptr;
-    if (elementType == ElementType::RING) {
-        sindex = FieldDimensions.begin();
-    } else {
-        sindex = FieldDimensions.end();
-    }
-    FieldDimensions.insert(sindex, localpair);
-}
-
-bool ParallelTracker::applyPluginElements(const double dt) {
-    IpplTimings::startTimer(PluginElemTimer_m);
-
-    bool flag = false;
-    for (PluginElement* element : pluginElements_m) {
-        bool tmp = element->check(itsBunch_m, turnnumber_m, itsBunch_m->getT(), dt);
-        flag |= tmp;
-    }
-
-    IpplTimings::stopTimer(PluginElemTimer_m);
-    return flag;
-}
-*/

@@ -16,7 +16,6 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "AbsBeamline/Probe.h"
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "PartBunch/PartBunch.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"
@@ -33,8 +32,6 @@ Probe::Probe(const Probe& right)
     : PluginElement(right), step_m(right.step_m), geometry_m(right.geometry_m) {}
 
 Probe::~Probe() {}
-
-void Probe::accept(BeamlineVisitor& visitor) const { visitor.visitProbe(*this); }
 
 void Probe::doInitialise(PartBunch_t* bunch) {
     bool singlemode = (bunch->getParticleContainer()->getTotalNum() == 1) ? true : false;

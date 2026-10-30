@@ -16,7 +16,6 @@
 //
 
 #include "MultipoleT.h"
-#include "BeamlineVisitor.h"
 #include "MultipoleTCurvedConstRadius.h"
 #include "MultipoleTStraight.h"
 
@@ -35,11 +34,6 @@ MultipoleT::MultipoleT(const MultipoleT& right)
 }
 
 ElementBase* MultipoleT::clone() const { return new MultipoleT(*this); }
-
-void MultipoleT::accept(BeamlineVisitor& visitor) const {
-    initialiseTimeDependencies();
-    visitor.visitMultipoleT(*this);
-}
 
 ElementType MultipoleT::getType() const { return ElementType::MULTIPOLET; }
 
@@ -142,6 +136,7 @@ void MultipoleT::setEntryOffset(const double offset) { config_m.entryOffset_m = 
 
 void MultipoleT::initialise(PartBunch_t* bunch) {
     RefPartBunch_m = bunch;
+    initialiseTimeDependencies();
     implementation_->initialise();
 }
 

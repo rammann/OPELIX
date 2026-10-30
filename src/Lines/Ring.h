@@ -28,17 +28,13 @@ public:
 
     ~Ring() override = default;
 
-    /// Parse a closed-topology sequence definition.
-    void parse(Statement& stat) override;
-
     /**
      * @brief Clone and tag occurrences before the runtime tracking lattice is built.
      *
-     * Called by TrackRun through BeamSequence. Each member and nested member is
-     * cloned, then tagged with this RING's name (not the immediate nested LINE name).
-     * Repeated uses of a prototype become independent objects; prototypes and other
-     * rings keep their own metadata. Null members and internal names starting with
-     * '#' are skipped. The root beamline is tagged too.
+     * Called by TrackRun through BeamSequence. Each element, including those copied in
+     * from nested LINEs, is cloned and then tagged with this RING's name. Repeated uses
+     * of an element become independent objects; the original elements and other rings
+     * keep their own metadata. Internal names starting with '#' are skipped.
      *
      * ElementBase cloning preserves membership but starts with no calculated maps
      * and a false overlap flag. Calling this again replaces occurrence objects again;
@@ -49,8 +45,8 @@ public:
     /**
      * @brief Design circumference in metres, summed over nominal occurrence arc lengths.
      *
-     * Recursively sums every non-marker occurrence, including explicit drifts and repeated
-     * members. No implicit gaps are inferred from placement, and field-support extensions
+     * Sums every non-marker element, including explicit drifts and elements used more
+     * than once. No implicit gaps are inferred from placement, and field-support extensions
      * never contribute. Rectangular-bend chord lengths are converted by Geometry::getArcLength().
      * This is not the length of a tracked or closed orbit and does not validate 3D closure.
      */

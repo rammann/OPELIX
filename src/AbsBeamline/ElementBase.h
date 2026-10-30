@@ -30,11 +30,8 @@
 #include <utility>
 #include <vector>
 
-class BeamlineVisitor;
-
 enum class ElementType : unsigned short {
     ANY,
-    BEAMLINE,
     BOX,
     COLLIMATOR,
     DRIFT,
@@ -67,8 +64,8 @@ enum class BeamlineTopology : unsigned short { LINE, RING };
  * @brief Logical RING membership carried by a sequence member or runtime occurrence.
  *
  * An occurrence is one use of an element in a sequence, rather than its reusable input
- * definition. Ring::prepareForTracking() clones occurrences recursively and assigns the
- * enclosing RING name to each, including members inside nested LINEs. For example, two
+ * definition. Ring::prepareForTracking() clones occurrences and assigns the enclosing
+ * RING name to each, including members copied in from nested LINEs. For example, two
  * uses of a quadrupole in ring R1 have distinct element objects but both carry
  * {BeamlineTopology::RING, "R1"}; neither the quadrupole name nor an inner LINE name
  * is the ownerName. The original quadrupole definition is not retagged.
@@ -151,10 +148,8 @@ namespace ApertureHelper {
  * rotations, edge transforms — lives in the element's Geometry, accessed
  * through getGeometry().
  *
- * The parser builds lattices by cloning registered prototypes: clone() makes
- * a deep copy, copyStructure() copies a structure while reusing elements
- * marked sharable (makeSharable()). Algorithms dispatch on the concrete
- * element type through accept(BeamlineVisitor&).
+ * clone() makes a deep copy; the tracker clones every element of the tracked
+ * line. Code that needs the concrete type asks getType().
  */
 class ElementBase : public std::enable_shared_from_this<ElementBase> {
 public:
@@ -176,21 +171,6 @@ public:
     /// @brief Return an identical deep copy of the element.
     /// @return The cloned element.
     virtual ElementBase* clone() const = 0;
-
-    /// @brief Make a structural copy.
-    /// @note A fresh copy of the beam line structure is made, but sharable
-    ///       elements remain shared.
-    /// @return The copied structure.
-    virtual ElementBase* copyStructure();
-
-    /// @brief Test if the element can be shared.
-    /// @return True if the element is sharable.
-    bool isSharable() const;
-
-    /// @brief Set the sharable flag.
-    /// @note The whole structure depending on this is marked as sharable.
-    ///       After this call a copyStructure() call reuses the element.
-    virtual void makeSharable();
 
     /* =============================== Identity ================================ */
 
@@ -279,13 +259,6 @@ public:
 
     /// Restore {BeamlineTopology::LINE, ""} only; maps and overlap flags are unchanged.
     void clearBeamlineMembership();
-
-    /// @brief Apply a visitor.
-    /// @note This method must be overridden by derived classes. It should call
-    ///       the method of the visitor corresponding to the element class. If
-    ///       any error occurs, this method throws an exception.
-    /// @param visitor The visitor to apply.
-    virtual void accept(BeamlineVisitor& visitor) const = 0;
 
     /* =============================== Geometry ================================ */
 
@@ -471,10 +444,6 @@ public:
     bool getFlagDeleteOnTransverseExit() const;
 
 protected:
-    // Sharable flag.
-    // If this flag is true, the element is always shared.
-    mutable bool shareFlag;
-
     // --- Coordinate system & placement ---
     CoordinateSystemTrafo csTrafoGlobal2Local_m;
     CoordinateSystemTrafo misalignment_m;
@@ -522,8 +491,6 @@ private:
 // ------------------------------------------------------------------------
 
 /* ============================ Lifecycle & identity ========================= */
-
-inline bool ElementBase::isSharable() const { return shareFlag; }
 
 inline std::string ElementBase::getTypeString() const { return getTypeString(getType()); }
 

@@ -17,7 +17,6 @@
 //
 #include "AbsBeamline/Monitor.h"
 
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "AbstractObjects/OpalData.h"
 #include "Fields/Fieldmap.h"
 #include "PartBunch/PartBunch.h"
@@ -53,8 +52,6 @@ Monitor::Monitor(const std::string& name)
       numPassages_m(0) {}
 
 Monitor::~Monitor() {}
-
-void Monitor::accept(BeamlineVisitor& visitor) const { visitor.visitMonitor(*this); }
 
 void Monitor::apply(const std::shared_ptr<ParticleContainer_t>& pc) {
     if (!online_m || lossDs_m == nullptr || pc == nullptr || RefPartBunch_m == nullptr) {

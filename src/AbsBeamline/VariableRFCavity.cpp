@@ -17,7 +17,6 @@
 // along with OPAL. If not, see <https://www.gnu.org/licenses/>.
 //
 #include "AbsBeamline/VariableRFCavity.h"
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "PartBunch.h"
 #include "Physics/Units.h"
 #include "Utilities/GeneralOpalException.h"
@@ -146,16 +145,14 @@ bool VariableRFCavity::isInside(const Vector_t<double, 3>& r) const {
            && Kokkos::abs(r[0]) <= halfWidth_m && Kokkos::abs(r[1]) <= halfHeight_m;
 }
 
-void VariableRFCavity::initialise(PartBunch_t* bunch) { RefPartBunch_m = bunch; }
+void VariableRFCavity::initialise(PartBunch_t* bunch) {
+    RefPartBunch_m = bunch;
+    initialiseTimeDependencies();
+}
 
 void VariableRFCavity::finalise() { RefPartBunch_m = nullptr; }
 
 ElementBase* VariableRFCavity::clone() const { return new VariableRFCavity(*this); }
-
-void VariableRFCavity::accept(BeamlineVisitor& visitor) const {
-    initialiseTimeDependencies();
-    visitor.visitVariableRFCavity(*this);
-}
 
 void VariableRFCavity::initialiseTimeDependencies() const {
     const std::shared_ptr<AbstractTimeDependence> phaseTD =

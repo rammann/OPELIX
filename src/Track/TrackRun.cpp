@@ -17,7 +17,6 @@
 #include "Track/TrackRun.h"
 
 #include "AbsBeamline/RFCavity.h"
-#include "Algorithms/DefaultVisitor.h"
 #include "Algorithms/ParallelTracker.h"
 
 #include "AbstractObjects/BeamSequence.h"
@@ -578,17 +577,15 @@ void TrackRun::execute() {
     Track::block->use->prepareForTracking();
 
     // Solver configuration now belongs to RUN, not PartBunch. Preserve the
-    // SINGLEGAP restriction here, including gaps inside nested beamlines.
+    // SINGLEGAP restriction here, including gaps from nested beamlines.
     if (fs_m->getType() != "NONE") {
-        struct GapValidator : DefaultVisitor {
-            using DefaultVisitor::DefaultVisitor;
-            void visitRFCavity(const RFCavity& cavity) override {
-                if (cavity.isCyclotronGap())
-                    throw OpalException(
-                            "TrackRun::execute", "SINGLEGAP requires TYPE=NONE field solver.");
+        for (const auto& element : *Track::block->use->fetchLine()) {
+            if (element->getType() == ElementType::RFCAVITY
+                && static_cast<const RFCavity&>(*element).isCyclotronGap()) {
+                throw OpalException(
+                        "TrackRun::execute", "SINGLEGAP requires TYPE=NONE field solver.");
             }
-        } validator(*Track::block->use->fetchLine());
-        validator.execute();
+        }
     }
 
     auto maxSteps = Track::block->localTimeSteps;

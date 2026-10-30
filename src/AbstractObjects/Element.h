@@ -7,13 +7,6 @@
 //   Each Element object contains a pointer to an OPALX beam line element,
 //   known as the ``ideal'' element.
 //
-//   If sharable flag is set, all occurrences of the element are supposed to
-//   have the same imperfections.  Thus the assembly is shared when it is used
-//   more than once in beam lines or sequences.
-//
-//   If the sharable flag is not set, each occurrence of the element is supposed
-//   to have its own imperfections, but the same ideal representation.
-//
 // Copyright (c) 200x - 2020, Paul Scherrer Institut, Villigen PSI, Switzerland
 // All rights reserved
 //

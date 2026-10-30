@@ -89,7 +89,7 @@ std::set<std::shared_ptr<ElementBase>> OpalBeamline::getElements(const Vector_t<
     return elementSet;
 }
 
-void OpalBeamline::visit(const ElementBase& element, BeamlineVisitor&, PartBunch_t& bunch) {
+void OpalBeamline::addElement(const ElementBase& element, PartBunch_t& bunch) {
     if (element.getType() == ElementType::MARKER) return;
     std::shared_ptr<ElementBase> elptr(element.clone());
 

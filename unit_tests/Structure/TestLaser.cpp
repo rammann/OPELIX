@@ -1,14 +1,7 @@
 #include "AbsBeamline/Laser.h"
-#include "AbsBeamline/RBend.h"
-#include "AbsBeamline/SBend.h"
-#include "Algorithms/DefaultVisitor.h"
-#include "Algorithms/ParallelTracker.h"
 #include "Attributes/Attributes.h"
-#include "Beamlines/Beamline.h"
-#include "Beamlines/FlaggedElmPtr.h"
 #include "Elements/OpalLaser.h"
 #include "Physics/Physics.h"
-#include "Utilities/LogicalError.h"
 #include "Utilities/OpalException.h"
 
 #include "gtest/gtest.h"
@@ -26,21 +19,6 @@ namespace {
         Attributes::setReal(laser.itsAttr[OpalLaser::WAISTY], 6.0e-6);
         Attributes::setRealArray(laser.itsAttr[OpalLaser::DIR], {0.0, 0.0, -2.0});
     }
-
-    class DispatchRecordingVisitor : public DefaultVisitor {
-    public:
-        explicit DispatchRecordingVisitor(const Beamline& beamline) : DefaultVisitor(beamline) {}
-
-        void visitElementBase(const ElementBase&) override { sawElementBase = true; }
-        void visitLaser(const Laser&) override { sawLaser = true; }
-        void visitSBend(const SBend&) override { sawSBend = true; }
-        void visitRBend(const RBend&) override { sawRBend = true; }
-
-        bool sawElementBase = false;
-        bool sawLaser       = false;
-        bool sawSBend       = false;
-        bool sawRBend       = false;
-    };
 }  // namespace
 
 TEST(TestLaser, UpdateStoresValidatedParameters) {
@@ -197,38 +175,4 @@ TEST(TestLaser, LinearComptonForwardPhotonEnergyMatchesExactNinetyDegreeKinemati
     EXPECT_NEAR(
             rep->getLinearComptonForwardPhotonEnergyGeV(electronTotalEnergyGeV, beamDirection),
             expectedForwardPhotonEnergyGeV, expectedForwardPhotonEnergyGeV * 1.0e-12);
-}
-
-TEST(TestLaser, BeamlineVisitorDispatchesLaserAndBendsToSpecificHooks) {
-    Beamline beamline("LINE");
-
-    {
-        DispatchRecordingVisitor visitor(beamline);
-        Laser laser("LASER");
-        laser.accept(visitor);
-        EXPECT_TRUE(visitor.sawLaser);
-        EXPECT_FALSE(visitor.sawSBend);
-        EXPECT_FALSE(visitor.sawRBend);
-        EXPECT_FALSE(visitor.sawElementBase);
-    }
-
-    {
-        DispatchRecordingVisitor visitor(beamline);
-        SBend sbend("SBEND");
-        sbend.accept(visitor);
-        EXPECT_FALSE(visitor.sawLaser);
-        EXPECT_TRUE(visitor.sawSBend);
-        EXPECT_FALSE(visitor.sawRBend);
-        EXPECT_FALSE(visitor.sawElementBase);
-    }
-
-    {
-        DispatchRecordingVisitor visitor(beamline);
-        RBend rbend("RBEND");
-        rbend.accept(visitor);
-        EXPECT_FALSE(visitor.sawLaser);
-        EXPECT_FALSE(visitor.sawSBend);
-        EXPECT_TRUE(visitor.sawRBend);
-        EXPECT_FALSE(visitor.sawElementBase);
-    }
 }

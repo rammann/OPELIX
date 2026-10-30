@@ -27,8 +27,6 @@
 #include <memory>
 #include <string>
 
-class BeamlineVisitor;
-
 class Monitor : public ElementBase {
 public:
     /// Plane selection.
@@ -53,9 +51,6 @@ public:
     ElementBase* clone() const override;
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
-
-    /// Apply visitor to Monitor.
-    void accept(BeamlineVisitor&) const override;
 
     /// Get plane on which monitor observes.
     virtual Plane getPlane() const { return XY; }

@@ -19,7 +19,6 @@
 // ------------------------------------------------------------------------
 
 #include "AbsBeamline/Marker.h"
-#include "AbsBeamline/BeamlineVisitor.h"
 
 // Class Marker
 // ------------------------------------------------------------------------
@@ -31,8 +30,6 @@ Marker::Marker(const Marker& right) : ElementBase(right), geometry_m(right.geome
 Marker::Marker(const std::string& name) : ElementBase(name) {}
 
 Marker::~Marker() {}
-
-void Marker::accept(BeamlineVisitor& visitor) const { visitor.visitMarker(*this); }
 
 void Marker::initialise(PartBunch_t* bunch) { RefPartBunch_m = bunch; }
 

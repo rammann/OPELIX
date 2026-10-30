@@ -21,93 +21,50 @@
 // ------------------------------------------------------------------------
 
 #include <list>
+#include <memory>
 #include <string>
 
 #include "AbsBeamline/ElementBase.h"
 #include "Algorithms/Quaternion.hpp"
-#include "Beamlines/FlaggedElmPtr.h"
 
-// Class Beamline
-// ------------------------------------------------------------------------
-/// A sequence of beam line elements: a list of FlaggedElmPtr objects.
-//  A beam line carries no field model of its own. Its length is the sum of the lengths of its
-//  elements; its geometry exists only to satisfy the ElementBase interface.
-
-class Beamline : public ElementBase, public std::list<FlaggedElmPtr> {
+/**
+ * @brief The elements of a LINE or RING definition, in input order.
+ *
+ * A LINE used inside another LINE is copied in as its elements, so the list
+ * holds only elements, never other lines. The same element may appear in
+ * several lines; the tracker works on clones.
+ */
+class Beamline : public std::list<std::shared_ptr<ElementBase>> {
 public:
-    Beamline();
-
-    /// Constructor with given name.
+    /// Create an empty line called [b]name[/b].
     explicit Beamline(const std::string& name);
 
-    /// Copy the element list; the base ElementBase state is not copied.
-    Beamline(const Beamline& right);
+    /// Return the name of the LINE or RING.
+    const std::string& getName() const;
 
-    ~Beamline() override;
-
-    /// Apply BeamlineVisitor to this line.
-    void accept(BeamlineVisitor&) const override;
-
-    /// Apply visitor to all elements of the line.
-    //  If the parameter [b]r2l[/b] is true, the line is traversed from
-    //  right (s=C) to left (s=0).
-    //  If any error occurs, this method may throw an exception.
-    void iterate(BeamlineVisitor&, bool r2l) const;
-
-    /// Make a deep copy: every element is cloned.
-    Beamline* clone() const override;
-
-    /// Make structure copy.
-    //  A new list of the same elements; nested lines are copied the same way.
-    Beamline* copyStructure() override;
-
-    /// Set sharable flag.
-    //  The whole beamline and the elements depending on [b]this[/b] are
-    //  marked as sharable.  After this call a [b]copyStructure()[/b] call
-    //  reuses the element.
-    void makeSharable() override;
-
-    /// Placeholder geometry to satisfy the ElementBase interface.
-    Geometry& getGeometry() override;
-    const Geometry& getGeometry() const override;
-
-    /// Get arc length.
-    //  Return the length of the geometry, measured along the design orbit.
-    double getArcLength() const;
-
-    /// Get design length.
-    //  Return the length of the geometry, measured along the design polygone.
-    double getElementLength() const;
-
-    /// Get beamline type
-    ElementType getType() const override;
-
-    /// Append an element.
-    void append(const FlaggedElmPtr&);
-
+    /// Set the position of the particle source.
     void setOrigin3D(const Vector_t<double, 3>& ori);
+
+    /// Return the position of the particle source.
     Vector_t<double, 3> getOrigin3D() const;
 
+    /// Set the initial direction of the particle source.
     void setInitialDirection(const Quaternion& rot);
+
+    /// Return the initial direction of the particle source.
     Quaternion getInitialDirection() const;
 
-    void initialise(PartBunch_t*) override {}
-    void finalise() override {}
-    void getFieldExtent(double& zBegin, double& zEnd) const override {
-        zBegin = 0.0;
-        zEnd   = getGeometry().getElementLength();
-    }
+    /// Set whether this is an open LINE or a closed RING.
+    void setBeamlineTopology(BeamlineTopology topology);
+
+    /// Return whether this is an open LINE or a closed RING.
+    BeamlineTopology getBeamlineTopology() const;
 
 private:
-    // Not implemented.
-    void operator=(const Beamline&);
-
-    /// Placeholder geometry to satisfy the ElementBase interface.
-    Geometry itsGeometry_m;
-
+    std::string itsName_m;
     Vector_t<double, 3> itsOrigin_m;
-
     Quaternion itsCoordTrafoTo_m;
+    BeamlineTopology itsTopology_m;
 };
 
 #endif  // OPALX_Beamline_HH

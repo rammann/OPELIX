@@ -25,6 +25,8 @@
 #include "AbstractObjects/BeamSequence.h"
 #include "Beamlines/Beamline.h"
 
+#include <memory>
+
 class TokenStream;
 
 class Line : public BeamSequence {
@@ -56,13 +58,12 @@ protected:
     Line(const std::string& name, const char* keyword, const char* help);
 
     /// Parse a LINE-compatible definition.
-    void parseDefinition(Statement& stat, bool allowModifiers);
+    void parseDefinition(Statement& stat);
 
     /// Return the keyword used when printing this sequence.
     virtual const char* getSequenceKeyword() const;
 
-    // Return the embedded OPALX beam line.
-    // The result is the ideal line.
+    // Return the beam line: the elements of this sequence, in input order.
     virtual Beamline* fetchLine() const;
 
 private:
@@ -71,7 +72,10 @@ private:
     void operator=(const Line&);
 
     // Parse sub-list.
-    void parseList(Statement&, bool allowModifiers);
+    void parseList(Statement&);
+
+    // The elements of this line; nested lines are copied in as their elements.
+    std::unique_ptr<Beamline> line_m;
 };
 
 #endif  // OPAL_Line_HH

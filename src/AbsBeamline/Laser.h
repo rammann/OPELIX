@@ -40,9 +40,6 @@ public:
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
 
-    /** @brief Accept a beamline visitor through the laser-specific interface. */
-    void accept(BeamlineVisitor&) const override;
-
     /**
      * @brief Initialize the element for a tracking pass.
      * @param bunch Referenced bunch.

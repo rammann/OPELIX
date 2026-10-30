@@ -101,8 +101,6 @@ public:
             Vector_t<double, 3>& E, Vector_t<double, 3>& B) override;
     /* ========================================================================== */
     /* ============================== Functions ================================= */
-    // @brief Apply visitor to Multipole.
-    virtual void accept(BeamlineVisitor&) const override;
 
     // @returns Is the n-th component focusing?
     bool isFocusing(int n) const;

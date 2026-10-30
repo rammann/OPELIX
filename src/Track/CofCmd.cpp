@@ -11,11 +11,9 @@
 #include "AbstractObjects/BeamSequence.h"
 #include "AbstractObjects/OpalData.h"
 #include "Algorithms/ClosedOrbitSolver.h"
-#include "Algorithms/DefaultVisitor.h"
 #include "Algorithms/LinearMapEigenAnalysis.h"
 #include "Attributes/Attributes.h"
 #include "Beamlines/Beamline.h"
-#include "Beamlines/FlaggedElmPtr.h"
 #include "Elements/OpalBeamline.h"
 #include "PartBunch/CartesianDomainConfig.h"
 #include "Structure/Beam.h"
@@ -103,16 +101,19 @@ namespace {
         std::string output;
     };
 
-    class LatticeVisitor : public DefaultVisitor {
-        OpalBeamline& lattice;
-        PartBunch_t& bunch;
-        std::string owner;
-        void applyDefault(const ElementBase& element) override {
-            if (!element.getName().empty() && element.getName().front() == '#') return;
+    // Add the elements of the RING to the lattice in line order. Return the added
+    // elements without markers, in the same order.
+    std::vector<std::shared_ptr<ElementBase>> addRingElements(
+            const Beamline& line, OpalBeamline& lattice, PartBunch_t& bunch,
+            const std::string& owner) {
+        std::vector<std::shared_ptr<ElementBase>> ordered;
+        for (const auto& member : line) {
+            const ElementBase& element = *member;
+            if (!element.getName().empty() && element.getName().front() == '#') continue;
             const auto type = element.getType();
             // A monitor is passive for scalar optics. Do not initialise its
             // diagnostic sink (which could overwrite a TRACK monitor file).
-            if (type == ElementType::MONITOR) return;
+            if (type == ElementType::MONITOR) continue;
             require(type == ElementType::DRIFT || type == ElementType::MARKER
                             || type == ElementType::MULTIPOLE || type == ElementType::SBEND
                             || type == ElementType::RBEND || type == ElementType::CYCLOTRONSECTOR,
@@ -121,22 +122,12 @@ namespace {
                             && element.getBeamlineTopology() == BeamlineTopology::RING,
                     "Ambiguous ring membership for " + element.getName());
             const auto before = lattice.getElements();
-            lattice.visit(element, *this, bunch);
+            lattice.addElement(element, bunch);
             for (const auto& added : lattice.getElements())
                 if (!before.count(added) && type != ElementType::MARKER) ordered.push_back(added);
         }
-
-    public:
-        std::vector<std::shared_ptr<ElementBase>> ordered;
-        LatticeVisitor(
-                const Beamline& line, OpalBeamline& runtime, PartBunch_t& reference,
-                std::string name)
-            : DefaultVisitor(line), lattice(runtime), bunch(reference), owner(std::move(name)) {}
-        void visitFlaggedElmPtr(const FlaggedElmPtr& pointer) override {
-            require(!pointer.getReflectionFlag(), "Reflected COF members are unsupported.");
-            DefaultVisitor::visitFlaggedElmPtr(pointer);
-        }
-    };
+        return ordered;
+    }
 
     // All ranks build the empty reference container once; scalar ray work and files
     // are rank-zero only. Broadcast diagnostic text before throwing on solver failure.
@@ -148,8 +139,8 @@ namespace {
         PartBunch_t bunch({beam.getCharge()}, {beam.getMass()}, {&beam}, {0}, 1, "LF2", domain);
         OpalBeamline lattice(
                 sequence.fetchLine()->getOrigin3D(), sequence.fetchLine()->getInitialDirection());
-        LatticeVisitor visitor(*sequence.fetchLine(), lattice, bunch, sequence.getOpalName());
-        visitor.execute();
+        const auto ordered =
+                addRingElements(*sequence.fetchLine(), lattice, bunch, sequence.getOpalName());
         lattice.prepareSections();
         int rank = 0;
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -162,9 +153,9 @@ namespace {
         state.species = beam.getParticleName();
         std::string error, report;
         if (rank == 0) try {
-                require(!visitor.ordered.empty(), "RING must contain magnetic/transport elements.");
-                const auto first = lattice.getNominalEntryTransform(visitor.ordered.front());
-                const auto last  = lattice.getNominalExitTransform(visitor.ordered.back());
+                require(!ordered.empty(), "RING must contain magnetic/transport elements.");
+                const auto first = lattice.getNominalEntryTransform(ordered.front());
+                const auto last  = lattice.getNominalExitTransform(ordered.back());
                 const Vector_t<double, 3> zero(0.0);
                 const Vector_t<double, 3> positionDifference =
                         first.transformFrom(zero) - last.transformFrom(zero);

@@ -185,9 +185,7 @@ namespace {
 
         // The begin and end markers that Line puts around every beam line.
         for (const char* name : {"#S", "#E"}) {
-            auto* marker = new OpalMarker(name);
-            marker->getElement()->makeSharable();
-            OpalData::getInstance()->define(marker);
+            OpalData::getInstance()->define(new OpalMarker(name));
         }
 
         // The beam TRACK uses when BEAM is not given.

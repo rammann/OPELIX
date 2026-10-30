@@ -18,7 +18,7 @@
 //
 // ------------------------------------------------------------------------
 
-#include "AbstractObjects/Element.h"
+#include "AbstractObjects/Definition.h"
 
 class Beamline;
 
@@ -28,7 +28,7 @@ class Beamline;
 //  It implements the common behaviour of sequences, it can also be used via
 //  dynamic casting to determine whether an object represents a sequence.
 
-class BeamSequence : public Element {
+class BeamSequence : public Definition {
 public:
     virtual ~BeamSequence();
 
@@ -39,9 +39,11 @@ public:
     //  Return the string "SEQUENCE".
     virtual const std::string getCategory() const;
 
-    /// Return the embedded OPALX beam line.
-    //  The result it the ideal line.
+    /// Return the beam line: the elements of this sequence, in input order.
     virtual Beamline* fetchLine() const = 0;
+
+    /// Return the length of the sequence.
+    virtual double getLength() const = 0;
 
     /// Prepare occurrence-specific state before TrackRun constructs the tracking lattice.
     /// The default is a no-op (LINE); Ring overrides it to clone/tag member occurrences.

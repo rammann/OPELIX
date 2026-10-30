@@ -18,7 +18,6 @@
 //
 #include "AbsBeamline/PluginElement.h"
 
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "PartBunch/PartBunch.h"
 #include "Physics/Physics.h"
 #include "Physics/Units.h"

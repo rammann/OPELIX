@@ -1,7 +1,6 @@
 set (_SRCS
     AbstractTimeDependence.cpp
     CavityAutophaser.cpp
-    DefaultVisitor.cpp
     DistributionMoments.cpp
     IndexMap.cpp
     ExternalFieldRayTracker.cpp
@@ -20,7 +19,6 @@ set (_SRCS
     SplineTimeDependence.cpp
     SinusoidalTimeDependence.cpp
     StepSizeConfig.cpp
-    Tracker.cpp
     CoordinateSystemTrafo.cpp
     Quaternion.cpp
 )
@@ -30,7 +28,6 @@ set (HDRS
     CavityAutophaser.h
     CompensatedSum.h
     RungeKuttaTableau.h
-    DefaultVisitor.h
     DistributionMoments.h
     IndexMap.h
     ExternalFieldRayTracker.h
@@ -53,7 +50,6 @@ set (HDRS
     SplineTimeDependence.h
     SinusoidalTimeDependence.h
     StepSizeConfig.h
-    Tracker.h
     Matrix.h
     CoordinateSystemTrafo.h
     Quaternion.hpp

@@ -219,9 +219,6 @@ public:
     /** Return the cell geometry */
     const Geometry& getGeometry() const override;
 
-    /** Accept a beamline visitor */
-    void accept(BeamlineVisitor& visitor) const override;
-
     /** Return the field lookup configuration */
     ScalingFFAMagnetConfig getConfig() const { return config_m; }
 

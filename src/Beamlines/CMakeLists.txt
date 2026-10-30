@@ -1,11 +1,9 @@
 set (_SRCS
     Beamline.cpp
-    FlaggedElmPtr.cpp
     )
 
 set (HDRS
     Beamline.h
-    FlaggedElmPtr.h
     )
 
 target_include_directories(opalx PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})

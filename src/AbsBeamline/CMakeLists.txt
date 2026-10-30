@@ -6,7 +6,6 @@ add_subdirectory(EndFieldModel)
 # List local source and header files
 set(_SRCS
     CyclotronSector.cpp
-    BeamlineVisitor.cpp
     Box.cpp
     Collimator.cpp
     ConstantEFieldCavity.cpp
@@ -35,7 +34,6 @@ set(_SRCS
 
 set(_HDRS
     CyclotronSector.h
-    BeamlineVisitor.h
     Box.h
     Collimator.h
     ConstantEFieldCavity.h

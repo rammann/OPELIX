@@ -7,13 +7,10 @@
 #include "AbsBeamline/Solenoid.h"
 #include "AbsBeamline/TravelingWave.h"
 #include "AbstractObjects/OpalData.h"
-#include "Algorithms/DefaultVisitor.h"
 #include "Algorithms/IndexMap.h"
 #include "Algorithms/OrbitThreader.h"
 #include "Algorithms/PartData.h"
 #include "Algorithms/StepSizeConfig.h"
-#include "BeamlineGeometry/Geometry.h"
-#include "Beamlines/Beamline.h"
 #include "Elements/OpalBeamline.h"
 #include "Fields/Fieldmap.h"
 #include "Physics/Units.h"
@@ -173,19 +170,6 @@ protected:
     std::shared_ptr<DataSink> dataSink_m;
 };
 
-class DummyBeamline final : public Beamline {
-public:
-    DummyBeamline() : Beamline("dummy") {}
-
-    ElementType getType() const override { return ElementType::BEAMLINE; }
-    Geometry& getGeometry() override { return geometry_; }
-    const Geometry& getGeometry() const override { return geometry_; }
-    void accept(BeamlineVisitor& visitor) const override { visitor.visitBeamline(*this); }
-
-private:
-    Geometry geometry_{Geometry::makeNull()};
-};
-
 TEST_F(SolenoidPlacementTest, FieldMapEdgesAndSupportEnvelopeFollowFieldMap) {
     const auto mapFile = writeXZFieldmap("solenoid_edges.map", -5.0, 15.0, 4, 0.0, 3.0, 3);
 
@@ -239,11 +223,9 @@ TEST_F(SolenoidPlacementTest, LatticeExportsUseFieldMapEdgesAndSolenoidMeshType)
     solenoid.setElementPosition(1.0);
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
     OpalBeamline beamline;
     try {
-        beamline.visit(solenoid, visitor, *bunch);
+        beamline.addElement(solenoid, *bunch);
     } catch (const OpalException& ex) {
         FAIL() << ex.where() << ": " << ex.what();
     } catch (...) {
@@ -302,8 +284,6 @@ TEST_F(SolenoidPlacementTest, LinearTransferMapUsesTabulatedFieldMap) {
     const auto mapFile = writeXZFieldmap("solenoid_transfer.map", 0.0, 20.0, 21, 0.0, 3.0, 4, 0.1);
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
 
     Solenoid solenoid("SOL_MAP");
     solenoid.getGeometry().setElementLength(0.2);
@@ -312,7 +292,7 @@ TEST_F(SolenoidPlacementTest, LinearTransferMapUsesTabulatedFieldMap) {
     solenoid.fixPosition();
 
     OpalBeamline beamline;
-    beamline.visit(solenoid, visitor, *bunch);
+    beamline.addElement(solenoid, *bunch);
     beamline.prepareSections();
     beamline.activateElements();
 
@@ -442,11 +422,9 @@ TEST_F(SolenoidPlacementTest, DriftMeshesAsBlueCylinderUsingFirstNonDriftReferen
     solenoid.setElementPosition(0.5);
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
     OpalBeamline beamline;
-    beamline.visit(drift, visitor, *bunch);
-    beamline.visit(solenoid, visitor, *bunch);
+    beamline.addElement(drift, *bunch);
+    beamline.addElement(solenoid, *bunch);
     beamline.compute3DLattice();
     beamline.save3DLattice();
 
@@ -466,10 +444,8 @@ TEST_F(SolenoidPlacementTest, QuadrupoleMeshesAsPoleBodyRatherThanGenericCylinde
     quadrupole.setNormalComponent(1, 1.0);
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
     OpalBeamline beamline;
-    beamline.visit(quadrupole, visitor, *bunch);
+    beamline.addElement(quadrupole, *bunch);
     beamline.compute3DLattice();
     beamline.save3DLattice();
 

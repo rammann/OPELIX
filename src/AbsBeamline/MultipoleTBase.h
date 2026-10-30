@@ -68,7 +68,6 @@
 #include "AbsBeamline/MultipoleTConfig.h"
 #include "BeamlineGeometry/Geometry.h"
 class MultipoleT;
-class BeamlineVisitor;
 
 class MultipoleTBase {
 public:

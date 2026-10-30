@@ -21,8 +21,6 @@ public:
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
 
-    virtual void accept(BeamlineVisitor& visitor) const override;
-
     virtual void initialise(PartBunch_t* bunch) override;
     virtual void finalise() override;
     virtual ElementType getType() const override;

@@ -39,10 +39,6 @@ public:
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
 
-    /// @brief Apply a visitor.
-    /// @param visitor The visitor to apply.
-    void accept(BeamlineVisitor& visitor) const override;
-
     /// @brief Get the element type.
     /// @return The element type (ElementType::RBEND).
     ElementType getType() const override;

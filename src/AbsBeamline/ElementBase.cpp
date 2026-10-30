@@ -38,7 +38,6 @@ const std::vector<double> ElementBase::defaultAperture_m = std::vector<double>({
 const std::map<ElementType, std::string> ElementBase::elementTypeToString_s = {
         {ElementType::ANY, "Any"},
         {ElementType::CYCLOTRONSECTOR, "CyclotronSector"},
-        {ElementType::BEAMLINE, "Beamline"},
         {ElementType::BOX, "Box"},
         {ElementType::COLLIMATOR, "Collimator"},
         {ElementType::DRIFT, "Drift"},
@@ -64,7 +63,6 @@ ElementBase::ElementBase() : ElementBase("") {}
 
 ElementBase::ElementBase(const ElementBase& right)
     : std::enable_shared_from_this<ElementBase>(),
-      shareFlag(true),
       csTrafoGlobal2Local_m(right.csTrafoGlobal2Local_m),
       misalignment_m(right.misalignment_m),
       rotationZAxis_m(right.rotationZAxis_m),
@@ -80,8 +78,7 @@ ElementBase::ElementBase(const ElementBase& right)
       deleteOnTransverseExit_m(right.deleteOnTransverseExit_m) {}
 
 ElementBase::ElementBase(const std::string& name)
-    : shareFlag(true),
-      csTrafoGlobal2Local_m(),
+    : csTrafoGlobal2Local_m(),
       misalignment_m(),
       rotationZAxis_m(0.0),
       RefPartBunch_m(nullptr),
@@ -156,16 +153,6 @@ std::string ElementBase::getOutputFN() const {
 }
 
 std::string ElementBase::getTypeString(ElementType type) { return elementTypeToString_s.at(type); }
-
-ElementBase* ElementBase::copyStructure() {
-    if (isSharable()) {
-        return this;
-    } else {
-        return clone();
-    }
-}
-
-void ElementBase::makeSharable() { shareFlag = true; }
 
 BoundingBox ElementBase::getBoundingBoxInLabCoords() const {
     CoordinateSystemTrafo toBegin = getGeometry().getEdgeToBegin() * csTrafoGlobal2Local_m;

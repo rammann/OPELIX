@@ -27,7 +27,6 @@
 
 #include <cmath>
 
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "AbsBeamline/EndFieldModel/EndFieldModelManager.h"
 #include "AbsBeamline/ScalingFFAMagnet.h"
 #include "PartBunch/PartBunch.h"
@@ -103,11 +102,6 @@ void ScalingFFAMagnet::setEndField(std::shared_ptr<endfieldmodel::EndFieldModel>
 Geometry& ScalingFFAMagnet::getGeometry() { return planarArcGeometry_m; }
 
 const Geometry& ScalingFFAMagnet::getGeometry() const { return planarArcGeometry_m; }
-
-void ScalingFFAMagnet::accept(BeamlineVisitor& visitor) const {
-    visitor.visitScalingFFAMagnet(*this);
-    setupEndField();
-}
 
 bool ScalingFFAMagnet::isInside(const Vector_t<double, 3>& rCart) const {
     Vector_t<double, 5> rCyl;

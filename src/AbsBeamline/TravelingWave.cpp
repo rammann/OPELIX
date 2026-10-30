@@ -7,7 +7,6 @@
  */
 #include "AbsBeamline/TravelingWave.h"
 
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "Fields/Astra1DDynamic.h"
 #include "Fields/Fieldmap.h"
 #include "PartBunch/PartBunch.h"
@@ -49,8 +48,6 @@ TravelingWave::TravelingWave(const std::string& name)
       mode_m(1) {}
 
 TravelingWave::~TravelingWave() {}
-
-void TravelingWave::accept(BeamlineVisitor& visitor) const { visitor.visitTravelingWave(*this); }
 
 /* ========================================================================== */
 /* ============================== Apply Functions =========================== */

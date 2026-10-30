@@ -39,9 +39,6 @@ public:
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
 
-    /// Apply visitor to Probe.
-    virtual void accept(BeamlineVisitor&) const override;
-
     /// Set probe histogram bin width
     void setStep(double step);
     ///@{ Member variable access

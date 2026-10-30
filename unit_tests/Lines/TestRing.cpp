@@ -38,13 +38,13 @@ protected:
 };
 
 TEST_F(RingTest, PrintsRingDefinition) {
-    std::unique_ptr<Ring> ring(makeRing("TEST_RING"));
+    TestableRing ring("TEST_RING");
 
     std::ostringstream output;
-    ring->print(output);
+    ring.print(output);
     EXPECT_EQ(output.str(), "TEST_RING:RING=();\n");
-    EXPECT_EQ(ring->getElement()->getBeamlineTopology(), BeamlineTopology::RING);
-    EXPECT_EQ(ring->getElement()->getBeamlineOwnerName(), "TEST_RING");
+    EXPECT_EQ(ring.line()->getBeamlineTopology(), BeamlineTopology::RING);
+    EXPECT_EQ(ring.line()->getName(), "TEST_RING");
 }
 
 TEST(RingMembershipTest, DefaultsValidatesAndSurvivesClone) {
@@ -73,59 +73,46 @@ TEST(RingMembershipTest, DefaultsValidatesAndSurvivesClone) {
     EXPECT_TRUE(drift.getBeamlineOwnerName().empty());
 }
 
-TEST(RingMembershipTest, ClonesAndTagsOccurrencesRecursively) {
+TEST(RingMembershipTest, ClonesAndTagsOccurrences) {
     auto prototype = std::make_shared<Drift>("D");
     auto marker    = std::make_shared<Marker>("#S");
-    auto nested    = std::make_shared<Beamline>("SUBLINE");
-    nested->push_back(FlaggedElmPtr(prototype));
 
     TestableRing ring("RING");
-    ring.line()->push_back(FlaggedElmPtr(marker));
-    ring.line()->push_back(FlaggedElmPtr(prototype));
-    ring.line()->push_back(FlaggedElmPtr(prototype));
-    ring.line()->push_back(FlaggedElmPtr(nested));
+    ring.line()->push_back(marker);
+    ring.line()->push_back(prototype);
+    ring.line()->push_back(prototype);
     ring.prepareForTracking();
 
     auto member = ring.line()->begin();
-    EXPECT_EQ(member->getElement(), marker.get());
-    EXPECT_EQ(member->getElement()->getBeamlineTopology(), BeamlineTopology::LINE);
+    EXPECT_EQ(*member, marker);
+    EXPECT_EQ((*member)->getBeamlineTopology(), BeamlineTopology::LINE);
 
-    ElementBase* first  = (++member)->getElement();
-    ElementBase* second = (++member)->getElement();
-    EXPECT_NE(first, prototype.get());
-    EXPECT_NE(second, prototype.get());
+    const auto first  = *(++member);
+    const auto second = *(++member);
+    EXPECT_NE(first, prototype);
+    EXPECT_NE(second, prototype);
     EXPECT_NE(first, second);
+    EXPECT_EQ(first->getBeamlineTopology(), BeamlineTopology::RING);
     EXPECT_EQ(first->getBeamlineOwnerName(), "RING");
     EXPECT_EQ(second->getBeamlineOwnerName(), "RING");
     EXPECT_EQ(prototype->getBeamlineTopology(), BeamlineTopology::LINE);
-
-    auto* nestedOccurrence = dynamic_cast<Beamline*>((++member)->getElement());
-    ASSERT_NE(nestedOccurrence, nullptr);
-    EXPECT_NE(nestedOccurrence, nested.get());
-    EXPECT_EQ(nestedOccurrence->getBeamlineTopology(), BeamlineTopology::RING);
-    EXPECT_EQ(nestedOccurrence->getBeamlineOwnerName(), "RING");
-    ASSERT_EQ(nestedOccurrence->size(), 1);
-    EXPECT_NE(nestedOccurrence->front().getElement(), prototype.get());
-    EXPECT_EQ(
-            nestedOccurrence->front().getElement()->getBeamlineTopology(), BeamlineTopology::RING);
-    EXPECT_EQ(nestedOccurrence->front().getElement()->getBeamlineOwnerName(), "RING");
 }
 
 TEST(RingMembershipTest, KeepsSharedPrototypeIndependentAcrossRings) {
     auto prototype = std::make_shared<Drift>("SHARED");
     TestableRing first("R1");
     TestableRing second("R2");
-    first.line()->push_back(FlaggedElmPtr(prototype));
-    second.line()->push_back(FlaggedElmPtr(prototype));
+    first.line()->push_back(prototype);
+    second.line()->push_back(prototype);
 
     first.prepareForTracking();
     second.prepareForTracking();
 
-    ElementBase* firstOccurrence  = first.line()->front().getElement();
-    ElementBase* secondOccurrence = second.line()->front().getElement();
+    const auto firstOccurrence  = first.line()->front();
+    const auto secondOccurrence = second.line()->front();
     EXPECT_NE(firstOccurrence, secondOccurrence);
-    EXPECT_NE(firstOccurrence, prototype.get());
-    EXPECT_NE(secondOccurrence, prototype.get());
+    EXPECT_NE(firstOccurrence, prototype);
+    EXPECT_NE(secondOccurrence, prototype);
     EXPECT_EQ(firstOccurrence->getBeamlineOwnerName(), "R1");
     EXPECT_EQ(secondOccurrence->getBeamlineOwnerName(), "R2");
     EXPECT_EQ(prototype->getBeamlineTopology(), BeamlineTopology::LINE);
@@ -138,12 +125,12 @@ TEST(RingMembershipTest, CircumferenceCountsNominalArcsAndDriftsNotFringeSupport
     bend->getGeometry().setCurvature(0.5);
     auto drift = std::make_shared<Drift>("D");
     drift->getGeometry().setElementLength(0.4);
-    auto nested = std::make_shared<Beamline>("CELL");
-    nested->push_back(FlaggedElmPtr(bend));
-    nested->push_back(FlaggedElmPtr(drift));
+    // Two uses of a nested LINE (bend, drift) are copied in as their elements.
     TestableRing ring("RING");
-    ring.line()->push_back(FlaggedElmPtr(nested));
-    ring.line()->push_back(FlaggedElmPtr(nested));
+    for (int cell = 0; cell < 2; ++cell) {
+        ring.line()->push_back(bend);
+        ring.line()->push_back(drift);
+    }
     for (const double gap : {0.0, 0.1, 0.2}) {
         bend->setFullGap(gap);
         bend->setFringeIntegral(0.1);

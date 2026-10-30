@@ -38,4 +38,4 @@ BeamSequence* BeamSequence::find(const std::string& name) {
 }
 
 BeamSequence::BeamSequence(const std::string& name, int size, const char* keyword, const char* help)
-    : Element(name, size, keyword, help) {}
+    : Definition(name, size, keyword, help) {}

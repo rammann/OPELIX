@@ -8,7 +8,6 @@
 #include "AbsBeamline/RFCavity.h"
 
 #include <filesystem>
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "AbsBeamline/ElementBase.h"
 #include "Fields/Astra1DDynamic.h"
 #include "Fields/FM2DDynamic.h"
@@ -112,8 +111,6 @@ RFCavity::RFCavity(const std::string& name)
       num_points_m(0) {}
 
 RFCavity::~RFCavity() {}
-
-void RFCavity::accept(BeamlineVisitor& visitor) const { visitor.visitRFCavity(*this); }
 
 /* ========================================================================== */
 /* ============================== Apply Functions =========================== */

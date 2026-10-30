@@ -23,8 +23,6 @@ public:
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
 
-    void accept(BeamlineVisitor& visitor) const override;
-
     void initialise(PartBunch_t* bunch) override;
     void finalise() override;
     ElementType getType() const override;

@@ -1,4 +1,3 @@
-#include "Algorithms/DefaultVisitor.h"
 #include "gtest/gtest.h"
 
 #include "AbsBeamline/Drift.h"
@@ -7,8 +6,6 @@
 #include "AbsBeamline/SBend.h"
 #include "AbstractObjects/OpalData.h"
 #include "Attributes/Attributes.h"
-#include "BeamlineGeometry/Geometry.h"
-#include "Beamlines/Beamline.h"
 #include "Elements/OpalBeamline.h"
 #include "Elements/OpalRBend.h"
 #include "Elements/OpalSBend.h"
@@ -52,19 +49,6 @@ namespace {
             }
         }
     }
-
-    class DummyBeamline final : public Beamline {
-    public:
-        DummyBeamline() : Beamline("dummy") {}
-
-        ElementType getType() const override { return ElementType::BEAMLINE; }
-        Geometry& getGeometry() override { return geometry_; }
-        const Geometry& getGeometry() const override { return geometry_; }
-        void accept(BeamlineVisitor& visitor) const override { visitor.visitBeamline(*this); }
-
-    private:
-        Geometry geometry_{Geometry::makeNull()};
-    };
 }  // namespace
 
 class OpalBeamlinePlacementTest : public ::testing::Test {
@@ -180,9 +164,7 @@ TEST_F(OpalBeamlinePlacementTest, PrepareSectionsComposes6DPoseWithLabFrame) {
     expected *= beamline.getCSTrafoLab2Local();
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
-    beamline.visit(drift, visitor, *bunch);
+    beamline.addElement(drift, *bunch);
     beamline.prepareSections();
 
     const auto component = *beamline.getElements().begin();
@@ -195,10 +177,8 @@ TEST_F(OpalBeamlinePlacementTest, PrepareSectionsCompilesElementPositionIntoNomi
     drift.setElementPosition(1.25);
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
     OpalBeamline beamline;
-    beamline.visit(drift, visitor, *bunch);
+    beamline.addElement(drift, *bunch);
 
     beamline.prepareSections();
 
@@ -219,10 +199,8 @@ TEST_F(OpalBeamlinePlacementTest, BeamlineOwnsPlacedElementAssemblySnapshot) {
     drift.setElementPosition(0.75);
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
     OpalBeamline beamline;
-    beamline.visit(drift, visitor, *bunch);
+    beamline.addElement(drift, *bunch);
     beamline.prepareSections();
 
     const auto elements = beamline.getElements();
@@ -255,11 +233,9 @@ TEST_F(OpalBeamlinePlacementTest, SequentialBendThenDriftChainWithoutGap) {
     drift->setElementPosition(bendEdge + arc);
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
     OpalBeamline beamline;
-    beamline.visit(*bend, visitor, *bunch);
-    beamline.visit(*drift, visitor, *bunch);
+    beamline.addElement(*bend, *bunch);
+    beamline.addElement(*drift, *bunch);
     beamline.prepareSections();
 
     std::shared_ptr<ElementBase> placedBend, placedDrift;
@@ -296,12 +272,10 @@ TEST_F(OpalBeamlinePlacementTest, CurvedMultipoleTIsFramedLikeAnSBend) {
         drift->getGeometry().setElementLength(1.0);
         drift->setElementPosition(edge + arc);
 
-        auto bunch = makeBunch(0);
-        DummyBeamline beamlineForVisitor;
-        DefaultVisitor visitor(beamlineForVisitor);
+        auto bunch    = makeBunch(0);
         auto beamline = std::make_shared<OpalBeamline>();
-        beamline->visit(*magnet, visitor, *bunch);
-        beamline->visit(*drift, visitor, *bunch);
+        beamline->addElement(*magnet, *bunch);
+        beamline->addElement(*drift, *bunch);
         beamline->prepareSections();
 
         std::shared_ptr<ElementBase> placedMagnet, placedDrift;
@@ -349,10 +323,8 @@ TEST_F(OpalBeamlinePlacementTest, ModeAStoresEntranceFrameVerbatim) {
     bend->setCSTrafoGlobal2Local(entrancePose);  // Mode A: no ELEMEDGE
 
     auto bunch = makeBunch(0);
-    DummyBeamline beamlineForVisitor;
-    DefaultVisitor visitor(beamlineForVisitor);
     OpalBeamline beamline;
-    beamline.visit(*bend, visitor, *bunch);
+    beamline.addElement(*bend, *bunch);
     beamline.prepareSections();
 
     const auto placed = *beamline.getElements().begin();
@@ -371,10 +343,8 @@ TEST_F(OpalBeamlinePlacementTest, SBendModeAMatchesModeB) {
     bendB->getGeometry() = Geometry::makeSBend(arc, h);
     bendB->setElementPosition(edge);
     auto bunchB = makeBunch(0);
-    DummyBeamline dbB;
-    DefaultVisitor visB(dbB);
     OpalBeamline beamlineB;
-    beamlineB.visit(*bendB, visB, *bunchB);
+    beamlineB.addElement(*bendB, *bunchB);
     beamlineB.prepareSections();
     const CoordinateSystemTrafo frameB =
             beamlineB.getCSTrafoLab2Local(*beamlineB.getElements().begin());
@@ -384,10 +354,8 @@ TEST_F(OpalBeamlinePlacementTest, SBendModeAMatchesModeB) {
     bendA->getGeometry() = Geometry::makeSBend(arc, h);
     bendA->setCSTrafoGlobal2Local(frameB);
     auto bunchA = makeBunch(0);
-    DummyBeamline dbA;
-    DefaultVisitor visA(dbA);
     OpalBeamline beamlineA;
-    beamlineA.visit(*bendA, visA, *bunchA);
+    beamlineA.addElement(*bendA, *bunchA);
     beamlineA.prepareSections();
     const CoordinateSystemTrafo frameA =
             beamlineA.getCSTrafoLab2Local(*beamlineA.getElements().begin());
@@ -404,10 +372,8 @@ TEST_F(OpalBeamlinePlacementTest, RBendModeAMatchesModeB) {
     bendB->getGeometry() = Geometry::makeRBend(boxLength, angle);
     bendB->setElementPosition(edge);
     auto bunchB = makeBunch(0);
-    DummyBeamline dbB;
-    DefaultVisitor visB(dbB);
     OpalBeamline beamlineB;
-    beamlineB.visit(*bendB, visB, *bunchB);
+    beamlineB.addElement(*bendB, *bunchB);
     beamlineB.prepareSections();
     const CoordinateSystemTrafo frameB =
             beamlineB.getCSTrafoLab2Local(*beamlineB.getElements().begin());
@@ -416,10 +382,8 @@ TEST_F(OpalBeamlinePlacementTest, RBendModeAMatchesModeB) {
     bendA->getGeometry() = Geometry::makeRBend(boxLength, angle);
     bendA->setCSTrafoGlobal2Local(frameB);
     auto bunchA = makeBunch(0);
-    DummyBeamline dbA;
-    DefaultVisitor visA(dbA);
     OpalBeamline beamlineA;
-    beamlineA.visit(*bendA, visA, *bunchA);
+    beamlineA.addElement(*bendA, *bunchA);
     beamlineA.prepareSections();
     const CoordinateSystemTrafo frameA =
             beamlineA.getCSTrafoLab2Local(*beamlineA.getElements().begin());
@@ -472,11 +436,9 @@ TEST_F(OpalBeamlinePlacementTest, RejectsMixedPlacementConventions) {
     edgeDrift->setElementPosition(2.0);  // Mode B: ELEMEDGE
 
     auto bunch = makeBunch(0);
-    DummyBeamline db;
-    DefaultVisitor visitor(db);
     OpalBeamline beamline;
-    beamline.visit(*poseBend, visitor, *bunch);
-    beamline.visit(*edgeDrift, visitor, *bunch);
+    beamline.addElement(*poseBend, *bunch);
+    beamline.addElement(*edgeDrift, *bunch);
 
     EXPECT_THROW(beamline.prepareSections(), OpalException);
 }
@@ -493,11 +455,9 @@ TEST_F(OpalBeamlinePlacementTest, AcceptsUniform6DPoseAcrossMultipleElements) {
     d2->setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector3(0.0, 0.0, 2.0), Quaternion()));
 
     auto bunch = makeBunch(0);
-    DummyBeamline db;
-    DefaultVisitor visitor(db);
     OpalBeamline beamline;
-    beamline.visit(*d1, visitor, *bunch);
-    beamline.visit(*d2, visitor, *bunch);
+    beamline.addElement(*d1, *bunch);
+    beamline.addElement(*d2, *bunch);
 
     EXPECT_NO_THROW(beamline.prepareSections());
 }

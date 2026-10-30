@@ -1,6 +1,5 @@
 #include "AbsBeamline/Laser.h"
 
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "Physics/LinearCompton.h"
 
 Laser::Laser() : Laser("") {}
@@ -27,8 +26,6 @@ Laser::Laser(const Laser& right)
       geometry_m(right.geometry_m) {}
 
 Laser::~Laser() {}
-
-void Laser::accept(BeamlineVisitor& visitor) const { visitor.visitLaser(*this); }
 
 void Laser::initialise(PartBunch_t* bunch) { RefPartBunch_m = bunch; }
 

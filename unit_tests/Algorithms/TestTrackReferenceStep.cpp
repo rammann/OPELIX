@@ -1,9 +1,7 @@
 #include "AbsBeamline/Monitor.h"
-#include "Algorithms/DefaultVisitor.h"
 #include "Algorithms/DirectedTurnCounter.h"
 #include "Algorithms/PartData.h"
 #include "Algorithms/TrackReferenceStep.h"
-#include "Beamlines/Beamline.h"
 #include "Elements/OpalBeamline.h"
 #include "PartBunch/PartBunch.h"
 #include "Structure/Beam.h"
@@ -116,13 +114,11 @@ TEST_F(TrackReferenceStepTest, BeamlineTrialsDoNotWriteMonitors) {
     Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    Beamline line;
-    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     CountingMonitor monitor;
     monitor.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector(0), Quaternion()));
     monitor.fixPosition();
-    lattice.visit(monitor, visitor, bunch);
+    lattice.addElement(monitor, bunch);
     lattice.prepareSections();
     auto* stored = dynamic_cast<CountingMonitor*>(lattice.getElements().begin()->get());
     ASSERT_NE(stored, nullptr);
@@ -144,13 +140,11 @@ TEST_F(TrackReferenceStepTest, ResolvedTransportFindsThinSpatialSupportAndConser
     Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    Beamline line;
-    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     ThinMagnet magnet;
     magnet.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector(0, 0, 0.01), Quaternion()));
     magnet.fixPosition();
-    lattice.visit(magnet, visitor, bunch);
+    lattice.addElement(magnet, bunch);
     lattice.prepareSections();
     const double mass = 9.382720813e8;
     const PartData reference(1., mass, 1e6);
@@ -183,13 +177,11 @@ TEST_F(TrackReferenceStepTest, ResolvedTrialsDoNotRecordMonitors) {
     Beam beam("TEST_BEAM");
     PartBunch_t bunch(
             {1.}, {1.}, {&beam}, {0}, 1., "LF2", opalx::spacecharge::CartesianDomainConfig3D{});
-    Beamline line;
-    DefaultVisitor visitor(line);
     OpalBeamline lattice;
     CountingMonitor monitor;
     monitor.setCSTrafoGlobal2Local(CoordinateSystemTrafo(Vector(0), Quaternion()));
     monitor.fixPosition();
-    lattice.visit(monitor, visitor, bunch);
+    lattice.addElement(monitor, bunch);
     lattice.prepareSections();
     auto* stored = dynamic_cast<CountingMonitor*>(lattice.getElements().begin()->get());
     ASSERT_NE(stored, nullptr);

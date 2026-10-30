@@ -69,7 +69,6 @@ public:
     explicit CyclotronSector(const std::string& name) : ElementBase(name) {}
     /// Clone the occurrence, sharing map and read-only coil views; no grid copy.
     CyclotronSector* clone() const override { return new CyclotronSector(*this); }
-    void accept(BeamlineVisitor&) const override;
     ElementType getType() const override { return ElementType::CYCLOTRONSECTOR; }
     Geometry& getGeometry() override { return geometry; }
     const Geometry& getGeometry() const override { return geometry; }

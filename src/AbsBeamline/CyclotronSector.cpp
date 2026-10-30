@@ -1,6 +1,5 @@
 #include "AbsBeamline/CyclotronSector.h"
 #include <cmath>
-#include "AbsBeamline/BeamlineVisitor.h"
 #include "PartBunch/PartBunch.h"
 #include "Utilities/OpalException.h"
 
@@ -55,9 +54,6 @@ void CyclotronSector::configure(
     for (size_t i = 0; i < models.size(); ++i)
         hostCoils(i) = models[i];
     Kokkos::deep_copy(coils, hostCoils);
-}
-void CyclotronSector::accept(BeamlineVisitor& visitor) const {
-    visitor.visitCyclotronSector(*this);
 }
 void CyclotronSector::initialise(PartBunch_t* bunch) {
     if (!map) throw OpalException("CyclotronSector::initialise", "FMAPFN is required.");

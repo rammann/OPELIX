@@ -85,9 +85,6 @@ public:
     Geometry& getGeometry() override;
     const Geometry& getGeometry() const override;
 
-    /// Apply visitor to RFCavity.
-    virtual void accept(BeamlineVisitor&) const override;
-
     /// Get RF amplitude.
     virtual double getAmplitude() const { return getAmplitudem(); }
 

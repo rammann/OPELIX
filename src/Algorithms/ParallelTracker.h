@@ -1,6 +1,6 @@
 /**
  * @file ParallelTracker.h
- * @brief Visitor-based parallel tracker with time as the independent variable.
+ * @brief Parallel tracker with time as the independent variable.
  *
  * @copyright Copyright (c) 200x - 2014, Christof Kraus, Paul Scherrer Institut, Villigen PSI,
  * Switzerland
@@ -28,7 +28,8 @@
 #include "Algorithms/DeviceExternalField.h"
 #include "Algorithms/SpectralTunes.h"
 #include "Algorithms/StepSizeConfig.h"
-#include "Algorithms/Tracker.h"
+#include "Beamlines/Beamline.h"
+#include "PartBunch/PartBunch.h"
 #include "Steppers/BorisPusher.h"
 #include "Steppers/SpinTBMTPusher.h"
 #include "Structure/DataSink.h"
@@ -86,7 +87,13 @@ namespace opalx::spacecharge {
  * @note TRACK and RUN in the input file construct a ParallelTracker and run
  *       ParallelTracker::execute().
  */
-class ParallelTracker : public Tracker {
+class ParallelTracker {
+    /// The tracked beam line.
+    const Beamline& itsLine;
+
+    /// The tracked bunch; nullptr for a tracker built from a beam line only.
+    PartBunch_t* itsBunch_m;
+
 public:
     /// Position within drift-kick-drift at which the particle self-field is evaluated.
     enum class SpaceChargeFieldUpdate {
@@ -129,7 +136,6 @@ public:
     void setSpaceChargeFieldUpdate(SpaceChargeFieldUpdate update) {
         spaceChargeFieldUpdate_m = update;
     }
-    void visitCyclotronSector(const CyclotronSector& sector) override { applyDefault(sector); }
 
 private:
     friend class TrackRun;
@@ -243,26 +249,8 @@ public:
     /// @brief Destructor; releases tracker resources.
     virtual ~ParallelTracker();
 
-    /// @brief Visit the full beamline (iterates elements into OpalBeamline). Overrides
-    /// DefaultVisitor.
-    void visitBeamline(const Beamline&) override;
-
-    /// @brief Visit a generic element using the base tracker behavior.
-    void visitElementBase(const ElementBase&) override;
-
-    /// @brief Constant focusing has no DefaultVisitor hook; track it like any other element.
-    void visitConstantFocusing(const ConstantFocusing& focusing) override {
-        applyDefault(focusing);
-    }
-
-    /// @brief Reject laser tracking until dedicated laser tracking is implemented.
-    void visitLaser(const Laser&) override;
-
-    /// @brief Probes are not tracked.
-    void visitProbe(const Probe&) override {}
-
     /// @brief Run the main tracking loop until all step-size segments complete.
-    void execute() override;
+    void execute();
 
     /**
      * @brief Boris half-kick using E, B and per-particle dt on one container.
@@ -410,7 +398,8 @@ private:
      */
     void dumpStats(long long step, bool psDump, bool statDump);
 
-    /// @brief Accept beamline visitor, prepare sections, compute and save 3D lattice.
+    /// @brief Add the line's elements to the lattice, prepare sections, compute and save 3D
+    /// lattice.
     void prepareSections();
 
     /// @brief Set global bunch dt to dtCurrentTrack_m.
@@ -462,13 +451,6 @@ private:
 
     /// @brief Restore cavity phases from a prior track or restart.
     void restoreCavityPhases();
-
-    /// @brief Every element visit of DefaultVisitor ends here: add the element to the lattice.
-    void applyDefault(const ElementBase& element) override;
 };
-
-inline void ParallelTracker::applyDefault(const ElementBase& element) {
-    itsOpalBeamline_m.visit(element, *this, *itsBunch_m);
-}
 
 #endif  // OPALX_ParallelTracker_HH

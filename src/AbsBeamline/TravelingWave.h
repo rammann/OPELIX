@@ -36,9 +36,6 @@ public:
 
     ElementBase* clone() const override;
 
-    /// Apply visitor to TravelingWave.
-    virtual void accept(BeamlineVisitor&) const override;
-
     virtual void setPhasem(double phase) override;
 
     void setNumCells(int NumCells);

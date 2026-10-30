@@ -26,9 +26,9 @@
  *  for example, in RF cavities for synchrotrons the RF frequency varies to
  *  match the time-of-flight of the particles
  *
- *  This base class stores a mapping of string to time dependence. At Visit
- *  time, we do a map look-up to assign the appropriate TimeDependence to the
- *  relevant field Elements.
+ *  This base class stores a mapping of string to time dependence. When an
+ *  element is initialised for tracking, we do a map look-up to assign the
+ *  appropriate TimeDependence to it.
  */
 class AbstractTimeDependence {
     // Unit tests for this class are in with PolynomialTimeDependence

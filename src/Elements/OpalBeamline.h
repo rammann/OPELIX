@@ -54,7 +54,7 @@ struct ElementTransferMapRef {
 /**
  * @brief Placed runtime lattice used for external-field queries and map attachment.
  *
- * visit() clones concrete sequence occurrences into a flattened element list.
+ * addElement() clones the elements of the tracked line into a list.
  * These clones retain logical BeamlineMembership, but start without calculated maps
  * or overlap flags. Nominal body ownership and field-support selection remain separate;
  * neither is inferred from that membership tag or from an element's name.
@@ -108,7 +108,7 @@ public:
             Vector_t<double, 3>&, Vector_t<double, 3>&);
 
     /// Add a clone of an element to the lattice and initialise it; markers are not added.
-    void visit(const ElementBase&, BeamlineVisitor&, PartBunch_t&);
+    void addElement(const ElementBase&, PartBunch_t&);
 
     void prepareSections();
     void compute3DLattice();
